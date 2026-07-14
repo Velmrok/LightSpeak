@@ -3,6 +3,9 @@ using Gateway.src.Extensions;
 
 var builder = WebApplication.CreateBuilder(args);
 
+builder.Configuration
+    .AddJsonFile("reverseproxy.json", optional: false, reloadOnChange: true);
+
 builder.Services.AddStackExchangeRedisCache(o =>
     o.Configuration = builder.Configuration.GetConnectionString("Redis"));
 

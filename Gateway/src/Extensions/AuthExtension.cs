@@ -1,6 +1,7 @@
 using System.IdentityModel.Tokens.Jwt;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
+using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.IdentityModel.Protocols.OpenIdConnect;
 
 namespace Gateway.src.Extensions
@@ -9,13 +10,18 @@ namespace Gateway.src.Extensions
     {
         public static IServiceCollection AddAuth(this IServiceCollection services, IConfiguration configuration)
         {
+            services.AddOptions<CookieAuthenticationOptions>(CookieAuthenticationDefaults.AuthenticationScheme)
+                .Configure<ITicketStore>((options, store) =>
+                {
+                    options.SessionStore = store;
+                });
             services.AddAuthentication(options =>
             {
                 options.DefaultScheme = CookieAuthenticationDefaults.AuthenticationScheme;
                 options.DefaultChallengeScheme = OpenIdConnectDefaults.AuthenticationScheme;
             })
             .AddCookie()
-            .AddOpenIdConnect("oidc",options =>
+            .AddOpenIdConnect(options =>
             {
                 var oidcConfig = configuration.GetSection("OpenIDConnectSettings");
 

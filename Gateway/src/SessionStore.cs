@@ -1,27 +1,39 @@
-
-
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.Extensions.Caching.Distributed;
 
-public class SessionStore : ITicketStore
+namespace Gateway.src;
+public class SessionStore(IDistributedCache cache) : ITicketStore
 {
-    public Task RemoveAsync(string key)
+    public async Task RemoveAsync(string key)
     {
-        throw new NotImplementedException();
+        await cache.RemoveAsync(key);
     }
 
-    public Task RenewAsync(string key, AuthenticationTicket ticket)
+    public async Task RenewAsync(string key, AuthenticationTicket ticket)
     {
-        throw new NotImplementedException();
+        await SaveToCache(key, ticket);
+    }
+    public async Task<AuthenticationTicket?> RetrieveAsync(string key)
+    {
+        byte[]? bytes = await cache.GetAsync(key);
+        return bytes is not null ? TicketSerializer.Default.Deserialize(bytes) : null;
     }
 
-    public Task<AuthenticationTicket?> RetrieveAsync(string key)
+    public async Task<string> StoreAsync(AuthenticationTicket ticket)
     {
-        throw new NotImplementedException();
+        Guid id = Guid.NewGuid();
+        await SaveToCache(id.ToString(), ticket);
+        return id.ToString();
     }
-
-    public Task<string> StoreAsync(AuthenticationTicket ticket)
+    private async Task SaveToCache(string id, AuthenticationTicket ticket)
     {
-        throw new NotImplementedException();
+        byte[] bytes = TicketSerializer.Default.Serialize(ticket);
+        DistributedCacheEntryOptions opts = new();
+        if(ticket.Properties.ExpiresUtc is {} exp)
+        {
+            opts.SetAbsoluteExpiration(exp);
+        }
+        await cache.SetAsync(id, bytes, opts);
     }
 }

@@ -1,6 +1,14 @@
 using System.Security.Claims;
+using Gateway.src.Extensions;
 
 var builder = WebApplication.CreateBuilder(args);
+
+builder.Services.AddStackExchangeRedisCache(o =>
+    o.Configuration = builder.Configuration.GetConnectionString("Redis"));
+
+builder.Services.AddServices(builder.Configuration);
+builder.Services.AddAuth(builder.Configuration);
+    
 var app = builder.Build();
 
 app.MapGet("/", () => "Hello World!");

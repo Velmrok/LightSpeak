@@ -9,6 +9,9 @@ builder.Configuration
 builder.Services.AddStackExchangeRedisCache(o =>
     o.Configuration = builder.Configuration.GetConnectionString("Redis"));
 
+builder.Services.AddReverseProxy()
+    .LoadFromConfig(builder.Configuration.GetSection("ReverseProxy"));
+
 builder.Services.AddServices(builder.Configuration);
 builder.Services.AddAuth(builder.Configuration);
     
@@ -21,7 +24,9 @@ app.MapGet("users/me", (ClaimsPrincipal claim) =>
     return claim.Claims.ToDictionary(c => c.Type, c => c.Value);
 }).RequireAuthorization();
 
+app.MapReverseProxy();
 app.UseAuthentication();
 app.UseAuthorization();
+
 
 app.Run();

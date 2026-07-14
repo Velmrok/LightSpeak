@@ -1,0 +1,48 @@
+realm: lightspeak
+enabled: true
+registrationAllowed: true
+loginWithEmailAllowed: true
+sslRequired: external
+
+roles:
+  realm:
+    - name: admin
+
+clients:
+  - clientId: lightspeak-frontend
+    enabled: true
+    publicClient: false
+    standardFlowEnabled: true
+    directAccessGrantsEnabled: false
+    attributes:
+      pkce.code.challenge.method: S256 
+    redirectUris:
+      - "$(env:APP_BASE_URL)/api/signin-oidc"
+      - "$(env:APP_BASE_URL)/api/signout-oidc"
+    protocolMappers:
+      - name: realm-audience
+        protocol: openid-connect
+        protocolMapper: oidc-audience-mapper
+        config:
+          included.client.audience: lightspeak-frontend
+          access.token.claim: "true"
+          id.token.claim: "false"
+          introspection.token.claim: "true"
+          userinfo.token.claim: "false"
+      - name: realm-roles
+        protocol: openid-connect
+        protocolMapper: oidc-usermodel-realm-role-mapper
+        config:
+          multivalued: "true"
+          claim.name: "roles"
+          jsonType.label: "String"
+          access.token.claim: "true"
+          id.token.claim: "true"
+          userinfo.token.claim: "true"
+    secret: "$(env:KC_FRONTEND_SECRET)"
+
+  - clientId: chess-backend-admin
+    enabled:   serviceAccountsEnabled: true
+    standardFlowEnabled: false
+    directAccessGrantsEnabled: false
+    secret: "$(env:KC_ADMIN_CLIENT_SECRET)"

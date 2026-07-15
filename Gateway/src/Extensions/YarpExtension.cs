@@ -1,4 +1,5 @@
 using System.Net.Http.Headers;
+using Duende.AccessTokenManagement.OpenIdConnect;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.IdentityModel.Protocols.OpenIdConnect;
 using Yarp.ReverseProxy.Transforms;
@@ -15,14 +16,14 @@ public static class YarpExtension
             {
                 builderContext.AddRequestTransform(async transformContext =>
                 {
-                    string? token = await transformContext.HttpContext.GetTokenAsync(OpenIdConnectParameterNames.AccessToken);
-                    if (token is not null)
+                    var result = await transformContext.HttpContext.GetUserAccessTokenAsync();
+                    if (result.Succeeded)
                     {
                         transformContext.ProxyRequest.Headers.Authorization =
-                            new AuthenticationHeaderValue("Bearer", token);
+                            new AuthenticationHeaderValue("Bearer", result.Token.AccessToken);
                     }
                 });
             });
-         
+
     }
 }

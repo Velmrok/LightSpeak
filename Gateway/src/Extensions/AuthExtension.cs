@@ -29,7 +29,7 @@ namespace Gateway.src.Extensions
                 options.ClientId = oidcConfig["ClientId"];
                 options.ClientSecret = oidcConfig["ClientSecret"];
                 options.RequireHttpsMetadata = false;
-
+                options.Scope.Add("offline_access");
                 options.SignInScheme = CookieAuthenticationDefaults.AuthenticationScheme;
                 options.ResponseType = OpenIdConnectResponseType.Code;
 

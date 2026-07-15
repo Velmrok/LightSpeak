@@ -51,6 +51,10 @@ namespace Gateway.src.Extensions
                 options.SaveTokens = true;
                 options.GetClaimsFromUserInfoEndpoint = true;
 
+                options.ResponseMode = OpenIdConnectResponseMode.Query;
+                options.NonceCookie.SameSite = SameSiteMode.Lax;
+                options.CorrelationCookie.SameSite = SameSiteMode.Lax;
+
                 options.MapInboundClaims = false;
                 options.TokenValidationParameters.NameClaimType = "preferred_username";
                 options.TokenValidationParameters.RoleClaimType = "roles";

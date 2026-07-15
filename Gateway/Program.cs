@@ -6,14 +6,21 @@ using Gateway.src.Extensions;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
+using Microsoft.AspNetCore.DataProtection;
+using StackExchange.Redis;
 
 var builder = WebApplication.CreateBuilder(args);
+
+var redis = ConnectionMultiplexer.Connect(
+    builder.Configuration.GetConnectionString("Redis")!); 
 
 builder.Configuration
     .AddJsonFile("reverseproxy.json", optional: false, reloadOnChange: true);
 
 builder.Services.AddStackExchangeRedisCache(o =>
-    o.Configuration = builder.Configuration.GetConnectionString("Redis"));
+    o.ConnectionMultiplexerFactory = () => Task.FromResult<IConnectionMultiplexer>(redis));
+
+builder.Services.AddDataProtection().PersistKeysToStackExchangeRedis(redis,"DataProtection-Keys");
 
 builder.Services.AddOpenIdConnectAccessTokenManagement();
 builder.Services.AddAuthorization();

@@ -42,7 +42,10 @@ app.MapPost("/logout", async ctx =>
 app.MapGet("/login", async (HttpContext context) =>
     Results.Challenge(new AuthenticationProperties { RedirectUri = "/" }) );
 
+app.UseStaticFiles();   
 app.MapReverseProxy();
+app.MapFallbackToFile("index.html");
+
 app.UseAuthentication();
 app.UseAuthorization();
 

@@ -27,9 +27,9 @@ app.MapGet("/", () => "Hello World!");
 
 app.MapGet("/users/me", (ClaimsPrincipal user) => new UserDto(
     Id:    user.FindFirstValue(JwtRegisteredClaimNames.Sub)!,
-    Name:  user.Identity!.Name,
+    Name:  user.Identity!.Name!,
     Email: user.FindFirstValue(JwtRegisteredClaimNames.Email),
-    Roles: user.FindAll("roles").Select(c => c.Value).ToArray()
+    Roles: [.. user.FindAll("roles").Select(c => c.Value)]
 )).RequireAuthorization();
 
 app.MapPost("/logout", async ctx =>
@@ -39,8 +39,8 @@ app.MapPost("/logout", async ctx =>
     
 }).RequireAuthorization();
 
-app.MapGet("/login", async (HttpContext context) =>
-    Results.Challenge(new AuthenticationProperties { RedirectUri = "/" }) );
+
+app.MapGet("/login", () => Results.Challenge(new AuthenticationProperties { RedirectUri = "/" }));
 
 app.UseStaticFiles();   
 app.MapReverseProxy();

@@ -9,16 +9,17 @@ roles:
     - name: admin
 
 clients:
-  - clientId: lightspeak-frontend
+  - clientId: light-speak-gateway
     enabled: true
     publicClient: false
     standardFlowEnabled: true
     directAccessGrantsEnabled: false
     attributes:
       pkce.code.challenge.method: S256 
+      post.logout.redirect.uris: "$(env:APP_BASE_URL)/signout-callback-oidc"
     redirectUris:
-      - "$(env:APP_BASE_URL)/api/signin-oidc"
-      - "$(env:APP_BASE_URL)/api/signout-oidc"
+      - "$(env:APP_BASE_URL)/signin-oidc"
+      - "$(env:APP_BASE_URL)/signout-oidc"
     protocolMappers:
       - name: realm-audience
         protocol: openid-connect
@@ -41,8 +42,9 @@ clients:
           userinfo.token.claim: "true"
     secret: "$(env:KC_FRONTEND_SECRET)"
 
-  - clientId: chess-backend-admin
-    enabled:   serviceAccountsEnabled: true
+  - clientId: backend-admin
+    enabled:   true
+    serviceAccountsEnabled: true
     standardFlowEnabled: false
     directAccessGrantsEnabled: false
     secret: "$(env:KC_ADMIN_CLIENT_SECRET)"

@@ -30,6 +30,8 @@ namespace Gateway.src.Extensions
                 options.ClientSecret = oidcConfig["ClientSecret"];
                 options.RequireHttpsMetadata = false;
                 options.Scope.Add("offline_access");
+                options.Scope.Add("email");
+        
                 options.SignInScheme = CookieAuthenticationDefaults.AuthenticationScheme;
                 options.ResponseType = OpenIdConnectResponseType.Code;
 
@@ -37,7 +39,7 @@ namespace Gateway.src.Extensions
                 options.GetClaimsFromUserInfoEndpoint = true;
 
                 options.MapInboundClaims = false;
-                options.TokenValidationParameters.NameClaimType = JwtRegisteredClaimNames.Name;
+                options.TokenValidationParameters.NameClaimType = "preferred_username";
                 options.TokenValidationParameters.RoleClaimType = "roles";
             });
             return services;

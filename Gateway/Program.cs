@@ -9,8 +9,6 @@ builder.Configuration
 builder.Services.AddStackExchangeRedisCache(o =>
     o.Configuration = builder.Configuration.GetConnectionString("Redis"));
 
-builder.Services.AddReverseProxy()
-    .LoadFromConfig(builder.Configuration.GetSection("ReverseProxy"));
 
 builder.Services.AddServices(builder.Configuration);
 builder.Services.AddAuth(builder.Configuration);

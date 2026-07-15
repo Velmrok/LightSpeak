@@ -46,3 +46,27 @@ clients:
     standardFlowEnabled: false
     directAccessGrantsEnabled: false
     secret: "$(env:KC_ADMIN_CLIENT_SECRET)"
+
+components:
+  org.keycloak.userprofile.UserProfileProvider:
+    - providerId: declarative-user-profile
+      config:
+        kc.user.profile.config:
+          - |
+            {
+              "attributes": [
+                {
+                  "name": "username",
+                  "permissions": { "view": ["admin", "user"], "edit": ["admin"] },
+                  "required": { "roles": ["user"] },
+                  "validations": { "length": { "min": 3, "max": 255 }, "username-prohibited-characters": {} }
+                },
+                {
+                  "name": "email",
+                  "permissions": { "view": ["admin", "user"], "edit": ["admin"] },
+                  "required": { "roles": ["user"] },
+                  "validations": { "email": {}, "length": { "max": 255 } }
+                }
+              ],
+              "groups": []
+            }

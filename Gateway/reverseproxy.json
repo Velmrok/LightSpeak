@@ -1,10 +1,22 @@
 {
-    "ReverseProxy": {
-  "Routes": {
- 
-  },
-  "Clusters": {
-
+  "ReverseProxy": {
+    "Routes": {
+      "api-route": {
+        "ClusterId": "backend",
+        "AuthorizationPolicy": "default",
+        "Match": {
+          "Path": "/api/{**catch-all}"
+        }
+      }
+    },
+    "Clusters": {
+      "backend": {
+        "Destinations": {
+          "d1": {
+            "Address": "http://backend:8080/"
+          }
+        }
+      }
+    }
   }
-}
 }

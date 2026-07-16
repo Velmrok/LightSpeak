@@ -5,24 +5,25 @@
       "commandName": "Project",
       "dotnetRunMessages": true,
       "launchBrowser": true,
-      "applicationUrl": "https://localhost:17146;http://localhost:15277",
+      "applicationUrl": "https://lightspeak.dev.localhost:17075;http://lightspeak.dev.localhost:15265",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development",
         "DOTNET_ENVIRONMENT": "Development",
-        "ASPIRE_DASHBOARD_OTLP_ENDPOINT_URL": "https://localhost:21017",
-        "ASPIRE_RESOURCE_SERVICE_ENDPOINT_URL": "https://localhost:22051"
+        "ASPIRE_DASHBOARD_OTLP_ENDPOINT_URL": "https://lightspeak.dev.localhost:21003",
+        "ASPIRE_RESOURCE_SERVICE_ENDPOINT_URL": "https://lightspeak.dev.localhost:22274"
       }
     },
     "http": {
       "commandName": "Project",
       "dotnetRunMessages": true,
       "launchBrowser": true,
-      "applicationUrl": "http://localhost:15277",
+      "applicationUrl": "http://lightspeak.dev.localhost:15265",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development",
         "DOTNET_ENVIRONMENT": "Development",
-        "ASPIRE_DASHBOARD_OTLP_ENDPOINT_URL": "http://localhost:19263",
-        "ASPIRE_RESOURCE_SERVICE_ENDPOINT_URL": "http://localhost:20228"
+        "ASPIRE_DASHBOARD_OTLP_ENDPOINT_URL": "http://lightspeak.dev.localhost:19205",
+        "ASPIRE_RESOURCE_SERVICE_ENDPOINT_URL": "http://lightspeak.dev.localhost:20094",
+        "ASPIRE_ALLOW_UNSECURED_TRANSPORT": "true"
       }
     }
   }

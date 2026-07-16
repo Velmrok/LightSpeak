@@ -47,7 +47,8 @@ app.MapPost("/logout", async ctx =>
 }).RequireAuthorization();
 
 
-app.MapGet("/login", () => Results.Challenge(new AuthenticationProperties { RedirectUri = "/" }));
+app.MapGet("/login", () => Results.Challenge(new AuthenticationProperties { RedirectUri = "/" },
+[OpenIdConnectDefaults.AuthenticationScheme]));
 
 app.UseStaticFiles();   
 app.MapReverseProxy();

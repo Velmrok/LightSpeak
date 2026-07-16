@@ -40,7 +40,7 @@ clients:
           access.token.claim: "true"
           id.token.claim: "true"
           userinfo.token.claim: "true"
-    secret: "$(env:KC_FRONTEND_SECRET)"
+    secret: "$(env:KC_GATEWAY_SECRET)"
 
   - clientId: backend-admin
     enabled:   true

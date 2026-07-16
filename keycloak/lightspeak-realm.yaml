@@ -19,13 +19,12 @@ clients:
       post.logout.redirect.uris: "$(env:APP_BASE_URL)/signout-callback-oidc"
     redirectUris:
       - "$(env:APP_BASE_URL)/signin-oidc"
-      - "$(env:APP_BASE_URL)/signout-oidc"
     protocolMappers:
       - name: realm-audience
         protocol: openid-connect
         protocolMapper: oidc-audience-mapper
         config:
-          included.client.audience: lightspeak-frontend
+          included.client.audience: lightspeak-gateway
           access.token.claim: "true"
           id.token.claim: "false"
           introspection.token.claim: "true"

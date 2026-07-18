@@ -25,4 +25,8 @@
     <Using Include="Xunit" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\LightSpeak.AppHost\LightSpeak.AppHost.csproj" />
+  </ItemGroup>
+
 </Project>

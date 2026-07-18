@@ -10,7 +10,7 @@ public partial class AppFixture : IAsyncLifetime
     public async Task InitializeAsync()
     {
         CancellationToken ct = CancellationToken.None;
-        var builder = await DistributedApplicationTestingBuilder.CreateAsync<Projects.LightSpeak_AppHost>();
+        var builder = await DistributedApplicationTestingBuilder.CreateAsync<Projects.LightSpeak_AppHost>(["Testing=true"], ct);
         App = await builder.BuildAsync();
         await App.StartAsync();
 

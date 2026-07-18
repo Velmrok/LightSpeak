@@ -1,6 +1,11 @@
 using Aspire.Hosting;
+using Microsoft.Extensions.Configuration;
 
 var builder = DistributedApplication.CreateBuilder(args);
+
+var isTesting = builder.Configuration.GetValue<bool>("Testing");
+var lifetime = isTesting ? ContainerLifetime.Session : ContainerLifetime.Persistent;
+
 
 var kcAdminUser = builder.AddParameter("kc-admin-user");
 var kcAdminPassword = builder.AddParameter("kc-admin-password"/*, secret: true*/);
@@ -9,11 +14,12 @@ var kcAdminSecret = builder.AddParameter("kc-admin-client-secret"/*, secret: tru
 var appBaseUrl = builder.AddParameter("app-base-url");
 
 
-var redis = builder.AddRedis("redis").WithLifetime(ContainerLifetime.Persistent);
-var keycloak = builder.AddKeycloak("keycloak",8080,kcAdminUser,kcAdminPassword)
+var redis = builder.AddRedis("redis").WithLifetime(lifetime);
+
+var keycloak = builder.AddKeycloak("keycloak",null,kcAdminUser,kcAdminPassword)
     .WithHttpEndpoint(name: "cli", targetPort: 8080) 
     .WithImageTag("26.1.0")
-    .WithLifetime(ContainerLifetime.Persistent)
+    .WithLifetime(lifetime)
     .WithEnvironment("KC_HTTP_ENABLED", "true");
 
 var gateway = builder.AddProject<Projects.Gateway>("gateway")

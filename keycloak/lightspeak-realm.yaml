@@ -18,13 +18,14 @@ clients:
       pkce.code.challenge.method: S256 
       post.logout.redirect.uris: "$(env:APP_BASE_URL)/signout-callback-oidc"
     redirectUris:
+      - "$(env:APP_BASE_URL)"
       - "$(env:APP_BASE_URL)/signin-oidc"
     protocolMappers:
       - name: realm-audience
         protocol: openid-connect
         protocolMapper: oidc-audience-mapper
         config:
-          included.client.audience: lightspeak-gateway
+          included.client.audience: light-speak-gateway
           access.token.claim: "true"
           id.token.claim: "false"
           introspection.token.claim: "true"
@@ -47,6 +48,16 @@ clients:
     standardFlowEnabled: false
     directAccessGrantsEnabled: false
     secret: "$(env:KC_ADMIN_CLIENT_SECRET)"
+
+users:
+  - username: testuser
+    enabled: "$(env:KC_TESTUSER_ENABLED)"
+    email: testuser@test.test
+    emailVerified: true
+    credentials:
+      - type: password
+        value: testuser
+        temporary: false
 
 components:
   org.keycloak.userprofile.UserProfileProvider:

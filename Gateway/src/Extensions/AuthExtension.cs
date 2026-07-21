@@ -10,6 +10,7 @@ namespace Gateway.src.Extensions
     {
         public static IServiceCollection AddAuth(this IServiceCollection services, IConfiguration configuration)
         {
+            bool isProduction = configuration.GetValue<bool>("Production");
             services.AddOptions<CookieAuthenticationOptions>(CookieAuthenticationDefaults.AuthenticationScheme)
                 .Configure<ITicketStore>((options, store) =>
                 {
@@ -52,8 +53,11 @@ namespace Gateway.src.Extensions
                 options.GetClaimsFromUserInfoEndpoint = true;
 
                 options.ResponseMode = OpenIdConnectResponseMode.Query;
+
                 options.NonceCookie.SameSite = SameSiteMode.Lax;
+                options.NonceCookie.SecurePolicy = isProduction ? CookieSecurePolicy.Always : CookieSecurePolicy.None;
                 options.CorrelationCookie.SameSite = SameSiteMode.Lax;
+                options.CorrelationCookie.SecurePolicy = isProduction ? CookieSecurePolicy.Always : CookieSecurePolicy.None;
 
                 options.MapInboundClaims = false;
                 options.TokenValidationParameters.NameClaimType = "preferred_username";

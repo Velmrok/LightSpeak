@@ -14,23 +14,27 @@ var kcAdminSecret = builder.AddParameter("kc-admin-client-secret"/*, secret: tru
 var appBaseUrl = builder.AddParameter("app-base-url");
 
 
-var redis = builder.AddRedis("redis" + sufix,6379).WithLifetime(ContainerLifetime.Persistent);
+var redis = builder.AddRedis("redis" + sufix, 6379).WithLifetime(ContainerLifetime.Persistent);
 
-var keycloak = builder.AddKeycloak("keycloak" + sufix,8080,kcAdminUser,kcAdminPassword)
-    .WithHttpEndpoint(name: "keycloak",port:8081, targetPort: 8080) 
+var keycloak = builder.AddKeycloak("keycloak" + sufix, 8080, kcAdminUser, kcAdminPassword)
+    .WithHttpEndpoint(name: "keycloak", port: 8081, targetPort: 8080)
+
     .WithImageTag("26.1.0")
     .WithLifetime(ContainerLifetime.Persistent)
-    .WithEnvironment("KC_HTTP_ENABLED", "true");
+    .WithEnvironment("KC_HTTP_ENABLED", "true")
+    .WithEnvironment("KC_HOSTNAME", ReferenceExpression.Create($"{appBaseUrl}/auth"))
+    .WithEnvironment("KC_PROXY_HEADERS", "xforwarded");
 
 var gateway = builder.AddProject<Projects.Gateway>("gateway" + sufix)
     .WithReference(redis)
     .WithReference(keycloak)
     .WithEnvironment("ASPNETCORE_URLS", appBaseUrl)
     .WithEnvironment("AppBaseUrl", appBaseUrl)
-    .WithEnvironment("OpenIDConnectSettings__Authority",$"{keycloak.GetEndpoint("keycloak")}/realms/lightspeak")
+    .WithEnvironment("OpenIDConnectSettings__Authority",$"{appBaseUrl}/auth/realms/lightspeak")
     .WithEnvironment("OpenIDConnectSettings__ClientSecret", kcGatewaySecret)
     .WithEnvironment("OpenIDConnectSettings__ClientId", "light-speak-gateway")
     .WithEnvironment("Services__keycloak__http", keycloak.GetEndpoint("keycloak"))
+    .WithEnvironment("Production", "false")
     .WaitFor(keycloak)
     .WaitFor(redis);
 

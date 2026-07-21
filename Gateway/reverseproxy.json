@@ -1,19 +1,24 @@
 {
   "ReverseProxy": {
     "Routes": {
-      "api-route": {
-        "ClusterId": "backend",
-        "AuthorizationPolicy": "default",
+      "auth-route": {
+        "ClusterId": "keycloak",
+        "AuthorizationPolicy": "anonymous",
         "Match": {
-          "Path": "/api/{**catch-all}"
+          "Path": "/auth/{**catch-all}"
+        },
+        "Transforms": [
+        {
+          "PathRemovePrefix": "/auth"
         }
+      ]
       }
     },
     "Clusters": {
-      "backend": {
+      "keycloak": {
         "Destinations": {
           "d1": {
-            "Address": "http://backend:8080/"
+            "Address": "http://keycloak"
           }
         }
       }

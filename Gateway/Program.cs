@@ -22,12 +22,23 @@ builder.Services.AddStackExchangeRedisCache(o =>
 
 builder.Services.AddDataProtection().PersistKeysToStackExchangeRedis(redis,"DataProtection-Keys");
 
+
+
+builder.Services.AddHttpForwarderWithServiceDiscovery();
+
 builder.Services.AddOpenIdConnectAccessTokenManagement();
 builder.Services.AddAuthorization();
-builder.Services.AddReverseProxy(builder.Configuration);
+
+builder.Services.AddServiceDiscovery()
+    .AddConfigurationServiceEndpointProvider();
+    
+builder.Services.AddReverseProxy()
+    .LoadFromConfig(builder.Configuration.GetSection("ReverseProxy"))
+    .AddServiceDiscoveryDestinationResolver();
+
 builder.Services.AddServices(builder.Configuration);
 builder.Services.AddAuth(builder.Configuration);
-    
+
 var app = builder.Build();
 
 app.MapGet("/", () => "Hello World!");
@@ -49,6 +60,7 @@ app.MapPost("/logout", async ctx =>
 
 app.MapGet("/login", () => Results.Challenge(new AuthenticationProperties { RedirectUri = "/" },
 [OpenIdConnectDefaults.AuthenticationScheme]));
+
 
 app.UseStaticFiles();   
 app.MapReverseProxy();

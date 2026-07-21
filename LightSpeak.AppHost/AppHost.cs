@@ -14,10 +14,10 @@ var kcAdminSecret = builder.AddParameter("kc-admin-client-secret"/*, secret: tru
 var appBaseUrl = builder.AddParameter("app-base-url");
 
 
-var redis = builder.AddRedis("redis" + sufix).WithLifetime(ContainerLifetime.Persistent);
+var redis = builder.AddRedis("redis" + sufix,6379).WithLifetime(ContainerLifetime.Persistent);
 
-var keycloak = builder.AddKeycloak("keycloak" + sufix,8081,kcAdminUser,kcAdminPassword)
-    .WithHttpEndpoint(name: "keycloak", targetPort: 8080) 
+var keycloak = builder.AddKeycloak("keycloak" + sufix,8080,kcAdminUser,kcAdminPassword)
+    .WithHttpEndpoint(name: "keycloak",port:8081, targetPort: 8080) 
     .WithImageTag("26.1.0")
     .WithLifetime(ContainerLifetime.Persistent)
     .WithEnvironment("KC_HTTP_ENABLED", "true");
@@ -30,6 +30,7 @@ var gateway = builder.AddProject<Projects.Gateway>("gateway" + sufix)
     .WithEnvironment("OpenIDConnectSettings__Authority",$"{keycloak.GetEndpoint("keycloak")}/realms/lightspeak")
     .WithEnvironment("OpenIDConnectSettings__ClientSecret", kcGatewaySecret)
     .WithEnvironment("OpenIDConnectSettings__ClientId", "light-speak-gateway")
+    .WithEnvironment("Services__keycloak__http", keycloak.GetEndpoint("keycloak"))
     .WaitFor(keycloak)
     .WaitFor(redis);
 
@@ -46,11 +47,10 @@ var kcConfig = builder.AddContainer("keycloak-config" + sufix , "adorsys/keycloa
     .WithEnvironment("KC_ADMIN_CLIENT_SECRET", kcAdminSecret)
     .WithEnvironment("KC_TESTUSER_ENABLED", isTesting ? "true" : "false")
     .WithLifetime(ContainerLifetime.Persistent)
-    .WithEndpoint(
+    .WithHttpEndpoint(
            name: "http",
            targetPort: 8079,
-           scheme: "http",
-           isExternal: false)
+           port: 8079)
     .WaitFor(keycloak);
 if (isTesting)
 {

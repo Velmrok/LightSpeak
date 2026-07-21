@@ -4,7 +4,7 @@ using Microsoft.Extensions.Configuration;
 var builder = DistributedApplication.CreateBuilder(args);
 
 var isTesting = builder.Configuration.GetValue<bool>("Testing");
-var lifetime = isTesting ? ContainerLifetime.Session : ContainerLifetime.Persistent;
+var sufix = isTesting ? "-test" : "";
 
 
 var kcAdminUser = builder.AddParameter("kc-admin-user");
@@ -14,15 +14,15 @@ var kcAdminSecret = builder.AddParameter("kc-admin-client-secret"/*, secret: tru
 var appBaseUrl = builder.AddParameter("app-base-url");
 
 
-var redis = builder.AddRedis("redis").WithLifetime(lifetime);
+var redis = builder.AddRedis("redis" + sufix).WithLifetime(ContainerLifetime.Persistent);
 
-var keycloak = builder.AddKeycloak("keycloak",null,kcAdminUser,kcAdminPassword)
+var keycloak = builder.AddKeycloak("keycloak" + sufix,8081,kcAdminUser,kcAdminPassword)
     .WithHttpEndpoint(name: "keycloak", targetPort: 8080) 
     .WithImageTag("26.1.0")
-    .WithLifetime(lifetime)
+    .WithLifetime(ContainerLifetime.Persistent)
     .WithEnvironment("KC_HTTP_ENABLED", "true");
 
-var gateway = builder.AddProject<Projects.Gateway>("gateway")
+var gateway = builder.AddProject<Projects.Gateway>("gateway" + sufix)
     .WithReference(redis)
     .WithReference(keycloak)
     .WithEnvironment("ASPNETCORE_URLS", appBaseUrl)
@@ -33,7 +33,7 @@ var gateway = builder.AddProject<Projects.Gateway>("gateway")
     .WaitFor(keycloak)
     .WaitFor(redis);
 
-var kcConfig = builder.AddContainer("keycloak-config", "adorsys/keycloak-config-cli", "6.5.1-26.1.0")
+var kcConfig = builder.AddContainer("keycloak-config" + sufix , "adorsys/keycloak-config-cli", "6.5.1-26.1.0")
     .WithBindMount("../keycloak", "/config", isReadOnly: true)
     .WithEnvironment("KEYCLOAK_URL", keycloak.GetEndpoint("keycloak"))
     .WithEnvironment("KEYCLOAK_USER", kcAdminUser)
@@ -45,6 +45,12 @@ var kcConfig = builder.AddContainer("keycloak-config", "adorsys/keycloak-config-
     .WithEnvironment("KC_GATEWAY_SECRET", kcGatewaySecret)
     .WithEnvironment("KC_ADMIN_CLIENT_SECRET", kcAdminSecret)
     .WithEnvironment("KC_TESTUSER_ENABLED", isTesting ? "true" : "false")
+    .WithLifetime(ContainerLifetime.Persistent)
+    .WithEndpoint(
+           name: "http",
+           targetPort: 8079,
+           scheme: "http",
+           isExternal: false)
     .WaitFor(keycloak);
 if (isTesting)
 {

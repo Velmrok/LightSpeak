@@ -4,7 +4,7 @@ using Microsoft.Extensions.Configuration;
 var builder = DistributedApplication.CreateBuilder(args);
 
 var isTesting = builder.Configuration.GetValue<bool>("Testing");
-var sufix = isTesting ? "-test" : "";
+
 
 
 var kcAdminUser = builder.AddParameter("kc-admin-user");
@@ -14,23 +14,32 @@ var kcAdminSecret = builder.AddParameter("kc-admin-client-secret"/*, secret: tru
 var appBaseUrl = builder.AddParameter("app-base-url");
 
 
-var redis = builder.AddRedis("redis" + sufix, 6379).WithLifetime(ContainerLifetime.Persistent);
+var redis = builder.AddRedis("redis").WithLifetime(ContainerLifetime.Persistent);
 
-var keycloak = builder.AddKeycloak("keycloak" + sufix, 8080, kcAdminUser, kcAdminPassword)
+var keycloak = builder.AddKeycloak("keycloak", 8080, kcAdminUser, kcAdminPassword)
     .WithHttpEndpoint(name: "keycloak", port: 8081, targetPort: 8080)
-
     .WithImageTag("26.1.0")
     .WithLifetime(ContainerLifetime.Persistent)
+    .WithEnvironment("KC_HEALTH_ENABLED", "true")
+    .WithEnvironment("KC_HTTP_RELATIVE_PATH", "/auth")
+    .WithEnvironment("KC_HTTP_MANAGEMENT_RELATIVE_PATH", "/")
     .WithEnvironment("KC_HTTP_ENABLED", "true")
-    .WithEnvironment("KC_HOSTNAME", ReferenceExpression.Create($"{appBaseUrl}/auth"))
+    .WithEnvironment("KC_HOSTNAME_STRICT", isTesting ? "false" : "true")
     .WithEnvironment("KC_PROXY_HEADERS", "xforwarded");
 
-var gateway = builder.AddProject<Projects.Gateway>("gateway" + sufix)
+if(!isTesting) keycloak.WithEnvironment("KC_HOSTNAME", ReferenceExpression.Create($"{appBaseUrl}/auth"));
+
+var gateway = builder.AddProject<Projects.Gateway>("gateway");
+    
+var gatewayUrl = isTesting
+    ? ReferenceExpression.Create($"{gateway.GetEndpoint("http")}")
+    : ReferenceExpression.Create($"{appBaseUrl}");
+if(!isTesting) gateway.WithEnvironment("ASPNETCORE_URLS", gatewayUrl);
+gateway
     .WithReference(redis)
     .WithReference(keycloak)
-    .WithEnvironment("ASPNETCORE_URLS", appBaseUrl)
-    .WithEnvironment("AppBaseUrl", appBaseUrl)
-    .WithEnvironment("OpenIDConnectSettings__Authority",$"{appBaseUrl}/auth/realms/lightspeak")
+    .WithEnvironment("AppBaseUrl", gatewayUrl)
+    .WithEnvironment("OpenIDConnectSettings__Authority",ReferenceExpression.Create($"{gatewayUrl}/auth/realms/lightspeak"))
     .WithEnvironment("OpenIDConnectSettings__ClientSecret", kcGatewaySecret)
     .WithEnvironment("OpenIDConnectSettings__ClientId", "light-speak-gateway")
     .WithEnvironment("Services__keycloak__http", keycloak.GetEndpoint("keycloak"))
@@ -38,9 +47,10 @@ var gateway = builder.AddProject<Projects.Gateway>("gateway" + sufix)
     .WaitFor(keycloak)
     .WaitFor(redis);
 
-var kcConfig = builder.AddContainer("keycloak-config" + sufix , "adorsys/keycloak-config-cli", "6.5.1-26.1.0")
+
+var kcConfig = builder.AddContainer("keycloak-config" , "adorsys/keycloak-config-cli", "6.5.1-26.1.0")
     .WithBindMount("../keycloak", "/config", isReadOnly: true)
-    .WithEnvironment("KEYCLOAK_URL", keycloak.GetEndpoint("keycloak"))
+    .WithEnvironment("KEYCLOAK_URL", ReferenceExpression.Create($"{keycloak.GetEndpoint("keycloak")}/auth"))
     .WithEnvironment("KEYCLOAK_USER", kcAdminUser)
     .WithEnvironment("KEYCLOAK_PASSWORD", kcAdminPassword)
     .WithEnvironment("KEYCLOAK_AVAILABILITYCHECK_ENABLED", "true")

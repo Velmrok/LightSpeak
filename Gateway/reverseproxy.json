@@ -6,12 +6,8 @@
         "AuthorizationPolicy": "anonymous",
         "Match": {
           "Path": "/auth/{**catch-all}"
-        },
-        "Transforms": [
-        {
-          "PathRemovePrefix": "/auth"
         }
-      ]
+      
       }
     },
     "Clusters": {

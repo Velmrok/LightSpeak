@@ -10,6 +10,8 @@ public partial class AppFixture : IAsyncLifetime
     private static readonly TimeSpan DefaultTimeout = TimeSpan.FromSeconds(30);
     public DistributedApplication App = null!;
     public HttpClient CreateGatewayClient() => App.CreateHttpClient("gateway", "http");
+    public readonly static string testUserName = "testuser";
+    public readonly static string testUserPassword = "testuser";
 
     private readonly static CookieContainer _cookieContainer = new();
 

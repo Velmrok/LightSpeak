@@ -16,7 +16,7 @@ clients:
     directAccessGrantsEnabled: false
     attributes:
       pkce.code.challenge.method: S256 
-      post.logout.redirect.uris: "$(env:APP_BASE_URL)/signout-callback-oidc"
+      post.logout.redirect.uris: "$(env:APP_BASE_URL)##$(env:APP_BASE_URL)/signout-callback-oidc"
     redirectUris:
       - "$(env:APP_BASE_URL)"
       - "$(env:APP_BASE_URL)/signin-oidc"

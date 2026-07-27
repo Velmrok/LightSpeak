@@ -34,7 +34,7 @@ public class AuthTest(AppFixture fx) : IClassFixture<AppFixture>
         var client = fx.CreateGatewayClient();
   
         
-        var resp = await AppFixture.LoginAsync(client, "testuser", "testuser").WaitAsync(DefaultTimeout, ct);
+        var resp = await AppFixture.LoginAsync(client, AppFixture.testUserName, AppFixture.testUserPassword).WaitAsync(DefaultTimeout, ct);
         Assert.Equal(HttpStatusCode.OK, resp.StatusCode);
     }
     [Fact]
@@ -43,10 +43,23 @@ public class AuthTest(AppFixture fx) : IClassFixture<AppFixture>
         var ct = await WaitForResourceRunningAsync("gateway");
 
         var client = fx.CreateGatewayClient();
-        await AppFixture.LoginAsync(client, "testuser", "testuser", DefaultTimeout, ct).WaitAsync(DefaultTimeout, ct);
+        await AppFixture.LoginAsync(client, AppFixture.testUserName, AppFixture.testUserPassword, DefaultTimeout, ct).WaitAsync(DefaultTimeout, ct);
 
         var resp = await client.GetAsync("/users/me", ct).WaitAsync(DefaultTimeout, ct);
         Assert.Equal(HttpStatusCode.OK, resp.StatusCode);
+    }
+    [Fact]
+    public async Task Me_Returns401_AfterLogout()
+    {
+        var ct = await WaitForResourceRunningAsync("gateway");
+        var client = fx.CreateGatewayClient();
+        await AppFixture.LoginAsync(client, AppFixture.testUserName, AppFixture.testUserPassword, DefaultTimeout, ct)
+            .WaitAsync(DefaultTimeout, ct);
+        var resp = await client.PostAsync("/logout", null, ct).WaitAsync(DefaultTimeout, ct);
+        Assert.Equal(HttpStatusCode.OK, resp.StatusCode);
+        var resp2 = await client.GetAsync("/users/me", ct).WaitAsync(DefaultTimeout, ct);
+        Assert.Equal(HttpStatusCode.Unauthorized, resp2.StatusCode);
+
     }
 
 }

@@ -32,9 +32,8 @@ builder.Services.AddAuthorization();
 builder.Services.AddServiceDiscovery()
     .AddConfigurationServiceEndpointProvider();
     
-builder.Services.AddReverseProxy()
-    .LoadFromConfig(builder.Configuration.GetSection("ReverseProxy"))
-    .AddServiceDiscoveryDestinationResolver();
+builder.Services.AddReverseProxyWithConfig(builder.Configuration);
+    
 
 builder.Services.AddServices(builder.Configuration);
 builder.Services.AddAuth(builder.Configuration);

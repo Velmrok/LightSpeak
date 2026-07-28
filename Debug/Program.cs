@@ -1,19 +1,21 @@
+using Debug;
+
 var builder = WebApplication.CreateBuilder(args);
 
 var app = builder.Build();
 
 app.MapGet("/token", (HttpRequest request) =>
 {
-    return Results.Ok(new
-    {
-        host = request.Host.ToString(),
-        path = request.Path.ToString(),
-        jwt = request.Headers.Authorization.ToString()
-    });
+    return Results.Ok(new TokenResponse(
+
+        Jwt: request.Headers.Authorization.ToString().Replace("Bearer ", "")
+    ));
 });
 app.UseHttpsRedirection();
 
 
 
 app.Run();
+
+
 

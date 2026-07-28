@@ -1,4 +1,7 @@
+using System.IdentityModel.Tokens.Jwt;
+using System.Net.Http.Json;
 using Aspire.Hosting;
+using Debug;
 using Microsoft.Extensions.Logging;
 
 namespace LightSpeak.Tests;
@@ -34,7 +37,7 @@ public class AuthTest(AppFixture fx) : IClassFixture<AppFixture>
         var client = fx.CreateGatewayClient();
   
         
-        var resp = await AppFixture.LoginAsync(client, AppFixture.testUserName, AppFixture.testUserPassword).WaitAsync(DefaultTimeout, ct);
+        var resp = await AppFixture.LoginAsync(client, DefaultTimeout, ct);
         Assert.Equal(HttpStatusCode.OK, resp.StatusCode);
     }
     [Fact]
@@ -43,7 +46,7 @@ public class AuthTest(AppFixture fx) : IClassFixture<AppFixture>
         var ct = await WaitForResourceRunningAsync("gateway");
 
         var client = fx.CreateGatewayClient();
-        await AppFixture.LoginAsync(client, AppFixture.testUserName, AppFixture.testUserPassword, DefaultTimeout, ct).WaitAsync(DefaultTimeout, ct);
+        await AppFixture.LoginAsync(client, DefaultTimeout, ct);
 
         var resp = await client.GetAsync("/users/me", ct).WaitAsync(DefaultTimeout, ct);
         Assert.Equal(HttpStatusCode.OK, resp.StatusCode);
@@ -53,12 +56,33 @@ public class AuthTest(AppFixture fx) : IClassFixture<AppFixture>
     {
         var ct = await WaitForResourceRunningAsync("gateway");
         var client = fx.CreateGatewayClient();
-        await AppFixture.LoginAsync(client, AppFixture.testUserName, AppFixture.testUserPassword, DefaultTimeout, ct)
-            .WaitAsync(DefaultTimeout, ct);
+        await AppFixture.LoginAsync(client, DefaultTimeout, ct);
+           
         var resp = await client.PostAsync("/logout", null, ct).WaitAsync(DefaultTimeout, ct);
         Assert.Equal(HttpStatusCode.OK, resp.StatusCode);
         var resp2 = await client.GetAsync("/users/me", ct).WaitAsync(DefaultTimeout, ct);
         Assert.Equal(HttpStatusCode.Unauthorized, resp2.StatusCode);
+
+    }
+    [Fact]
+    public async Task Token_IsValid_AfterLogin()
+    {
+        var ct = await WaitForResourceRunningAsync("gateway");
+        var client = fx.CreateGatewayClient();
+
+        await AppFixture.LoginAsync(client, DefaultTimeout, ct);
+        
+        var resp = await client.GetAsync("/debug/token", ct).WaitAsync(DefaultTimeout, ct);
+        Assert.Equal(HttpStatusCode.OK, resp.StatusCode);
+        var tokenResponse = await resp.Content.ReadFromJsonAsync<TokenResponse>(cancellationToken: ct);
+
+    
+        Assert.NotNull(tokenResponse);
+        Assert.NotNull(tokenResponse.Jwt);
+        Assert.NotEmpty(tokenResponse.Jwt);
+        var handler = new JwtSecurityTokenHandler();
+        var token = tokenResponse.Jwt;
+        Assert.True(handler.CanReadToken(token));
 
     }
 

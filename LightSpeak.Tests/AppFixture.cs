@@ -10,8 +10,8 @@ public partial class AppFixture : IAsyncLifetime
     private static readonly TimeSpan DefaultTimeout = TimeSpan.FromSeconds(30);
     public DistributedApplication App = null!;
     public HttpClient CreateGatewayClient() => App.CreateHttpClient("gateway", "http");
-    public readonly static string testUserName = "testuser";
-    public readonly static string testUserPassword = "testuser";
+    public const string testUserName = "testuser";
+    public const string testUserPassword = "testuser";
 
     private readonly static CookieContainer _cookieContainer = new();
 
@@ -49,7 +49,7 @@ public partial class AppFixture : IAsyncLifetime
             "keycloak", KnownResourceStates.Running).WaitAsync(TimeSpan.FromMinutes(1), ct);
     }
     public static async Task<HttpResponseMessage> LoginAsync
-    (HttpClient browser, string user, string pass, TimeSpan? timeout = null, CancellationToken ct = default)
+    (HttpClient browser, TimeSpan? timeout = null, CancellationToken ct = default, string user = testUserName, string pass = testUserPassword)
     {
         var loginPage = await browser.GetAsync("/login", ct).WaitAsync(timeout ?? DefaultTimeout, ct);
 

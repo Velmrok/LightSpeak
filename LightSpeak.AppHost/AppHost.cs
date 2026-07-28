@@ -4,7 +4,7 @@ using Microsoft.Extensions.Configuration;
 var builder = DistributedApplication.CreateBuilder(args);
 
 var isTesting = builder.Configuration.GetValue<bool>("Testing");
-
+var isDev = builder.Configuration.GetValue<bool>("DevMode");
 
 
 var kcAdminUser = builder.AddParameter("kc-admin-user");
@@ -74,6 +74,16 @@ else
 {
     kcConfig.WithEnvironment("APP_BASE_URL", appBaseUrl);
 }
-gateway.WaitForCompletion(kcConfig);
 
+if(isDev || isTesting){
+    var debugService = builder.AddProject<Projects.Debug>("debug");
+    gateway.WithReference(debugService);
+    gateway.WithEnvironment("ReverseProxy__Routes__debug-route__ClusterId", "debug");
+    gateway.WithEnvironment("ReverseProxy__Routes__debug-route__AuthorizationPolicy", "anonymous");
+    gateway.WithEnvironment("ReverseProxy__Routes__debug-route__Match__Path", "/debug/{**catch-all}");
+    gateway.WithEnvironment("ReverseProxy__Routes__debug-route__Transforms__0__PathRemovePrefix","/debug");
+    gateway.WithEnvironment("ReverseProxy__Clusters__debug__Destinations__d1__Address", debugService.GetEndpoint("http"));
+}
+
+gateway.WaitForCompletion(kcConfig);
 builder.Build().Run();

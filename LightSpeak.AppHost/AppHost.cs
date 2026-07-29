@@ -12,6 +12,8 @@ var kcAdminPassword = builder.AddParameter("kc-admin-password"/*, secret: true*/
 var kcGatewaySecret = builder.AddParameter("kc-gateway-secret"/*, secret: true*/);
 var kcAdminSecret = builder.AddParameter("kc-admin-client-secret"/*, secret: true*/);
 var appBaseUrl = builder.AddParameter("app-base-url");
+var clientAudience = builder.AddParameter("client-audience");
+
 
 
 var redis = builder.AddRedis("redis").WithLifetime(ContainerLifetime.Persistent);
@@ -35,11 +37,14 @@ var gatewayUrl = isTesting
     ? ReferenceExpression.Create($"{gateway.GetEndpoint("http")}")
     : ReferenceExpression.Create($"{appBaseUrl}");
 if(!isTesting) gateway.WithEnvironment("ASPNETCORE_URLS", gatewayUrl);
+
+var clientAuthority = ReferenceExpression.Create($"{gatewayUrl}/auth/realms/lightspeak");
+
 gateway
     .WithReference(redis)
     .WithReference(keycloak)
     .WithEnvironment("AppBaseUrl", gatewayUrl)
-    .WithEnvironment("OpenIDConnectSettings__Authority",ReferenceExpression.Create($"{gatewayUrl}/auth/realms/lightspeak"))
+    .WithEnvironment("OpenIDConnectSettings__Authority",clientAuthority)
     .WithEnvironment("OpenIDConnectSettings__ClientSecret", kcGatewaySecret)
     .WithEnvironment("OpenIDConnectSettings__ClientId", "light-speak-gateway")
     .WithEnvironment("Services__keycloak__http", keycloak.GetEndpoint("keycloak"))
@@ -59,6 +64,7 @@ var kcConfig = builder.AddContainer("keycloak-config" , "adorsys/keycloak-config
     .WithEnvironment("IMPORT_VARSUBSTITUTION_ENABLED", "true")
     .WithEnvironment("KC_GATEWAY_SECRET", kcGatewaySecret)
     .WithEnvironment("KC_ADMIN_CLIENT_SECRET", kcAdminSecret)
+    .WithEnvironment("CLIENT_AUDIENCE", clientAudience)
     .WithEnvironment("KC_TESTUSER_ENABLED", isTesting ? "true" : "false")
     .WithLifetime(ContainerLifetime.Persistent)
     .WithHttpEndpoint(
@@ -76,7 +82,9 @@ else
 }
 
 if(isDev || isTesting){
-    var debugService = builder.AddProject<Projects.Debug>("debug");
+    var debugService = builder.AddProject<Projects.Debug>("debug")
+        .WithEnvironment("AuthSettings__Authority", clientAuthority)
+        .WithEnvironment("AuthSettings__Audience", clientAudience);
     gateway.WithReference(debugService);
     gateway.WithEnvironment("ReverseProxy__Routes__debug-route__ClusterId", "debug");
     gateway.WithEnvironment("ReverseProxy__Routes__debug-route__AuthorizationPolicy", "anonymous");

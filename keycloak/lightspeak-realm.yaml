@@ -25,7 +25,7 @@ clients:
         protocol: openid-connect
         protocolMapper: oidc-audience-mapper
         config:
-          included.client.audience: light-speak-gateway
+          included.client.audience: "$(env:CLIENT_AUDIENCE)"
           access.token.claim: "true"
           id.token.claim: "false"
           introspection.token.claim: "true"

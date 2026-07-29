@@ -13,8 +13,15 @@ public partial class AppFixture : IAsyncLifetime
     public const string testUserName = "testuser";
     public const string testUserPassword = "testuser";
 
-    private readonly static CookieContainer _cookieContainer = new();
+    private static CookieContainer _cookieContainer = new();
 
+    public void ResetCookies()
+    {
+        foreach (Cookie cookie in _cookieContainer.GetAllCookies())
+        {
+            cookie.Expired = true;
+        }
+    }
     public async Task InitializeAsync()
     {
         CancellationToken ct = CancellationToken.None;

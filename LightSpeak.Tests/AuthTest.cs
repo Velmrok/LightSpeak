@@ -6,10 +6,17 @@ using Microsoft.Extensions.Logging;
 
 namespace LightSpeak.Tests;
 
-public class AuthTest(AppFixture fx) : IClassFixture<AppFixture>
+public class AuthTest : IClassFixture<AppFixture>
 {
+    private readonly AppFixture fx;
     private static readonly TimeSpan DefaultTimeout = TimeSpan.FromSeconds(30);
     private DistributedApplication App => fx.App;
+
+    public AuthTest(AppFixture fixture)
+    {
+        fx = fixture;
+        fx.ResetCookies();
+    }
 
     private async Task<CancellationToken> WaitForResourceRunningAsync(string resourceName)
     {
@@ -84,6 +91,36 @@ public class AuthTest(AppFixture fx) : IClassFixture<AppFixture>
         var token = tokenResponse.Jwt;
         Assert.True(handler.CanReadToken(token));
 
+    }
+    [Fact]
+    public async Task Token_isCorrectlyAuthenticated_AfterLogin()
+    {
+        var ct = await WaitForResourceRunningAsync("gateway");
+        var client = fx.CreateGatewayClient();
+
+        await AppFixture.LoginAsync(client, DefaultTimeout, ct);
+        
+        var resp = await client.GetAsync("/debug/auth-token", ct).WaitAsync(DefaultTimeout, ct);
+        Assert.Equal(HttpStatusCode.OK, resp.StatusCode);
+    }
+    [Fact]
+    public async Task Auth_Returns401_OnInvalidToken()
+    {
+        var ct = await WaitForResourceRunningAsync("gateway");
+        var client = fx.CreateGatewayClient();
+        client.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", "invalid-token");
+
+        var resp = await client.GetAsync("/debug/auth-token", ct).WaitAsync(DefaultTimeout, ct);
+        Assert.Equal(HttpStatusCode.Unauthorized, resp.StatusCode);
+    }
+    [Fact]
+    public async Task Auth_Returns401_OnMissingToken()
+    {
+        var ct = await WaitForResourceRunningAsync("gateway");
+        var client = fx.CreateGatewayClient();
+
+        var resp = await client.GetAsync("/debug/auth-token", ct).WaitAsync(DefaultTimeout, ct);
+        Assert.Equal(HttpStatusCode.Unauthorized, resp.StatusCode);
     }
 
 }

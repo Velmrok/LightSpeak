@@ -1,3 +1,4 @@
+using Common;
 using Debug;
 
 var builder = WebApplication.CreateBuilder(args);

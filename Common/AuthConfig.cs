@@ -1,10 +1,8 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 
-namespace Debug;
+namespace Common; 
 
 public static class AuthConfig
 {
@@ -33,5 +31,4 @@ public record AuthSettings
 {
     public string Authority { get; init; } = string.Empty;
     public string Audience { get; init; } = string.Empty;
-    public bool RequireHttpsMetadata { get; init; } = true;
 }

@@ -8,6 +8,19 @@
           "Path": "/auth/{**catch-all}"
         }
       
+      },
+      "profile-route": {
+        "ClusterId": "profile-service",
+        "AuthorizationPolicy": "anonymous",
+        "Match": {
+          "Path": "/profile/{**catch-all}"
+        },
+        "Transforms": [
+          {
+            "PathRemovePrefix": "/profile"
+          }
+        ]
+      
       }
     },
     "Clusters": {
@@ -15,6 +28,13 @@
         "Destinations": {
           "d1": {
             "Address": "http://keycloak"
+          }
+        }
+      },
+      "profile-service": {
+        "Destinations": {
+          "d1": {
+            "Address": "http://profile-service"
           }
         }
       }

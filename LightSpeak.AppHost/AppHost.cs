@@ -17,6 +17,24 @@ var clientAudience = builder.AddParameter("client-audience");
 
 
 var redis = builder.AddRedis("redis").WithLifetime(ContainerLifetime.Persistent);
+var postgres = builder.AddPostgres("postgres").WithLifetime(ContainerLifetime.Persistent);
+
+var gateway = builder.AddProject<Projects.Gateway>("gateway");
+    
+var gatewayUrl = isTesting
+    ? ReferenceExpression.Create($"{gateway.GetEndpoint("http")}")
+    : ReferenceExpression.Create($"{appBaseUrl}");
+if(!isTesting) gateway.WithEnvironment("ASPNETCORE_URLS", gatewayUrl);
+
+var clientAuthority = ReferenceExpression.Create($"{gatewayUrl}/auth/realms/lightspeak");
+
+
+var profileDatabase = postgres.AddDatabase("profile-database");
+var profileService = builder.AddProject<Projects.ProfileService>("profile-service")
+    .WithReference(profileDatabase)
+    .WithEnvironment("AuthSettings__Authority", clientAuthority)
+        .WithEnvironment("AuthSettings__Audience", clientAudience);
+   
 
 var keycloak = builder.AddKeycloak("keycloak", 8080, kcAdminUser, kcAdminPassword)
     .WithHttpEndpoint(name: "keycloak", port: 8081, targetPort: 8080)
@@ -31,18 +49,12 @@ var keycloak = builder.AddKeycloak("keycloak", 8080, kcAdminUser, kcAdminPasswor
 
 if(!isTesting) keycloak.WithEnvironment("KC_HOSTNAME", ReferenceExpression.Create($"{appBaseUrl}/auth"));
 
-var gateway = builder.AddProject<Projects.Gateway>("gateway");
-    
-var gatewayUrl = isTesting
-    ? ReferenceExpression.Create($"{gateway.GetEndpoint("http")}")
-    : ReferenceExpression.Create($"{appBaseUrl}");
-if(!isTesting) gateway.WithEnvironment("ASPNETCORE_URLS", gatewayUrl);
 
-var clientAuthority = ReferenceExpression.Create($"{gatewayUrl}/auth/realms/lightspeak");
 
 gateway
     .WithReference(redis)
     .WithReference(keycloak)
+    .WithReference(profileService)
     .WithEnvironment("AppBaseUrl", gatewayUrl)
     .WithEnvironment("OpenIDConnectSettings__Authority",clientAuthority)
     .WithEnvironment("OpenIDConnectSettings__ClientSecret", kcGatewaySecret)

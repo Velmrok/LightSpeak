@@ -1,109 +1,48 @@
 using Aspire.Hosting;
+using LightSpeak.AppHost.src;
 using Microsoft.Extensions.Configuration;
 
 var builder = DistributedApplication.CreateBuilder(args);
 
-var isTesting = builder.Configuration.GetValue<bool>("Testing");
-var isDev = builder.Configuration.GetValue<bool>("DevMode");
+var parameters = builder.AddApplicationParameters();
+var settings = builder.AddApplicationSettings();
 
-
-var kcAdminUser = builder.AddParameter("kc-admin-user");
-var kcAdminPassword = builder.AddParameter("kc-admin-password"/*, secret: true*/);
-var kcGatewaySecret = builder.AddParameter("kc-gateway-secret"/*, secret: true*/);
-var kcAdminSecret = builder.AddParameter("kc-admin-client-secret"/*, secret: true*/);
-var appBaseUrl = builder.AddParameter("app-base-url");
-var clientAudience = builder.AddParameter("client-audience");
-
-
-
+//////////////////////////////////////////// DECLARATIONS ////////////////////////////////////////////
 var redis = builder.AddRedis("redis").WithLifetime(ContainerLifetime.Persistent);
 var postgres = builder.AddPostgres("postgres").WithLifetime(ContainerLifetime.Persistent);
-
 var gateway = builder.AddProject<Projects.Gateway>("gateway");
+var keycloak = builder.AddKeycloak("keycloak", 8080, parameters.KcAdminUser, parameters.KcAdminPassword);
+var profileDatabase = postgres.AddDatabase("profile-database","profile-database");
+var profileService = builder.AddProject<Projects.ProfileService>("profile-service");
+var kcConfig = builder.AddContainer("keycloak-config" , "adorsys/keycloak-config-cli", "6.5.1-26.1.0");
+
+AppResources resources= new()
+{
+    Keycloak = keycloak,
+    KeycloakConfig = kcConfig,
+    Redis = redis,
+    PostgresServer = postgres,
+    Gateway = gateway,
+    ProfileDatabase = profileDatabase,
+    ProfileService = profileService
+};
+
+//////////////////////////////////////////// DYNAMIC PARAMETERS ////////////////////////////////////////////
     
-var gatewayUrl = isTesting
+parameters.GatewayUrl= settings.IsTesting
     ? ReferenceExpression.Create($"{gateway.GetEndpoint("http")}")
-    : ReferenceExpression.Create($"{appBaseUrl}");
-if(!isTesting) gateway.WithEnvironment("ASPNETCORE_URLS", gatewayUrl);
+    : ReferenceExpression.Create($"{parameters.AppBaseUrl}");
 
-var clientAuthority = ReferenceExpression.Create($"{gatewayUrl}/auth/realms/lightspeak");
+parameters.ClientAuthority = ReferenceExpression.Create($"{parameters.GatewayUrl}/auth/realms/lightspeak");
 
-
-var profileDatabase = postgres.AddDatabase("profile-database");
-var profileService = builder.AddProject<Projects.ProfileService>("profile-service")
-    .WithReference(profileDatabase)
-    .WithEnvironment("AuthSettings__Authority", clientAuthority)
-        .WithEnvironment("AuthSettings__Audience", clientAudience);
-   
-
-var keycloak = builder.AddKeycloak("keycloak", 8080, kcAdminUser, kcAdminPassword)
-    .WithHttpEndpoint(name: "keycloak", port: 8081, targetPort: 8080)
-    .WithImageTag("26.1.0")
-    .WithLifetime(ContainerLifetime.Persistent)
-    .WithEnvironment("KC_HEALTH_ENABLED", "true")
-    .WithEnvironment("KC_HTTP_RELATIVE_PATH", "/auth")
-    .WithEnvironment("KC_HTTP_MANAGEMENT_RELATIVE_PATH", "/")
-    .WithEnvironment("KC_HTTP_ENABLED", "true")
-    .WithEnvironment("KC_HOSTNAME_STRICT", isTesting ? "false" : "true")
-    .WithEnvironment("KC_PROXY_HEADERS", "xforwarded");
-
-if(!isTesting) keycloak.WithEnvironment("KC_HOSTNAME", ReferenceExpression.Create($"{appBaseUrl}/auth"));
+//////////////////////////////////////////// CONFIGURATIONS ////////////////////////////////////////////
+keycloak.ConfigureKeycloak(parameters, settings);
+profileService.ConfigureProfileSevice(parameters, settings,resources);
+kcConfig.ConfigureKeycloakConfig(parameters, settings, resources);
+gateway.ConfigureGateway(parameters, settings, resources);
+if(settings.IsDev || settings.IsTesting) builder.AddAndConfigureDebugService(parameters, settings, resources);
 
 
-
-gateway
-    .WithReference(redis)
-    .WithReference(keycloak)
-    .WithReference(profileService)
-    .WithEnvironment("AppBaseUrl", gatewayUrl)
-    .WithEnvironment("OpenIDConnectSettings__Authority",clientAuthority)
-    .WithEnvironment("OpenIDConnectSettings__ClientSecret", kcGatewaySecret)
-    .WithEnvironment("OpenIDConnectSettings__ClientId", "light-speak-gateway")
-    .WithEnvironment("Services__keycloak__http", keycloak.GetEndpoint("keycloak"))
-    .WithEnvironment("Production", "false")
-    .WaitFor(keycloak)
-    .WaitFor(redis);
-
-
-var kcConfig = builder.AddContainer("keycloak-config" , "adorsys/keycloak-config-cli", "6.5.1-26.1.0")
-    .WithBindMount("../keycloak", "/config", isReadOnly: true)
-    .WithEnvironment("KEYCLOAK_URL", ReferenceExpression.Create($"{keycloak.GetEndpoint("keycloak")}/auth"))
-    .WithEnvironment("KEYCLOAK_USER", kcAdminUser)
-    .WithEnvironment("KEYCLOAK_PASSWORD", kcAdminPassword)
-    .WithEnvironment("KEYCLOAK_AVAILABILITYCHECK_ENABLED", "true")
-    .WithEnvironment("KEYCLOAK_AVAILABILITYCHECK_TIMEOUT", "120s")
-    .WithEnvironment("IMPORT_FILES_LOCATIONS", "/config/*.yaml")
-    .WithEnvironment("IMPORT_VARSUBSTITUTION_ENABLED", "true")
-    .WithEnvironment("KC_GATEWAY_SECRET", kcGatewaySecret)
-    .WithEnvironment("KC_ADMIN_CLIENT_SECRET", kcAdminSecret)
-    .WithEnvironment("CLIENT_AUDIENCE", clientAudience)
-    .WithEnvironment("KC_TESTUSER_ENABLED", isTesting ? "true" : "false")
-    .WithLifetime(ContainerLifetime.Persistent)
-    .WithHttpEndpoint(
-           name: "http",
-           targetPort: 8079,
-           port: 8079)
-    .WaitFor(keycloak);
-if (isTesting)
-{
-    kcConfig.WithEnvironment("APP_BASE_URL", "*");
-}
-else
-{
-    kcConfig.WithEnvironment("APP_BASE_URL", appBaseUrl);
-}
-
-if(isDev || isTesting){
-    var debugService = builder.AddProject<Projects.Debug>("debug")
-        .WithEnvironment("AuthSettings__Authority", clientAuthority)
-        .WithEnvironment("AuthSettings__Audience", clientAudience);
-    gateway.WithReference(debugService);
-    gateway.WithEnvironment("ReverseProxy__Routes__debug-route__ClusterId", "debug");
-    gateway.WithEnvironment("ReverseProxy__Routes__debug-route__AuthorizationPolicy", "anonymous");
-    gateway.WithEnvironment("ReverseProxy__Routes__debug-route__Match__Path", "/debug/{**catch-all}");
-    gateway.WithEnvironment("ReverseProxy__Routes__debug-route__Transforms__0__PathRemovePrefix","/debug");
-    gateway.WithEnvironment("ReverseProxy__Clusters__debug__Destinations__d1__Address", debugService.GetEndpoint("http"));
-}
 
 gateway.WaitForCompletion(kcConfig);
 builder.Build().Run();

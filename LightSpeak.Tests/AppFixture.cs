@@ -26,7 +26,7 @@ public partial class AppFixture : IAsyncLifetime
     {
         CancellationToken ct = CancellationToken.None;
         var builder = await DistributedApplicationTestingBuilder.CreateAsync<Projects.LightSpeak_AppHost>(
-            ["Testing=true"], ct);
+            ["IsTesting=true"], ct);
         builder.Services.AddLogging(logging =>
         {
             logging.SetMinimumLevel(LogLevel.Warning);

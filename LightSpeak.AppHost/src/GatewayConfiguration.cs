@@ -11,6 +11,7 @@ public static class GatewayConfiguration
             .WithReference(a.Redis)
             .WithReference(a.Keycloak)
             .WithReference(a.ProfileService)
+            .WithReference(a.ComposeService)
             .WithEnvironment("AppBaseUrl", p.GatewayUrl)
             .WithEnvironment("OpenIDConnectSettings__Authority", p.ClientAuthority)
             .WithEnvironment("OpenIDConnectSettings__ClientSecret", p.KcGatewaySecret)

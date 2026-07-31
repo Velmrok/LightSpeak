@@ -9,5 +9,6 @@ public sealed class AppResources
     public IResourceBuilder<ProjectResource> ProfileService { get; init; }
     public IResourceBuilder<ProjectResource> Gateway { get; init; }
     public IResourceBuilder<PostgresDatabaseResource> ProfileDatabase { get; init; }
+    public IResourceBuilder<ProjectResource> ComposeService { get; init; }
 
 }

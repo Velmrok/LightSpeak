@@ -1,6 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 
-namespace ProfileService.Database;
+namespace ProfileService.src.Database;
 
 public class AppDbContext : DbContext
 {

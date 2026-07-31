@@ -15,6 +15,7 @@ var keycloak = builder.AddKeycloak("keycloak", 8080, parameters.KcAdminUser, par
 var profileDatabase = postgres.AddDatabase("profile-database","profile-database");
 var profileService = builder.AddProject<Projects.ProfileService>("profile-service");
 var kcConfig = builder.AddContainer("keycloak-config" , "adorsys/keycloak-config-cli", "6.5.1-26.1.0");
+var composeService = builder.AddProject<Projects.ComposeService>("compose-service");
 
 AppResources resources= new()
 {
@@ -24,7 +25,8 @@ AppResources resources= new()
     PostgresServer = postgres,
     Gateway = gateway,
     ProfileDatabase = profileDatabase,
-    ProfileService = profileService
+    ProfileService = profileService,
+    ComposeService = composeService
 };
 
 //////////////////////////////////////////// DYNAMIC PARAMETERS ////////////////////////////////////////////
@@ -41,6 +43,10 @@ profileService.ConfigureProfileSevice(parameters, settings,resources);
 kcConfig.ConfigureKeycloakConfig(parameters, settings, resources);
 gateway.ConfigureGateway(parameters, settings, resources);
 if(settings.IsDev || settings.IsTesting) builder.AddAndConfigureDebugService(parameters, settings, resources);
+
+composeService
+    .WithEnvironment("Grpc__ProfileService__Address",profileService.GetEndpoint("http"));
+
 
 
 

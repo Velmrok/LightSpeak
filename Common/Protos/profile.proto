@@ -1,0 +1,15 @@
+syntax = "proto3";
+option csharp_namespace = "Protos";
+service ProfileService {
+  rpc GetProfile (GetProfileRequest) returns (GetProfileResponse);
+}
+
+message GetProfileRequest {
+  string user_id = 1;
+}
+
+message GetProfileResponse {
+  string user_id = 1;
+  string name = 2;
+  string email = 3;
+}

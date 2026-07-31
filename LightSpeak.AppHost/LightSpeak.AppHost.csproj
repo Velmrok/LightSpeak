@@ -18,6 +18,7 @@
     <ProjectReference Include="..\Gateway\Gateway.csproj" />
     <ProjectReference Include="..\Debug\Debug.csproj" />
     <ProjectReference Include="..\ProfileService\ProfileService.csproj" />
+    <ProjectReference Include="..\ComposeService\ComposeService.csproj" />
   </ItemGroup>
 
 </Project>

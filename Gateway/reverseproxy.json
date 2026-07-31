@@ -21,6 +21,13 @@
           }
         ]
       
+      },
+      "home-route": {
+        "ClusterId": "compose-service",
+        "AuthorizationPolicy": "anonymous",
+        "Match": {
+          "Path": "/home"
+        }
       }
     },
     "Clusters": {
@@ -35,6 +42,13 @@
         "Destinations": {
           "d1": {
             "Address": "http://profile-service"
+          }
+        }
+      },
+      "compose-service": {
+        "Destinations": {
+          "d1": {
+            "Address": "http://compose-service"
           }
         }
       }

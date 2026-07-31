@@ -45,7 +45,8 @@ gateway.ConfigureGateway(parameters, settings, resources);
 if(settings.IsDev || settings.IsTesting) builder.AddAndConfigureDebugService(parameters, settings, resources);
 
 composeService
-    .WithEnvironment("Grpc__ProfileService__Address",profileService.GetEndpoint("http"));
+    .WithReference(resources.ProfileService);
+   //.WithEnvironment("Grpc__ProfileService__Address",profileService.GetEndpoint("http"));
 
 
 

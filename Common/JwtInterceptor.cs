@@ -2,7 +2,7 @@ using Grpc.Core;
 using Grpc.Core.Interceptors;
 using Microsoft.AspNetCore.Http;
 namespace Common; 
-public class JwtInterceptor(HttpContextAccessor httpContextAccessor) : Interceptor
+public class JwtInterceptor(IHttpContextAccessor httpContextAccessor) : Interceptor
 {
     public override AsyncUnaryCall<TResponse> AsyncUnaryCall<TRequest, TResponse>(
         TRequest request,

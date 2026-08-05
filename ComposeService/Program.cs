@@ -1,4 +1,5 @@
 
+using Common;
 using Protos;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -6,12 +7,20 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddServiceDiscovery()
     .AddConfigurationServiceEndpointProvider();
 
+builder.Services.AddAuth(builder.Configuration);
+
 builder.Services.AddGrpcClient<ProfileService.ProfileServiceClient>(o =>
 {
     o.Address = new Uri(builder.Configuration["Grpc:ProfileService:Address"]!);
-}).AddServiceDiscovery();
+}).AddServiceDiscovery()
+.AddInterceptor<JwtInterceptor>();
 
+builder.Services.AddCommonServices(builder.Configuration);
 var app = builder.Build();
+
+app.UseAuthentication();
+app.UseAuthorization();
+
 
 app.MapGet("/home", async (ProfileService.ProfileServiceClient client) =>
 {
@@ -19,6 +28,7 @@ app.MapGet("/home", async (ProfileService.ProfileServiceClient client) =>
     var response = await client.GetProfileAsync(request);
     return Results.Ok(response);
 });
+
 
 
 

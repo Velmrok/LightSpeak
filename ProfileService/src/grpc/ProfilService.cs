@@ -1,10 +1,12 @@
 using Grpc.Core;
+using Microsoft.AspNetCore.Authorization;
 using Protos;
 
 namespace ProfileService.src.grpc;
 
 public class ProfileGrpcService : Protos.ProfileService.ProfileServiceBase
 {   
+    [Authorize]
     public override async Task<GetProfileResponse> GetProfile(GetProfileRequest request, ServerCallContext context)
     {
         var response = new GetProfileResponse

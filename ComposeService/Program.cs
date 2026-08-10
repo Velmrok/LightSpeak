@@ -1,5 +1,7 @@
 
 using Common;
+using Common.Grpc;
+using ComposeService.src.dto;
 using Protos;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -17,6 +19,8 @@ builder.Services.AddGrpcClient<ProfileService.ProfileServiceClient>(o =>
 }).AddServiceDiscovery()
 .AddInterceptor<JwtInterceptor>();
 
+builder.Services.AddSingleton<GrpcCallHandler>();
+
 builder.Services.AddCommonServices(builder.Configuration);
 var app = builder.Build();
 
@@ -24,11 +28,27 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 
-app.MapGet("/home", async (ProfileService.ProfileServiceClient client) =>
+app.MapGet("/home", async (ProfileService.ProfileServiceClient client, GrpcCallHandler grpc) =>
 {
-    var request = new GetProfileRequest { UserId = "123" };
-    var response = await client.GetProfileAsync(request);
-    return Results.Ok(response);
+    var tasks = new[]
+    {
+        grpc.SafeCall("profile", true, () =>
+            client.GetProfileAsync(new GetProfileRequest
+            {
+                UserId = "123"
+            }).ResponseAsync)
+    };
+    var results = await Task.WhenAll(tasks);
+    return grpc.BuildResponse(results,
+        () =>
+            {
+                var profileData = results[0].Data!;
+
+                return new HomeResponse(
+                    UserId: profileData.UserId,
+                    Name: profileData.Name,
+                    Email: profileData.Email);
+            });
 });
 
 

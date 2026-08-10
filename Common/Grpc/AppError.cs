@@ -16,15 +16,21 @@ public class AppError{
     {
         StatusCode = ex.StatusCode;
         
-        Code = ex.Trailers.GetValue(ErrorTitleKey)
+       Code = ex.Trailers.GetValue(ErrorTitleKey)
         ?? ex.StatusCode switch
         {
+            StatusCode.DeadlineExceeded => "service-timeout",
+            StatusCode.Unavailable => "service-unavailable",
             StatusCode.Unauthenticated => "unauthenticated",
             StatusCode.PermissionDenied => "permission-denied",
+            StatusCode.ResourceExhausted => "rate-limited",
+            StatusCode.Cancelled => "request-cancelled",
             _ => "unexpected"
         };
 
-        Details = ex.Status.Detail;
+        Details = string.IsNullOrWhiteSpace(ex.Status.Detail) 
+        ? $"gRPC call failed with {ex.StatusCode}" 
+        : ex.Status.Detail;
     }
     public RpcException ToRpcException()
     {

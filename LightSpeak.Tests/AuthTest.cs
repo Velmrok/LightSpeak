@@ -123,4 +123,26 @@ public class AuthTest : IClassFixture<AppFixture>
         Assert.Equal(HttpStatusCode.Unauthorized, resp.StatusCode);
     }
 
+    // Home is a gRPC endpoint that test checks gRPC error mapping etc
+    [Fact]
+    public async Task Home_Returns401_OnMissingToken()
+    {
+        var ct = await WaitForResourceRunningAsync("gateway");
+        var client = fx.CreateGatewayClient();
+
+        var resp = await client.GetAsync("/home", ct).WaitAsync(DefaultTimeout, ct);
+        Assert.Equal(HttpStatusCode.Unauthorized, resp.StatusCode);
+    }
+    [Fact]
+    public async Task Home_Returns200_OnMissingToken()
+    {
+        var ct = await WaitForResourceRunningAsync("gateway");
+        var client = fx.CreateGatewayClient();
+        
+        await AppFixture.LoginAsync(client, DefaultTimeout, ct);
+
+        var resp = await client.GetAsync("/home", ct).WaitAsync(DefaultTimeout, ct);
+        Assert.Equal(HttpStatusCode.OK, resp.StatusCode);
+    }
+
 }

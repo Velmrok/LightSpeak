@@ -32,11 +32,11 @@ app.MapGet("/home", async (ProfileService.ProfileServiceClient client, GrpcCallH
 {
     var tasks = new[]
     {
-        grpc.SafeCall("profile", true, () =>
+        grpc.SafeCall("profile", true, (deadline) =>
             client.GetProfileAsync(new GetProfileRequest
             {
                 UserId = "123"
-            }).ResponseAsync)
+            }, deadline:deadline).ResponseAsync)
     };
     var results = await Task.WhenAll(tasks);
     return grpc.BuildResponse(results,

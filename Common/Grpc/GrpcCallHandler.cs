@@ -10,11 +10,12 @@ public class GrpcCallHandler
     public async Task<CallOutcome<T>> SafeCall<T>(
         string section,
         bool required,
-        Func<Task<T>> call)
+        Func<DateTime,Task<T>> call)
     {
         try
         {
-            var result = await call();
+            var deadline = DateTime.UtcNow.AddSeconds(10);
+            var result = await call(deadline);
 
             return new CallOutcome<T>(
                 section,

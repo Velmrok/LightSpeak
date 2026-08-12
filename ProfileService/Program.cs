@@ -1,7 +1,7 @@
 using Common;
 using Microsoft.AspNetCore.Server.Kestrel.Core;
 using Microsoft.EntityFrameworkCore;
-using ProfileService.src.Database;
+using ProfileService.src.database;
 using ProfileService.src.grpc;
 
 var builder = WebApplication.CreateBuilder(args);

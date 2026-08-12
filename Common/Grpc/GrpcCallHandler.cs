@@ -52,7 +52,7 @@ public class GrpcCallHandler
             ErrorResponse data = new(
                 Code: top.Error!.Code,
                 Details: top.Error.Details,
-                Errors: results.Select(e => new ErrorItem(e.Section, e.Error!.Code, e.Error.Details))
+                Errors: results.Where(r=>r.Error != null).Select(e => new ErrorItem(e.Section, e.Error!.Code, e.Error.Details))
             );
             response = top.Error.StatusCode.ToRestResponse(data);
             return true;

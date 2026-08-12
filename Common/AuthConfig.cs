@@ -1,3 +1,4 @@
+using System.IdentityModel.Tokens.Jwt;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -21,7 +22,24 @@ public static class AuthConfig
             options.Authority = authSettings.Authority;
             options.Audience = authSettings.Audience;
             options.RequireHttpsMetadata = false;
+            options.Events = new JwtBearerEvents
+            {
+                OnTokenValidated = context =>
+                {
+                    var sub = context.Principal?.FindFirst(JwtRegisteredClaimNames.Sub);
 
+                    if (sub is null)
+                    {
+                        context.Fail("JWT does not contain required 'sub' claim.");
+                    }
+                    else if(string.IsNullOrWhiteSpace(sub.Value))
+                    {
+                        context.Fail("JWT 'sub' claim is empty.");
+                    }
+
+                    return Task.CompletedTask;
+                }
+            };
         });
 
         return services;

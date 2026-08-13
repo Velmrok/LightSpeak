@@ -3,7 +3,10 @@ enabled: true
 registrationAllowed: true
 loginWithEmailAllowed: true
 sslRequired: external
-
+eventsListeners:
+  - keycloak-to-rabbitmq
+adminEventsEnabled: true
+adminEventsDetailsEnabled: true
 roles:
   realm:
     - name: admin

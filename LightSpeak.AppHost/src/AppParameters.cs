@@ -12,8 +12,10 @@ public sealed class AppParameters
     public IResourceBuilder<ParameterResource> AppBaseUrl { get; init; }
 
     public IResourceBuilder<ParameterResource> ClientAudience { get; init; }
+    public IResourceBuilder<ParameterResource> RabbitUser { get; set; }
+    public IResourceBuilder<ParameterResource> RabbitPassword { get; set; }
 
     public ReferenceExpression GatewayUrl { get; set; }
     public ReferenceExpression ClientAuthority { get; set; }
-   
+    
 }

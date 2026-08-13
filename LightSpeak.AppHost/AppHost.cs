@@ -11,11 +11,13 @@ var settings = builder.AddApplicationSettings();
 var redis = builder.AddRedis("redis").WithLifetime(ContainerLifetime.Persistent);
 var postgres = builder.AddPostgres("postgres").WithLifetime(ContainerLifetime.Persistent);
 var gateway = builder.AddProject<Projects.Gateway>("gateway");
-var keycloak = builder.AddKeycloak("keycloak", 8080, parameters.KcAdminUser, parameters.KcAdminPassword);
+var keycloak =builder.AddKeycloak("keycloak", 8080, parameters.KcAdminUser, parameters.KcAdminPassword);
 var profileDatabase = postgres.AddDatabase("profile-database","profile-database");
 var profileService = builder.AddProject<Projects.ProfileService>("profile-service");
 var kcConfig = builder.AddContainer("keycloak-config" , "adorsys/keycloak-config-cli", "6.5.1-26.1.0");
 var composeService = builder.AddProject<Projects.ComposeService>("compose-service");
+var rabbitmq = builder.AddRabbitMQ("messaging",parameters.RabbitUser, parameters.RabbitPassword).WithLifetime(ContainerLifetime.Persistent);
+
 
 AppResources resources= new()
 {
@@ -26,7 +28,8 @@ AppResources resources= new()
     Gateway = gateway,
     ProfileDatabase = profileDatabase,
     ProfileService = profileService,
-    ComposeService = composeService
+    ComposeService = composeService,
+    RabbitMQ = rabbitmq
 };
 
 //////////////////////////////////////////// DYNAMIC PARAMETERS ////////////////////////////////////////////
@@ -38,7 +41,7 @@ parameters.GatewayUrl= settings.IsTesting
 parameters.ClientAuthority = ReferenceExpression.Create($"{parameters.GatewayUrl}/auth/realms/lightspeak");
 
 //////////////////////////////////////////// CONFIGURATIONS ////////////////////////////////////////////
-keycloak.ConfigureKeycloak(parameters, settings);
+keycloak.ConfigureKeycloak(parameters, settings, resources);
 profileService.ConfigureProfileSevice(parameters, settings,resources);
 kcConfig.ConfigureKeycloakConfig(parameters, settings, resources);
 gateway.ConfigureGateway(parameters, settings, resources);
@@ -49,6 +52,8 @@ composeService
     .WithEnvironment("AuthSettings__Authority", parameters.ClientAuthority)
     .WithEnvironment("AuthSettings__Audience", parameters.ClientAudience);
    //.WithEnvironment("Grpc__ProfileService__Address",profileService.GetEndpoint("http"));
+rabbitmq.WithManagementPlugin();
+
 
 
 

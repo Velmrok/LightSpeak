@@ -12,6 +12,7 @@ public static class GatewayConfiguration
             .WithReference(a.Keycloak)
             .WithReference(a.ProfileService)
             .WithReference(a.ComposeService)
+            .WithReference(a.RabbitMQ)
             .WithEnvironment("AppBaseUrl", p.GatewayUrl)
             .WithEnvironment("OpenIDConnectSettings__Authority", p.ClientAuthority)
             .WithEnvironment("OpenIDConnectSettings__ClientSecret", p.KcGatewaySecret)
@@ -19,7 +20,8 @@ public static class GatewayConfiguration
             .WithEnvironment("Services__keycloak__http", a.Keycloak.GetEndpoint("keycloak"))
             .WithEnvironment("Production", "false")
             .WaitFor(a.Keycloak)
-            .WaitFor(a.Redis);
+            .WaitFor(a.Redis)
+            .WaitFor(a.RabbitMQ);
         if(!s.IsTesting) gateway.WithEnvironment("ASPNETCORE_URLS", p.GatewayUrl);
     }
 }

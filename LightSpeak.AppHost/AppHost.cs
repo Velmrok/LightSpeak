@@ -16,7 +16,7 @@ var profileDatabase = postgres.AddDatabase("profile-database","profile-database"
 var profileService = builder.AddProject<Projects.ProfileService>("profile-service");
 var kcConfig = builder.AddContainer("keycloak-config" , "adorsys/keycloak-config-cli", "6.5.1-26.1.0");
 var composeService = builder.AddProject<Projects.ComposeService>("compose-service");
-var rabbitmq = builder.AddRabbitMQ("messaging",parameters.RabbitUser, parameters.RabbitPassword).WithLifetime(ContainerLifetime.Persistent);
+var rabbitmq = builder.AddRabbitMQ("rabbitmq",parameters.RabbitUser, parameters.RabbitPassword).WithLifetime(ContainerLifetime.Persistent);
 
 
 AppResources resources= new()

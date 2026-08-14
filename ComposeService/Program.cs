@@ -11,13 +11,14 @@ builder.Services.AddServiceDiscovery()
 
 builder.Services.AddAuth(builder.Configuration);
 
-builder.Services.AddTransient<JwtInterceptor>();
+//builder.Services.AddTransient<JwtInterceptor>();
 
 builder.Services.AddGrpcClient<ProfileService.ProfileServiceClient>(o =>
 {
     o.Address = new Uri(builder.Configuration["Grpc:ProfileService:Address"]!);
 }).AddServiceDiscovery()
-.AddInterceptor<JwtInterceptor>();
+.ConfigureGrpcCredentials();
+
 
 builder.Services.AddSingleton<GrpcCallHandler>();
 

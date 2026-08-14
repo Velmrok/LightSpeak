@@ -1,5 +1,6 @@
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
+using Duende.AccessTokenManagement;
 using Duende.AccessTokenManagement.OpenIdConnect;
 using Gateway.src;
 using Gateway.src.Extensions;
@@ -26,7 +27,11 @@ builder.Services.AddDataProtection().PersistKeysToStackExchangeRedis(redis,"Data
 
 builder.Services.AddHttpForwarderWithServiceDiscovery();
 
-builder.Services.AddOpenIdConnectAccessTokenManagement();
+builder.Services.AddOpenIdConnectAccessTokenManagement(options =>
+{
+    options.ChallengeScheme =
+        Scheme.Parse(OpenIdConnectDefaults.AuthenticationScheme);
+});
 builder.Services.AddAuthorization();
 
 builder.Services.AddServiceDiscovery()

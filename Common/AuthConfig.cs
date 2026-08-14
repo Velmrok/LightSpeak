@@ -22,6 +22,7 @@ public static class AuthConfig
             options.Authority = authSettings.Authority;
             options.Audience = authSettings.Audience;
             options.RequireHttpsMetadata = false;
+            options.MapInboundClaims = false;
             options.Events = new JwtBearerEvents
             {
                 OnTokenValidated = context =>

@@ -1,7 +1,9 @@
 using Common;
+using Common.Dto;
 using JasperFx.Core;
 using Microsoft.AspNetCore.Server.Kestrel.Core;
 using Microsoft.EntityFrameworkCore;
+using ProfileService.src;
 using ProfileService.src.database;
 using ProfileService.src.grpc;
 using Wolverine;
@@ -19,6 +21,7 @@ builder.WebHost.ConfigureKestrel(options =>
 });
 builder.UseWolverine(opts =>
 {
+    opts.CodeGeneration.AlwaysUseServiceLocationFor<AppDbContext>();
     opts.UseRabbitMq(builder.Configuration.GetConnectionString("rabbitmq")!)
         .AutoProvision()
         .BindExchange("amq.topic", ex =>
@@ -26,12 +29,17 @@ builder.UseWolverine(opts =>
             ex.ExchangeType = ExchangeType.Topic;
         })
         .ToQueue("profile-service.keycloak.register", "KK.EVENT.CLIENT.*.SUCCESS.*.REGISTER");
-
-    opts.ListenToRabbitQueue("profile-service.keycloak.register");
+    opts.ApplicationAssembly = typeof(RegisterEventHandler).Assembly;
+    opts.ListenToRabbitQueue("profile-service.keycloak.register")
+    .DefaultIncomingMessage<KeycloakRegisterEvent>();;
 
     opts.OnException<Exception>()
         .RetryWithCooldown(1.Seconds(), 5.Seconds(), 15.Seconds())
         .Then.MoveToErrorQueue();
+    opts.UseSystemTextJsonForSerialization(o =>
+{
+    o.PropertyNameCaseInsensitive = true;
+});
 });
 
 builder.Services.AddGrpc();

@@ -5,6 +5,7 @@ using Protos;
 using Microsoft.EntityFrameworkCore;
 using System.IdentityModel.Tokens.Jwt;
 using Common.Grpc;
+using System.Security.Claims;
 namespace ProfileService.src.grpc;
 
 public class ProfileGrpcService : Protos.ProfileService.ProfileServiceBase
@@ -17,7 +18,7 @@ public class ProfileGrpcService : Protos.ProfileService.ProfileServiceBase
     [Authorize]
     public override async Task<GetProfileResponse> GetProfile(GetProfileRequest request, ServerCallContext context)
     {
-        var userId = context.GetHttpContext()?.User?.FindFirst(JwtRegisteredClaimNames.Sub)?.Value;
+        var userId = context.GetHttpContext()?.User?.FindFirstValue(JwtRegisteredClaimNames.Sub);
         var profile = await _dbContext.Profiles.FirstOrDefaultAsync(p => p.Id == userId);
         if (profile == null)
         {

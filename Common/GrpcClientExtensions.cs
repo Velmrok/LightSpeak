@@ -9,6 +9,7 @@ public static class GrpcClientExtensions
 {
     public static IHttpClientBuilder ConfigureGrpcCredentials(this IHttpClientBuilder builder)
     {
+        builder.Services.AddHttpContextAccessor();
         builder
         .AddCallCredentials(async (context, metadata, serviceProvider) =>
             {

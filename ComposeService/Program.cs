@@ -22,7 +22,7 @@ builder.Services.AddGrpcClient<ProfileService.ProfileServiceClient>(o =>
 
 builder.Services.AddSingleton<GrpcCallHandler>();
 
-builder.Services.AddCommonServices(builder.Configuration);
+
 var app = builder.Build();
 
 app.UseAuthentication();
@@ -51,6 +51,7 @@ app.MapGet("/home", async (ProfileService.ProfileServiceClient client, GrpcCallH
                     Email: profileData.Email);
             });
 });
+
 
 
 

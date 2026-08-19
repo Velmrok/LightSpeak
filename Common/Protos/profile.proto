@@ -1,7 +1,9 @@
 syntax = "proto3";
 option csharp_namespace = "Protos";
+import "google/protobuf/empty.proto";
 service ProfileService {
   rpc GetProfile (GetProfileRequest) returns (GetProfileResponse);
+  rpc GetAuthCheck (google.protobuf.Empty) returns (google.protobuf.Empty);
 }
 
 message GetProfileRequest {

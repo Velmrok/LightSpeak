@@ -48,10 +48,10 @@ gateway.ConfigureGateway(parameters, settings, resources);
 if(settings.IsDev || settings.IsTesting) builder.AddAndConfigureDebugService(parameters, settings, resources);
 
 composeService
-    .WithReference(resources.ProfileService)
+    .WithReference(profileService)
     .WithEnvironment("AuthSettings__Authority", parameters.ClientAuthority)
-    .WithEnvironment("AuthSettings__Audience", parameters.ClientAudience);
-   //.WithEnvironment("Grpc__ProfileService__Address",profileService.GetEndpoint("http"));
+    .WithEnvironment("AuthSettings__Audience", parameters.ClientAudience)
+    .WithEnvironment("Grpc__ProfileService__Address", $"http://{profileService.Resource.Name}");
 rabbitmq.WithManagementPlugin();
 
 

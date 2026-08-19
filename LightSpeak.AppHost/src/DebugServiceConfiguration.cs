@@ -8,9 +8,10 @@ public static class DebugServiceConfiguration
     {
         var debugService = builder
             .AddProject<Projects.Debug>("debug")
+            .WithReference(a.ProfileService)
             .WithEnvironment("AuthSettings__Authority", p.ClientAuthority)
-            .WithEnvironment("AuthSettings__Audience", p.ClientAudience);
-
+            .WithEnvironment("AuthSettings__Audience", p.ClientAudience)
+            .WithEnvironment("Grpc__ProfileService__Address", $"http://{a.ProfileService.Resource.Name}");
         a.Gateway.WithReference(debugService);
         a.Gateway.WithEnvironment("ReverseProxy__Routes__debug-route__ClusterId", "debug");
         a.Gateway.WithEnvironment("ReverseProxy__Routes__debug-route__AuthorizationPolicy", "anonymous");

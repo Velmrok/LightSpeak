@@ -1,8 +1,19 @@
 using Common;
+using Common.Grpc;
 using Debug;
-
+using Grpc.Core;
+using Protos;
 var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddAuth(builder.Configuration);
+
+builder.Services.AddServiceDiscovery()
+    .AddConfigurationServiceEndpointProvider();
+
+builder.Services.AddGrpcClient<ProfileService.ProfileServiceClient>(o =>
+{
+    o.Address = new Uri(builder.Configuration["Grpc:ProfileService:Address"]!);
+}).AddServiceDiscovery()
+.ConfigureGrpcCredentials();
 
 var app = builder.Build();
 
@@ -20,6 +31,19 @@ app.MapGet("/token", (HttpRequest request) =>
         Jwt: request.Headers.Authorization.ToString().Replace("Bearer ", "")
     ));
 });
+
+app.MapGet("/grpc-auth-check", async (ProfileService.ProfileServiceClient client) =>
+{
+    try
+    {
+        var response = await client.GetAuthCheckAsync(new Google.Protobuf.WellKnownTypes.Empty());
+        return Results.Ok(response);
+    }
+    catch (RpcException ex)
+    {
+        return ex.StatusCode.ToRestResponse();
+    }
+}).RequireAuthorization();
 
 app.UseHttpsRedirection();
 

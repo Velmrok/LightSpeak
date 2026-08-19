@@ -6,6 +6,7 @@ using Microsoft.EntityFrameworkCore;
 using System.IdentityModel.Tokens.Jwt;
 using Common.Grpc;
 using System.Security.Claims;
+using Google.Protobuf.WellKnownTypes;
 namespace ProfileService.src.grpc;
 
 public class ProfileGrpcService : Protos.ProfileService.ProfileServiceBase
@@ -32,5 +33,10 @@ public class ProfileGrpcService : Protos.ProfileService.ProfileServiceBase
             Email = profile.Email
         };
         return await Task.FromResult(response);
+    }
+    [Authorize]
+    public override async Task<Empty> GetAuthCheck(Empty request, ServerCallContext context)
+    {
+        return await Task.FromResult(new Empty());
     }
 }

@@ -4,7 +4,7 @@ using Aspire.Hosting;
 using Debug;
 using Microsoft.Extensions.Logging;
 
-namespace LightSpeak.Tests;
+namespace LightSpeak.Tests.src;
 
 public class AuthTest : IClassFixture<AppFixture>
 {

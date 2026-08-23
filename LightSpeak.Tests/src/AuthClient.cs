@@ -1,7 +1,7 @@
 
 using HtmlAgilityPack;
 
-namespace LightSpeak.Tests;
+namespace LightSpeak.Tests.src;
 
 public class AuthClient
 {

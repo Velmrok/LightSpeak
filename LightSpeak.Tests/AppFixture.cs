@@ -1,6 +1,7 @@
 using System.Text.RegularExpressions;
 using Aspire.Hosting;
 using HtmlAgilityPack;
+using LightSpeak.Tests.src;
 using Microsoft.Extensions.Logging;
 
 namespace LightSpeak.Tests;

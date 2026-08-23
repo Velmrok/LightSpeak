@@ -2,6 +2,7 @@ using System.Text.RegularExpressions;
 using Aspire.Hosting;
 using HtmlAgilityPack;
 using LightSpeak.Tests.src;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using RabbitMQ.Client;
 
@@ -12,6 +13,15 @@ public partial class AppFixture : IAsyncLifetime
     public IConnection RabbitMqConnection { get; private set; } = null!;
     public DistributedApplication App = null!;
     public HttpClient CreateGatewayClient() => App.CreateHttpClient("gateway", "http");
+    public async Task<TContext> CreateDbContextAsync<TContext>(string connectionStringName,CancellationToken ct = default) where TContext : DbContext
+    {
+        var connectionString = await App.GetConnectionStringAsync(connectionStringName, ct);
+
+        var options = new DbContextOptionsBuilder<TContext>()
+            .UseNpgsql(connectionString)
+            .Options;
+        return (TContext)Activator.CreateInstance(typeof(TContext), options)!;
+    }
     public async Task InitializeAsync()
     {
         CancellationToken ct = CancellationToken.None;

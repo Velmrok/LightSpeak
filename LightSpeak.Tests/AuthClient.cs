@@ -17,22 +17,39 @@ public class AuthClient
             cookie.Expired = true;
         }
     }
-    public async Task<HttpResponseMessage> LoginAsync
-    (HttpClient browser, TimeSpan? timeout = null, CancellationToken ct = default, string user = testUserName, string pass = testUserPassword)
+    private void DisableSecureCookies()
     {
-        var loginPage = await browser.GetAsync("/login", ct).WaitAsync(timeout ?? DefaultTimeout, ct);
-
         foreach (Cookie cookie in _cookieContainer.GetAllCookies())
         {
             cookie.Secure = false;
-        }
-        var html = await loginPage.Content.ReadAsStringAsync(ct);
 
-        if (!loginPage.IsSuccessStatusCode)
+        }
+    }
+    private async Task<HttpResponseMessage> GetLoginPageAsync(HttpClient browser,TimeSpan? timeout,CancellationToken ct)
+    {
+        var response = await browser
+            .GetAsync("/login", ct)
+            .WaitAsync(timeout ?? DefaultTimeout, ct);
+
+        if (!response.IsSuccessStatusCode)
         {
-            throw new InvalidOperationException($"GET /login returned {(int)loginPage.StatusCode} {loginPage.ReasonPhrase}. Body: {html}");
+            var body = await response.Content.ReadAsStringAsync(ct);
+
+            throw new InvalidOperationException(
+                $"GET /login returned {(int)response.StatusCode} " +
+                $"{response.ReasonPhrase}. Body: {body}");
         }
 
+        return response;
+    }
+    public async Task<HttpResponseMessage> LoginAsync
+    (HttpClient browser, TimeSpan? timeout = null, CancellationToken ct = default, string user = testUserName, string pass = testUserPassword)
+    {
+        var loginPage = await GetLoginPageAsync(browser, timeout, ct);
+
+        DisableSecureCookies();
+
+        var html = await loginPage.Content.ReadAsStringAsync(ct);
         var doc = new HtmlDocument();
         doc.LoadHtml(html);
 

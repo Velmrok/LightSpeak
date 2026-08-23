@@ -3,11 +3,13 @@ using Aspire.Hosting;
 using HtmlAgilityPack;
 using LightSpeak.Tests.src;
 using Microsoft.Extensions.Logging;
+using RabbitMQ.Client;
 
 namespace LightSpeak.Tests;
 
 public partial class AppFixture : IAsyncLifetime
 {
+    public IConnection RabbitMqConnection { get; private set; } = null!;
     public DistributedApplication App = null!;
     public HttpClient CreateGatewayClient() => App.CreateHttpClient("gateway", "http");
     public async Task InitializeAsync()
@@ -35,15 +37,25 @@ public partial class AppFixture : IAsyncLifetime
         App = await builder.BuildAsync();
         await App.StartAsync();
 
-
+        var connectionString = await App.GetConnectionStringAsync("rabbitmq");
+        var factory = new ConnectionFactory { Uri = new Uri(connectionString!) };
+        
 
         await App.ResourceNotifications.WaitForResourceAsync(
             "gateway", KnownResourceStates.Running).WaitAsync(TimeSpan.FromMinutes(1), ct);
 
         await App.ResourceNotifications.WaitForResourceAsync(
             "keycloak", KnownResourceStates.Running).WaitAsync(TimeSpan.FromMinutes(1), ct);
-    }
-    
 
-    public async Task DisposeAsync() => await App.DisposeAsync();
+        RabbitMqConnection = await factory.CreateConnectionAsync();
+    }
+
+
+    public async Task DisposeAsync()
+    {
+        if(App is not null)
+            await App.DisposeAsync();
+        if(RabbitMqConnection is not null)
+            await RabbitMqConnection.DisposeAsync();
+    }
 }

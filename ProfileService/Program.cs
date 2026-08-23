@@ -1,4 +1,5 @@
 using Common;
+using Common.Constants;
 using Common.Dto;
 using JasperFx.Core;
 using Microsoft.AspNetCore.Server.Kestrel.Core;
@@ -28,7 +29,7 @@ builder.UseWolverine(opts =>
         {
             ex.ExchangeType = ExchangeType.Topic;
         })
-        .ToQueue("profile-service.keycloak.register", "KK.EVENT.CLIENT.*.SUCCESS.*.REGISTER");
+        .ToQueue("profile-service.keycloak.register", RoutingKeys.UserRegistered);
     opts.ApplicationAssembly = typeof(RegisterEventHandler).Assembly;
     opts.ListenToRabbitQueue("profile-service.keycloak.register")
     .DefaultIncomingMessage<KeycloakRegisterEvent>();;

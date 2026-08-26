@@ -8,6 +8,9 @@ using RabbitMQ.Client;
 
 namespace LightSpeak.Tests;
 
+[CollectionDefinition("Aspire")]
+public class AspireCollectionDefinition : ICollectionFixture<AppFixture>{}
+
 public partial class AppFixture : IAsyncLifetime
 {
     public IConnection RabbitMqConnection { get; private set; } = null!;
@@ -16,7 +19,6 @@ public partial class AppFixture : IAsyncLifetime
     public async Task<TContext> CreateDbContextAsync<TContext>(string connectionStringName,CancellationToken ct = default) where TContext : DbContext
     {
         var connectionString = await App.GetConnectionStringAsync(connectionStringName, ct);
-
         var options = new DbContextOptionsBuilder<TContext>()
             .UseNpgsql(connectionString)
             .Options;

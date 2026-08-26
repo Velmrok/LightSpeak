@@ -25,7 +25,7 @@ public class RabbitMqTestHelper
         await using var channel = await connection.CreateChannelAsync(cancellationToken: ct);
 
         var message = new KeycloakRegisterEvent(
-            Time: int.TryParse(DateTime.UtcNow.ToString(), out var time) ? time : 0,
+            Time: DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(),
             UserId: userId,
             Details: new KeycloakRegisterEventDetails(
                 Username: username,

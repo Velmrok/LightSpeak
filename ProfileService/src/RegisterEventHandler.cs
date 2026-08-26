@@ -21,7 +21,7 @@ public class RegisterEventHandler
         var profile = new Profile
         {
             Id = evt.UserId,
-            Name = evt.Details.Username,
+            Username = evt.Details.Username,
             Email = evt.Details.Email,
             CreatedAt = DateTimeOffset.FromUnixTimeMilliseconds(evt.Time).UtcDateTime
         };

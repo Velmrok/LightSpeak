@@ -1,3 +1,3 @@
 namespace ComposeService.src.dto;
 
-public record HomeResponse(string UserId,string Name, string Email);
+public record HomeResponse(string UserId,string Username, string Email);

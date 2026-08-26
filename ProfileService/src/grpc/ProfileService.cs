@@ -29,7 +29,7 @@ public class ProfileGrpcService : Protos.ProfileService.ProfileServiceBase
         var response = new GetProfileResponse
         {
             UserId = profile.Id,
-            Name = profile.Name,
+            Username = profile.Username,
             Email = profile.Email
         };
         return await Task.FromResult(response);

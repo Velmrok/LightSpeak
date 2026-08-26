@@ -47,7 +47,7 @@ app.MapGet("/home", async (ProfileService.ProfileServiceClient client, GrpcCallH
 
                 return new HomeResponse(
                     UserId: profileData.UserId,
-                    Name: profileData.Name,
+                    Username: profileData.Username,
                     Email: profileData.Email);
             });
 });

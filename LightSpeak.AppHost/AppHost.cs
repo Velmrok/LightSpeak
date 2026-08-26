@@ -9,7 +9,7 @@ var settings = builder.AddApplicationSettings();
 
 //////////////////////////////////////////// DECLARATIONS ////////////////////////////////////////////
 var redis = builder.AddRedis("redis").WithLifetime(ContainerLifetime.Persistent);
-var postgres = builder.AddPostgres("postgres").WithLifetime(ContainerLifetime.Persistent);
+var postgres = builder.AddPostgres("postgres", parameters.PostgresUser, parameters.PostgresPassword).WithLifetime(ContainerLifetime.Persistent);
 var gateway = builder.AddProject<Projects.Gateway>("gateway");
 var keycloak =builder.AddKeycloak("keycloak", 8080, parameters.KcAdminUser, parameters.KcAdminPassword);
 var profileDatabase = postgres.AddDatabase("profile-database","profile-database");

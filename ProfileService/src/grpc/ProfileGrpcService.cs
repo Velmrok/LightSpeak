@@ -7,25 +7,28 @@ using System.IdentityModel.Tokens.Jwt;
 using Common.Grpc;
 using System.Security.Claims;
 using Google.Protobuf.WellKnownTypes;
+using ProfileService.src.services;
+using ProfileService.src.extensions;
 namespace ProfileService.src.grpc;
 
 public class ProfileGrpcService : Protos.ProfileService.ProfileServiceBase
 {   
-    private readonly AppDbContext _dbContext;
-    public ProfileGrpcService(AppDbContext dbContext)
+    private readonly IProfileApplicationService _profileService;
+    public ProfileGrpcService(IProfileApplicationService profileService)
     {
-        _dbContext = dbContext;
+        _profileService = profileService;
     }
     [Authorize]
     public override async Task<GetProfileResponse> GetProfile(GetProfileRequest request, ServerCallContext context)
     {
-        var userId = context.GetHttpContext()?.User?.FindFirstValue(JwtRegisteredClaimNames.Sub);
-        var profile = await _dbContext.Profiles.FirstOrDefaultAsync(p => p.Id == userId);
-        if (profile == null)
+        string userId = context.GetHttpContext()?.User?.FindFirstValue(JwtRegisteredClaimNames.Sub)!;
+        var result = await _profileService.GetProfileAsync(userId, CancellationToken.None);
+        if (result.IsError)
         {
-            AppError error = new(StatusCode.NotFound,"profileNotFound", $"Profile not found for userId: {userId}");
-            throw error.ToRpcException();
+            throw result.FirstError.ToRpcException();
         }
+        var profile = result.Value;
+
         var response = new GetProfileResponse
         {
             UserId = profile.Id,

@@ -1,23 +1,20 @@
 using Common.Dto;
 using MassTransit;
 using ProfileService.src.database;
+using ProfileService.src.services;
 
 namespace ProfileService.src;
 
 public class RegisterEventHandler
 {
-    private readonly AppDbContext _dbContext;
-
-    public RegisterEventHandler(AppDbContext dbContext)
+    private readonly IProfileApplicationService _profileService;
+    public RegisterEventHandler(IProfileApplicationService profileService)
     {
-        _dbContext = dbContext;
+        _profileService = profileService;
     }
+   
     public async Task Handle(KeycloakRegisterEvent evt)
     {
-        
-        var existingProfile = await _dbContext.Profiles.FindAsync(evt.UserId);
-        if (existingProfile != null) return; 
-
         var profile = new Profile
         {
             Id = evt.UserId,
@@ -25,8 +22,12 @@ public class RegisterEventHandler
             Email = evt.Details.Email,
             CreatedAt = DateTimeOffset.FromUnixTimeMilliseconds(evt.Time).UtcDateTime
         };
+        var result = await _profileService.CreateProfileAsync(profile, CancellationToken.None);
 
-        _dbContext.Profiles.Add(profile);
-        await _dbContext.SaveChangesAsync();
+        if (result.IsError)
+            return; // LOGGING
+        
+
+        
     }
 }

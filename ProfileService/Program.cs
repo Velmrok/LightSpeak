@@ -7,6 +7,7 @@ using Microsoft.EntityFrameworkCore;
 using ProfileService.src;
 using ProfileService.src.database;
 using ProfileService.src.grpc;
+using ProfileService.src.services;
 using Wolverine;
 using Wolverine.ErrorHandling;
 using Wolverine.RabbitMQ;
@@ -42,6 +43,8 @@ builder.UseWolverine(opts =>
     o.PropertyNameCaseInsensitive = true;
 });
 });
+
+builder.Services.AddScoped<IProfileApplicationService, ProfileApplicationService>();
 
 builder.Services.AddGrpc();
 builder.Services.AddAuth(builder.Configuration);

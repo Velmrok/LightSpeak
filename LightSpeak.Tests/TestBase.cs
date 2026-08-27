@@ -15,13 +15,12 @@ public class TestBase
         Fixture = fixture;
         _authClient.ResetCookies();
     }
-    protected async Task<CancellationToken> WaitForResourceRunningAsync(string resourceName)
+    protected async Task WaitForResourceRunningAsync(string resourceName, CancellationToken ct)
     {
-        var ct = CancellationToken.None;
         await App.ResourceNotifications
             .WaitForResourceAsync(resourceName, KnownResourceStates.Running)
             .WaitAsync(DefaultTimeout, ct);
-        return ct;
+    
     }
 
 }

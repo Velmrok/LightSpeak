@@ -1,22 +1,22 @@
 using Aspire.Hosting;
 using LightSpeak.AppHost.src;
 using Microsoft.Extensions.Configuration;
-
+using LightSpeak.AppHost.src.Constants;
 var builder = DistributedApplication.CreateBuilder(args);
 
 var parameters = builder.AddApplicationParameters();
 var settings = builder.AddApplicationSettings();
 
 //////////////////////////////////////////// DECLARATIONS ////////////////////////////////////////////
-var redis = builder.AddRedis("redis").WithLifetime(ContainerLifetime.Persistent);
-var postgres = builder.AddPostgres("postgres", parameters.PostgresUser, parameters.PostgresPassword).WithLifetime(ContainerLifetime.Persistent);
-var gateway = builder.AddProject<Projects.Gateway>("gateway");
-var keycloak =builder.AddKeycloak("keycloak", 8080, parameters.KcAdminUser, parameters.KcAdminPassword);
-var profileDatabase = postgres.AddDatabase("profile-database","profile-database");
-var profileService = builder.AddProject<Projects.ProfileService>("profile-service");
-var kcConfig = builder.AddContainer("keycloak-config" , "adorsys/keycloak-config-cli", "6.5.1-26.1.0");
-var composeService = builder.AddProject<Projects.ComposeService>("compose-service");
-var rabbitmq = builder.AddRabbitMQ("rabbitmq",parameters.RabbitUser, parameters.RabbitPassword).WithLifetime(ContainerLifetime.Persistent);
+var redis = builder.AddRedis(ResourcesNames.Redis).WithLifetime(ContainerLifetime.Persistent);
+var postgres = builder.AddPostgres(ResourcesNames.Postgres, parameters.PostgresUser, parameters.PostgresPassword).WithLifetime(ContainerLifetime.Persistent);
+var gateway = builder.AddProject<Projects.Gateway>(ResourcesNames.Gateway);
+var keycloak =builder.AddKeycloak(ResourcesNames.Keycloak, 8080, parameters.KcAdminUser, parameters.KcAdminPassword);
+var profileDatabase = postgres.AddDatabase(ResourcesNames.ProfileDatabase, ResourcesNames.ProfileDatabase);
+var profileService = builder.AddProject<Projects.ProfileService>(ResourcesNames.ProfileService);
+var kcConfig = builder.AddContainer(ResourcesNames.KeycloakConfig , "adorsys/keycloak-config-cli", "6.5.1-26.1.0");
+var composeService = builder.AddProject<Projects.ComposeService>(ResourcesNames.ComposeService);
+var rabbitmq = builder.AddRabbitMQ(ResourcesNames.RabbitMQ,parameters.RabbitUser, parameters.RabbitPassword).WithLifetime(ContainerLifetime.Persistent);
 
 
 AppResources resources= new()

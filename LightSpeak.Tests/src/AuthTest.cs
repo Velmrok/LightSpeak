@@ -2,6 +2,7 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Net.Http.Json;
 using Aspire.Hosting;
 using Debug;
+using LightSpeak.AppHost.src.Constants;
 using Microsoft.Extensions.Logging;
 
 namespace LightSpeak.Tests.src;
@@ -17,7 +18,7 @@ public class AuthTest : TestBase
     public async Task Me_Returns401_OnMissingSession()
     {
         var ct = CancellationToken.None;
-        await WaitForResourceRunningAsync("gateway", ct);
+        await WaitForResourceRunningAsync(ResourcesNames.Gateway, ct);
 
         var client = Fixture.CreateGatewayClient();
 
@@ -28,7 +29,7 @@ public class AuthTest : TestBase
     public async Task Login_Returns200_OnValidCredentials()
     {
         var ct = CancellationToken.None;
-        await WaitForResourceRunningAsync("gateway", ct);
+        await WaitForResourceRunningAsync(ResourcesNames.Gateway, ct);
         var client = Fixture.CreateGatewayClient();
   
         
@@ -39,7 +40,7 @@ public class AuthTest : TestBase
     public async Task Me_Returns200_OnValidSession()
     {
         var ct = CancellationToken.None;
-        await WaitForResourceRunningAsync("gateway", ct);
+        await WaitForResourceRunningAsync(ResourcesNames.Gateway, ct);
 
         var client = Fixture.CreateGatewayClient();
         await _authClient.LoginAsync(client, DefaultTimeout, ct);
@@ -51,7 +52,7 @@ public class AuthTest : TestBase
     public async Task Me_Returns401_AfterLogout()
     {
         var ct = CancellationToken.None;
-        await WaitForResourceRunningAsync("gateway", ct);
+        await WaitForResourceRunningAsync(ResourcesNames.Gateway, ct);
         var client = Fixture.CreateGatewayClient();
         await _authClient.LoginAsync(client, DefaultTimeout, ct);
            
@@ -65,7 +66,7 @@ public class AuthTest : TestBase
     public async Task Token_IsValid_AfterLogin()
     {
         var ct = CancellationToken.None;
-        await WaitForResourceRunningAsync("gateway", ct);
+        await WaitForResourceRunningAsync(ResourcesNames.Gateway, ct);
         var client = Fixture.CreateGatewayClient();
 
         await _authClient.LoginAsync(client, DefaultTimeout, ct);
@@ -87,7 +88,7 @@ public class AuthTest : TestBase
     public async Task Token_isCorrectlyAuthenticated_AfterLogin()
     {
         var ct = CancellationToken.None;
-        await WaitForResourceRunningAsync("gateway", ct);
+        await WaitForResourceRunningAsync(ResourcesNames.Gateway, ct);
         var client = Fixture.CreateGatewayClient();
 
         await _authClient.LoginAsync(client, DefaultTimeout, ct);
@@ -99,7 +100,7 @@ public class AuthTest : TestBase
     public async Task Auth_Returns401_OnInvalidToken()
     {
         var ct = CancellationToken.None;
-        await WaitForResourceRunningAsync("gateway", ct);
+        await WaitForResourceRunningAsync(ResourcesNames.Gateway, ct);
         var client = Fixture.CreateGatewayClient();
         client.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", "invalid-token");
 
@@ -110,7 +111,7 @@ public class AuthTest : TestBase
     public async Task Auth_Returns401_OnMissingToken()
     {
         var ct = CancellationToken.None;
-        await WaitForResourceRunningAsync("gateway", ct);
+        await WaitForResourceRunningAsync(ResourcesNames.Gateway, ct);
         var client = Fixture.CreateGatewayClient();
 
         var resp = await client.GetAsync("/debug/auth-token", ct).WaitAsync(DefaultTimeout, ct);
@@ -122,7 +123,7 @@ public class AuthTest : TestBase
     public async Task GrpcAuthCheck_Returns401_OnMissingToken()
     {
         var ct = CancellationToken.None;
-        await WaitForResourceRunningAsync("gateway", ct);
+        await WaitForResourceRunningAsync(ResourcesNames.Gateway, ct);
         var client = Fixture.CreateGatewayClient();
 
         var resp = await client.GetAsync("/debug/grpc-auth-check", ct).WaitAsync(DefaultTimeout, ct);
@@ -132,7 +133,7 @@ public class AuthTest : TestBase
     public async Task GrpcAuthCheck_Returns200_AfterLogin()
     {
         var ct = CancellationToken.None;
-        await WaitForResourceRunningAsync("gateway", ct);
+        await WaitForResourceRunningAsync(ResourcesNames.Gateway, ct);
         var client = Fixture.CreateGatewayClient();
         
         await _authClient.LoginAsync(client, DefaultTimeout, ct);

@@ -21,6 +21,7 @@ builder.WebHost.ConfigureKestrel(options =>
         endpoint.Protocols = HttpProtocols.Http2;
     });
 });
+
 builder.UseWolverine(opts =>
 {
     opts.CodeGeneration.AlwaysUseServiceLocationFor<AppDbContext>();

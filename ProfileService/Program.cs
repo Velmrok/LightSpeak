@@ -18,7 +18,7 @@ builder.WebHost.ConfigureKestrel(options =>
 {
     options.ConfigureEndpointDefaults(endpoint =>
     {
-        endpoint.Protocols = HttpProtocols.Http2;
+        endpoint.Protocols = HttpProtocols.Http1AndHttp2;
     });
 });
 builder.Services.AddHealthChecks();
@@ -63,12 +63,13 @@ using (var scope = app.Services.CreateScope())
 
 app.MapHealthChecks("/health");
 
+
 app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapGrpcService<ProfileGrpcService>();
 
-app.MapGet("/health", () => Results.Ok("Profile Service is healthy!"));
+
 
 
 app.Run();

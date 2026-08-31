@@ -11,7 +11,7 @@ public static class DebugServiceConfiguration
             .WithReference(a.ProfileService)
             .WithEnvironment("AuthSettings__Authority", p.ClientAuthority)
             .WithEnvironment("AuthSettings__Audience", p.ClientAudience)
-            .WithEnvironment("Grpc__ProfileService__Address", $"http://{a.ProfileService.Resource.Name}");
+            .WithEnvironment("Grpc__ProfileService__Address", $"http://_grpc.{a.ProfileService.Resource.Name}");
         a.Gateway.WithReference(debugService);
         a.Gateway.WithEnvironment("ReverseProxy__Routes__debug-route__ClusterId", "debug");
         a.Gateway.WithEnvironment("ReverseProxy__Routes__debug-route__AuthorizationPolicy", "anonymous");

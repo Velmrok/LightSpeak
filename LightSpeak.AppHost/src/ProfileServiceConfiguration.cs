@@ -7,6 +7,8 @@ public static class ProfileServiceConfiguration
     (this IResourceBuilder<ProjectResource> profileService, AppParameters p, AppSettings s,AppResources a)
     {
         profileService
+            .WithHttpEndpoint(name: "http")
+            .WithHttpEndpoint(name: "grpc")
             .WithReference(a.RabbitMQ)
             .WithReference(a.ProfileDatabase)
             .WithEnvironment("AuthSettings__Authority", p.ClientAuthority)

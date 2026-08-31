@@ -51,7 +51,7 @@ composeService
     .WithReference(profileService)
     .WithEnvironment("AuthSettings__Authority", parameters.ClientAuthority)
     .WithEnvironment("AuthSettings__Audience", parameters.ClientAudience)
-    .WithEnvironment("Grpc__ProfileService__Address", $"http://{profileService.Resource.Name}");
+    .WithEnvironment("Grpc__ProfileService__Address", $"http://_grpc.{profileService.Resource.Name}");
 rabbitmq.WithManagementPlugin();
 
 

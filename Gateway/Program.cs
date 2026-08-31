@@ -23,7 +23,7 @@ builder.Services.AddStackExchangeRedisCache(o =>
 
 builder.Services.AddDataProtection().PersistKeysToStackExchangeRedis(redis,"DataProtection-Keys");
 
-
+builder.Services.AddHealthChecks();
 
 builder.Services.AddHttpForwarderWithServiceDiscovery();
 
@@ -60,6 +60,8 @@ app.MapPost("/logout", async ctx =>
     await ctx.SignOutAsync(OpenIdConnectDefaults.AuthenticationScheme, new AuthenticationProperties { RedirectUri = "/" });
     
 }).RequireAuthorization();
+
+app.MapHealthChecks("/health");
 
 
 app.MapGet("/login", () => Results.Challenge(new AuthenticationProperties { RedirectUri = "/" },

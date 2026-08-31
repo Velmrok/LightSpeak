@@ -21,7 +21,7 @@ builder.Services.AddGrpcClient<ProfileService.ProfileServiceClient>(o =>
 
 
 builder.Services.AddSingleton<GrpcCallHandler>();
-
+builder.Services.AddHealthChecks();
 
 var app = builder.Build();
 
@@ -29,6 +29,7 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 
+app.MapHealthChecks("/health");
 app.MapGet("/home", async (ProfileService.ProfileServiceClient client, GrpcCallHandler grpc) =>
 {
     var tasks = new[]

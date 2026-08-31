@@ -21,6 +21,7 @@ builder.WebHost.ConfigureKestrel(options =>
         endpoint.Protocols = HttpProtocols.Http2;
     });
 });
+builder.Services.AddHealthChecks();
 
 builder.UseWolverine(opts =>
 {
@@ -60,6 +61,7 @@ using (var scope = app.Services.CreateScope())
     db.Database.Migrate();
 }
 
+app.MapHealthChecks("/health");
 
 app.UseAuthentication();
 app.UseAuthorization();

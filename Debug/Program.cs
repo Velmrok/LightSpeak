@@ -15,6 +15,8 @@ builder.Services.AddGrpcClient<ProfileService.ProfileServiceClient>(o =>
 }).AddServiceDiscovery()
 .ConfigureGrpcCredentials();
 
+builder.Services.AddHealthChecks();
+
 var app = builder.Build();
 
 app.MapGet("/auth-token", (HttpRequest request) =>
@@ -44,6 +46,9 @@ app.MapGet("/grpc-auth-check", async (ProfileService.ProfileServiceClient client
         return ex.StatusCode.ToRestResponse();
     }
 }).RequireAuthorization();
+
+
+app.MapHealthChecks("/health");
 
 app.UseHttpsRedirection();
 

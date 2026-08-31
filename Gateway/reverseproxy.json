@@ -22,6 +22,18 @@
         ]
       
       },
+      "compose-route": {
+        "ClusterId": "compose-service",
+        "AuthorizationPolicy": "anonymous",
+        "Match": {
+          "Path": "/compose/{**catch-all}"
+        },
+        "Transforms": [
+          {
+            "PathRemovePrefix": "/compose"
+          }
+        ]
+      },
       "home-route": {
         "ClusterId": "compose-service",
         "AuthorizationPolicy": "anonymous",

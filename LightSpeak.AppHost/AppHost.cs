@@ -10,13 +10,21 @@ var settings = builder.AddApplicationSettings();
 //////////////////////////////////////////// DECLARATIONS ////////////////////////////////////////////
 var redis = builder.AddRedis(ResourcesNames.Redis).WithLifetime(ContainerLifetime.Persistent);
 var postgres = builder.AddPostgres(ResourcesNames.Postgres, parameters.PostgresUser, parameters.PostgresPassword).WithLifetime(ContainerLifetime.Persistent);
+var rabbitmq = builder.AddRabbitMQ(ResourcesNames.RabbitMQ,parameters.RabbitUser, parameters.RabbitPassword).WithLifetime(ContainerLifetime.Persistent);
+
 var gateway = builder.AddProject<Projects.Gateway>(ResourcesNames.Gateway);
+
 var keycloak =builder.AddKeycloak(ResourcesNames.Keycloak, 8080, parameters.KcAdminUser, parameters.KcAdminPassword);
+var kcConfig = builder.AddContainer(ResourcesNames.KeycloakConfig , "adorsys/keycloak-config-cli", "6.5.1-26.1.0");
+
 var profileDatabase = postgres.AddDatabase(ResourcesNames.ProfileDatabase, ResourcesNames.ProfileDatabase);
 var profileService = builder.AddProject<Projects.ProfileService>(ResourcesNames.ProfileService);
-var kcConfig = builder.AddContainer(ResourcesNames.KeycloakConfig , "adorsys/keycloak-config-cli", "6.5.1-26.1.0");
+
+var serversService = builder.AddProject<Projects.ServersService>(ResourcesNames.ServersService);
+var serversDatabase = postgres.AddDatabase(ResourcesNames.ServersDatabase, ResourcesNames.ServersDatabase);
+
 var composeService = builder.AddProject<Projects.ComposeService>(ResourcesNames.ComposeService);
-var rabbitmq = builder.AddRabbitMQ(ResourcesNames.RabbitMQ,parameters.RabbitUser, parameters.RabbitPassword).WithLifetime(ContainerLifetime.Persistent);
+
 
 
 AppResources resources= new()
@@ -29,6 +37,8 @@ AppResources resources= new()
     ProfileDatabase = profileDatabase,
     ProfileService = profileService,
     ComposeService = composeService,
+    ServersService = serversService,
+    ServersDatabase = serversDatabase,
     RabbitMQ = rabbitmq
 };
 
@@ -45,6 +55,7 @@ keycloak.ConfigureKeycloak(parameters, settings, resources);
 profileService.ConfigureProfileSevice(parameters, settings,resources);
 kcConfig.ConfigureKeycloakConfig(parameters, settings, resources);
 gateway.ConfigureGateway(parameters, settings, resources);
+serversService.ConfigureServersService(parameters, settings, resources);
 if(settings.IsDev || settings.IsTesting) builder.AddAndConfigureDebugService(parameters, settings, resources);
 
 composeService

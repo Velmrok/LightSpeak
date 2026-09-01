@@ -13,6 +13,7 @@ public static class ProfileServiceConfiguration
             .WithReference(a.ProfileDatabase)
             .WithEnvironment("AuthSettings__Authority", p.ClientAuthority)
             .WithEnvironment("AuthSettings__Audience", p.ClientAudience)
-            .WaitFor(a.PostgresServer);
+            .WaitFor(a.PostgresServer)
+            .WaitFor(a.ProfileDatabase);
     }
 }

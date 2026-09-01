@@ -34,6 +34,18 @@
           }
         ]
       },
+      "servers-route": {
+        "ClusterId": "servers-service",
+        "AuthorizationPolicy": "anonymous",
+        "Match": {
+          "Path": "/servers/{**catch-all}"
+        },
+        "Transforms": [
+          {
+            "PathRemovePrefix": "/servers"
+          }
+        ]
+      },
       "home-route": {
         "ClusterId": "compose-service",
         "AuthorizationPolicy": "anonymous",
@@ -61,6 +73,13 @@
         "Destinations": {
           "d1": {
             "Address": "http://compose-service"
+          }
+        }
+      },
+      "servers-service": {
+        "Destinations": {
+          "d1": {
+            "Address": "http://servers-service"
           }
         }
       }

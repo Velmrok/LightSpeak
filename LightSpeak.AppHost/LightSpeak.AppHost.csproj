@@ -20,6 +20,7 @@
     <ProjectReference Include="..\Debug\Debug.csproj" />
     <ProjectReference Include="..\ProfileService\ProfileService.csproj" />
     <ProjectReference Include="..\ComposeService\ComposeService.csproj" />
+    <ProjectReference Include="..\ServersService\ServersService.csproj" />
   </ItemGroup>
 
 </Project>

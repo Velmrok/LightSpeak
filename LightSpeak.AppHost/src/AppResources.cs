@@ -10,6 +10,8 @@ public sealed class AppResources
     public IResourceBuilder<ProjectResource> Gateway { get; init; }
     public IResourceBuilder<PostgresDatabaseResource> ProfileDatabase { get; init; }
     public IResourceBuilder<ProjectResource> ComposeService { get; init; }
+    public IResourceBuilder<ProjectResource> ServersService { get; init; }
+    public IResourceBuilder<PostgresDatabaseResource> ServersDatabase { get; init; }
     public IResourceBuilder<RabbitMQServerResource> RabbitMQ { get; init; }
 
 }

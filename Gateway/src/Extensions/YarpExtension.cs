@@ -21,6 +21,25 @@ public static class YarpExtension
                             new AuthenticationHeaderValue("Bearer", result.Token.AccessToken);
                     }
                 });
+                builderContext.AddResponseTransform(context =>
+                {
+                    var response = context.ProxyResponse;
+                    
+
+                    if (response?.Headers.Location is not { } location)
+                        return default;
+
+                    if (location.IsAbsoluteUri)
+                        return default;
+
+                    var path = builderContext.Route.Match.Path;
+                    var prefix = path?.Split("/{**", StringSplitOptions.None)[0] ?? "";
+                
+                    var rewritten = prefix + "/" + location.OriginalString;
+                    context.HttpContext.Response.Headers.Location = rewritten;
+
+                    return default;
+                });
             })
             .AddServiceDiscoveryDestinationResolver();
         return services;

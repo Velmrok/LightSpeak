@@ -7,5 +7,5 @@ public class ChatMessage
     public required string Content { get; set; }
     public required DateTime Timestamp { get; set; }
     public required string ChannelId { get; set; }
-    public required Channel Channel { get; set; }
+    public Channel Channel { get; set; } = null!;
 }

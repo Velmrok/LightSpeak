@@ -41,6 +41,13 @@ public class GrpcCallHandler
 
         return BuildSuccessResponse(buildData(), results); 
     }
+    public IResult BuildResponse<TData>(ICallOutcome result, Func<TData> buildData)
+    {
+        if (TryBuildError([result], out var errorResponse))
+            return errorResponse!;
+
+        return BuildSuccessResponse(buildData(), [result]); 
+    }
     private bool TryBuildError(IEnumerable<ICallOutcome> results, out IResult? response)
     {
         var requiredFailed = results.Where(r => r.Required && r.Error != null).ToList();

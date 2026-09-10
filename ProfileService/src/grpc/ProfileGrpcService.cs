@@ -19,7 +19,7 @@ public class ProfileGrpcService : Protos.ProfileService.ProfileServiceBase
         _profileService = profileService;
     }
     [Authorize]
-    public override async Task<GetProfileResponse> GetProfile(GetProfileRequest request, ServerCallContext context)
+    public override async Task<GetUserProfileResponse> GetUserProfile(GetUserProfileRequest request, ServerCallContext context)
     {
         string userId = context.GetHttpContext()?.User?.FindFirstValue(JwtRegisteredClaimNames.Sub)!;
         var result = await _profileService.GetProfileAsync(userId, CancellationToken.None);
@@ -29,11 +29,12 @@ public class ProfileGrpcService : Protos.ProfileService.ProfileServiceBase
         }
         var profile = result.Value;
 
-        var response = new GetProfileResponse
+        var response = new GetUserProfileResponse
         {
             UserId = profile.Id,
             Username = profile.Username,
-            Email = profile.Email
+            Email = profile.Email,
+            AvatarUrl = profile.AvatarUrl
         };
         return response;
     }

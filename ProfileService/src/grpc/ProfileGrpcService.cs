@@ -8,7 +8,7 @@ using Common.Grpc;
 using System.Security.Claims;
 using Google.Protobuf.WellKnownTypes;
 using ProfileService.src.services;
-using ProfileService.src.extensions;
+using Common.Mappers;
 namespace ProfileService.src.grpc;
 
 public class ProfileGrpcService : Protos.ProfileService.ProfileServiceBase
@@ -35,11 +35,22 @@ public class ProfileGrpcService : Protos.ProfileService.ProfileServiceBase
             Username = profile.Username,
             Email = profile.Email
         };
-        return await Task.FromResult(response);
+        return response;
     }
     [Authorize]
     public override async Task<Empty> GetAuthCheck(Empty request, ServerCallContext context)
     {
-        return await Task.FromResult(new Empty());
+        return new Empty();
+    }
+    public override async Task<GetUserSnapshotResponse> GetUserSnapshot(GetUserSnapshotRequest request, ServerCallContext context)
+    {
+        var result = await _profileService.GetUserSnapshotAsync(request.UserId, CancellationToken.None);
+        if (result.IsError)
+        {
+            throw result.FirstError.ToRpcException();
+        }
+        var snapshot = result.Value;
+
+        return snapshot.MapToGrpcDto();
     }
 }

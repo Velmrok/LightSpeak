@@ -1,3 +1,4 @@
+using Common.Dto;
 using ErrorOr;
 using ProfileService.src.database;
 
@@ -21,6 +22,20 @@ public class ProfileApplicationService(AppDbContext appDbContext) : IProfileAppl
         var profile = await appDbContext.Profiles.FindAsync(userId);
         if (profile == null) return Error.NotFound("Profile.NotFound", "Profile not found.");
         return profile;
+    }
+
+    public async Task<ErrorOr<GetUserSnapshotResponse>> GetUserSnapshotAsync(string userId, CancellationToken ct)
+    {
+        var profile = appDbContext.Profiles.Find(userId);
+        if (profile == null) return Error.NotFound("Profile.NotFound", "Profile not found.");
+
+        var response = new GetUserSnapshotResponse
+        (
+            UserId: profile.Id,
+            Username: profile.Username,
+            AvatarUrl: "placeholder" // Replace with actual profile picture URL
+        );
+        return response;
     }
 }
     

@@ -1,5 +1,7 @@
 
-namespace Common.Grpc;
+using Common.Grpc;
+
+namespace Common.Dto;
 
 public record CallResult<T>(T? Data, AppError? Error);
 

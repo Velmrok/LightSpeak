@@ -1,5 +1,6 @@
-namespace Common.Grpc;
+using Common.Grpc;
 
+namespace Common.Dto;
 public interface ICallOutcome
 {
     string Section { get; }

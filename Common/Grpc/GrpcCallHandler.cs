@@ -8,7 +8,7 @@ namespace Common.Grpc;
 
 public class GrpcCallHandler
 {
-    public async Task<CallResult<T>> SafeCall<T>( Func<DateTime, CancellationToken, Task<T>> call, CancellationToken cancellationToken)
+    public async Task<CallResult<T>> SafeCall<T>( string Section, Func<DateTime, CancellationToken, Task<T>> call, CancellationToken cancellationToken)
     {
         try
         {

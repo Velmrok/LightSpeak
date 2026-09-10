@@ -9,7 +9,7 @@ public static class ProfileServiceClientConfig
     {
         services.AddGrpcClient<ProfileService.ProfileServiceClient>(o =>
 {
-    o.Address = new Uri(configuration["Grpc:ProfileService:Address"]!);
+    o.Address = new Uri("http://_grpc.profile-service");
 }).AddServiceDiscovery()
 .ConfigureGrpcCredentials();
     }

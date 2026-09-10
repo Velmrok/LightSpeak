@@ -10,6 +10,7 @@ public static class ServersServiceConfiguration
             // .WithHttpEndpoint(name: "grpc")
             .WithReference(a.RabbitMQ)
             .WithReference(a.ServersDatabase)
+            .WithReference(a.ProfileService)
             .WithEnvironment("AuthSettings__Authority", p.ClientAuthority)
             .WithEnvironment("AuthSettings__Audience", p.ClientAudience)
             .WaitFor(a.PostgresServer)

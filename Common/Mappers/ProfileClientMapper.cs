@@ -8,7 +8,7 @@ public static class ProfileClientMapper
         return new (
             UserId: response.UserId,
             Username: response.Username,
-            AvatarUrl: response.ProfilePictureUrl
+            AvatarUrl: response.AvatarUrl
         );
     }
     public static Protos.GetUserSnapshotResponse MapToGrpcDto(this Dto.GetUserSnapshotResponse response)
@@ -17,7 +17,17 @@ public static class ProfileClientMapper
         {
             UserId = response.UserId,
             Username = response.Username,
-            ProfilePictureUrl = response.AvatarUrl
+            AvatarUrl = response.AvatarUrl
         };
+    }
+
+    public static Dto.GetUserProfileResponse MapToDomainDto(this Protos.GetUserProfileResponse response)
+    {
+        return new (
+            UserId: response.UserId,
+            Username: response.Username,
+            AvatarUrl: response.AvatarUrl,
+            Email: response.Email
+        );
     }
 }

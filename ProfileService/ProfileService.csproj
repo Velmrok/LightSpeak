@@ -10,9 +10,7 @@
     <ProjectReference Include="..\Common\Common.csproj" />
   </ItemGroup>
   
-  <ItemGroup>
-    <Protobuf Include="..\Common\Protos\profile.proto" GrpcServices="Server" />
-  </ItemGroup>
+
 
   <ItemGroup>
     <PackageReference Include="Grpc.Tools" Version="2.83.0">

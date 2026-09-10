@@ -6,7 +6,7 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
   <ItemGroup>
-    <Protobuf Include="Protos\profile.proto" GrpcServices="Client" />
+    <Protobuf Include="Protos\profile.proto" GrpcServices="Both" />
     </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Google.Protobuf" Version="3.35.1" />

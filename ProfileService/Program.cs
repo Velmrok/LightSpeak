@@ -1,6 +1,7 @@
 using Common;
 using Common.Constants;
 using Common.Dto;
+using ImTools;
 using JasperFx.Core;
 using Microsoft.AspNetCore.Server.Kestrel.Core;
 using Microsoft.EntityFrameworkCore;
@@ -26,16 +27,23 @@ builder.Services.AddHealthChecks();
 builder.UseWolverine(opts =>
 {
     opts.CodeGeneration.AlwaysUseServiceLocationFor<AppDbContext>();
-    opts.UseRabbitMq(builder.Configuration.GetConnectionString("rabbitmq")!)
+    var rabbit = opts.UseRabbitMq(builder.Configuration.GetConnectionString("rabbitmq")!)
         .AutoProvision()
         .BindExchange("amq.topic", ex =>
         {
             ex.ExchangeType = ExchangeType.Topic;
-        })
-        .ToQueue("profile-service.keycloak.register", RoutingKeys.UserRegistered);
+        });
+        rabbit.ToQueue("profile-service.keycloak.register", RoutingKeys.UserRegistered);
+        rabbit.ToQueue("profile-service.keycloak.admin.create", RoutingKeys.UserCreatedByAdmin);
+        
+      
     opts.ApplicationAssembly = typeof(RegisterEventHandler).Assembly;
+
     opts.ListenToRabbitQueue("profile-service.keycloak.register")
-    .DefaultIncomingMessage<KeycloakRegisterEvent>();;
+    .DefaultIncomingMessage<KeycloakRegisterEvent>();
+
+    opts.ListenToRabbitQueue("profile-service.keycloak.admin.create")
+    .DefaultIncomingMessage<KeycloakAdminCreateEvent>();
 
     opts.OnException<Exception>()
         .RetryWithCooldown(1.Seconds(), 5.Seconds(), 15.Seconds())

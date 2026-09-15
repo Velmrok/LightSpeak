@@ -10,7 +10,6 @@ public static class KeycloakConfiguration
         keycloak
             .WithHttpEndpoint(name: "keycloak", port: 8081, targetPort: 8080)
             .WithDockerfile("../keycloak")
-            .WithLifetime(ContainerLifetime.Persistent)
             .WithEnvironment("KC_HEALTH_ENABLED", "true")
             .WithEnvironment("KC_HTTP_RELATIVE_PATH", "/auth")
             .WithEnvironment("KC_HTTP_MANAGEMENT_RELATIVE_PATH", "/")

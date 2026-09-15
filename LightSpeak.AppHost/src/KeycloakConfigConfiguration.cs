@@ -16,7 +16,7 @@ public static class KeycloakConfigConfiguration
             .WithEnvironment("IMPORT_FILES_LOCATIONS", "/config/*.yaml")
             .WithEnvironment("IMPORT_VARSUBSTITUTION_ENABLED", "true")
             .WithEnvironment("KC_GATEWAY_SECRET", p.KcGatewaySecret)
-            .WithEnvironment("KC_ADMIN_CLIENT_SECRET", p.KcAdminSecret)
+            .WithEnvironment("KC_ADMIN_SECRET", p.KcAdminSecret)
             .WithEnvironment("CLIENT_AUDIENCE", p.ClientAudience)
             .WithEnvironment("KC_TESTUSER_ENABLED", s.IsTesting ? "true" : "false")
             .WithLifetime(ContainerLifetime.Persistent)

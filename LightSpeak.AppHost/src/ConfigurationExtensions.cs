@@ -11,7 +11,7 @@ public static class ConfigurationExtensions
             KcAdminUser = builder.AddParameter("kc-admin-user"),
             KcAdminPassword = builder.AddParameter("kc-admin-password"/*, secret: true*/),
             KcGatewaySecret = builder.AddParameter("kc-gateway-secret"/*, secret: true*/),
-            KcAdminSecret = builder.AddParameter("kc-admin-client-secret"/*, secret: true*/),
+            KcAdminSecret = builder.AddParameter("kc-admin-secret"/*, secret: true*/),
             AppBaseUrl = builder.AddParameter("app-base-url"),
             ClientAudience = builder.AddParameter("client-audience"),
             RabbitUser = builder.AddParameter("rabbit-user"),

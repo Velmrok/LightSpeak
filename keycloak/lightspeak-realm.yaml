@@ -50,7 +50,7 @@ clients:
     serviceAccountsEnabled: true
     standardFlowEnabled: false
     directAccessGrantsEnabled: false
-    secret: "$(env:KC_ADMIN_CLIENT_SECRET)"
+    secret: "$(env:KC_ADMIN_SECRET)"
 
 users:
   - username: testuser

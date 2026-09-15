@@ -7,19 +7,22 @@ public class AuthClient
 {
     public const string testUserName = "testuser";
     public const string testUserPassword = "testuser";
+    public const string testUserEmail = "testuser@test.test";
     private static readonly TimeSpan DefaultTimeout = TimeSpan.FromSeconds(30);
-    public static CookieContainer _cookieContainer { get; } = new();
+    public static CookieContainer CookieContainer { get; } = new();
+
+
 
     public void ResetCookies()
     {
-        foreach (Cookie cookie in _cookieContainer.GetAllCookies())
+        foreach (Cookie cookie in CookieContainer.GetAllCookies())
         {
             cookie.Expired = true;
         }
     }
     private void DisableSecureCookies()
     {
-        foreach (Cookie cookie in _cookieContainer.GetAllCookies())
+        foreach (Cookie cookie in CookieContainer.GetAllCookies())
         {
             cookie.Secure = false;
 
@@ -42,6 +45,12 @@ public class AuthClient
 
         return response;
     }
+    public async Task<string> CreateTestUserAsync(HttpClient authHttpClient, string kcAdminSecret, CancellationToken ct)
+    {
+        var keycloakClient = new KeycloakAdminClient(authHttpClient, "lightspeak", kcAdminSecret);
+        return await keycloakClient.CreateUserAsync(testUserName, testUserEmail, testUserPassword, ct);
+    }
+
     public async Task<HttpResponseMessage> LoginAsync
     (HttpClient browser, TimeSpan? timeout = null, CancellationToken ct = default, string user = testUserName, string pass = testUserPassword)
     {

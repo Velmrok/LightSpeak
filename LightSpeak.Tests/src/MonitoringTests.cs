@@ -9,38 +9,40 @@ public class MonitoringTests : TestBase
     public MonitoringTests(AppFixture fixture) : base(fixture)
     {
     }
+    private async Task AssertResourceIsHealthyAsync(string resourceName, string healthEndpoint, CancellationToken ct)
+    {
+        await WaitForResourceRunningAsync(ResourcesNames.Gateway, ct);
+        await WaitForResourceRunningAsync(resourceName, ct);
+
+        var client = Fixture.CreateGatewayClient();
+        var resp = await client.GetAsync(healthEndpoint, ct).WaitAsync(DefaultTimeout, ct);
+        Assert.Equal(HttpStatusCode.OK, resp.StatusCode);
+    }
     [Fact]
     public async Task ComposeService_IsHealthy()
     {
         var ct = CancellationToken.None;
-        await WaitForResourceRunningAsync(ResourcesNames.Gateway, ct);
-        await WaitForResourceRunningAsync(ResourcesNames.ComposeService, ct);
-
-        var client = Fixture.CreateGatewayClient();
-        var resp = await client.GetAsync("compose/health", ct).WaitAsync(DefaultTimeout, ct);
-        Assert.Equal(HttpStatusCode.OK, resp.StatusCode);
+        await AssertResourceIsHealthyAsync(ResourcesNames.ComposeService, "compose/health", ct);
     }
     [Fact]
     public async Task Gateway_IsHealthy()
     {
         var ct = CancellationToken.None;
-        await WaitForResourceRunningAsync(ResourcesNames.Gateway, ct);
-
-        var client = Fixture.CreateGatewayClient();
-        var resp = await client.GetAsync("health", ct).WaitAsync(DefaultTimeout, ct);
-        Assert.Equal(HttpStatusCode.OK, resp.StatusCode);
+        await AssertResourceIsHealthyAsync(ResourcesNames.Gateway, "health", ct);
     }
      [Fact]
     public async Task ProfileService_IsHealthy()
     {
         var ct = CancellationToken.None;
-        await WaitForResourceRunningAsync(ResourcesNames.Gateway, ct);
-        await WaitForResourceRunningAsync(ResourcesNames.ProfileService, ct);
-
-        var client = Fixture.CreateGatewayClient();
-        var resp = await client.GetAsync("profile/health", ct).WaitAsync(DefaultTimeout, ct);
-        Assert.Equal(HttpStatusCode.OK, resp.StatusCode);
+        await AssertResourceIsHealthyAsync(ResourcesNames.ProfileService, "profile/health", ct);
     }
+    [Fact]
+    public async Task ServersService_IsHealthy()
+    {
+        var ct = CancellationToken.None;
+        await AssertResourceIsHealthyAsync(ResourcesNames.ServersService, "servers/health", ct);
+    }
+
     
     
 }

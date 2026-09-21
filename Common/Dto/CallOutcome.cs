@@ -1,3 +1,4 @@
+using Common.Errors;
 using Common.Grpc;
 
 namespace Common.Dto;

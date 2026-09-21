@@ -31,6 +31,7 @@
     <ProjectReference Include="..\LightSpeak.AppHost\LightSpeak.AppHost.csproj" />
     <ProjectReference Include="..\Debug\Debug.csproj" />
     <ProjectReference Include="..\ProfileService\ProfileService.csproj" />
+    <ProjectReference Include="..\ServersService\ServersService.csproj" />
   </ItemGroup>
 
 </Project>

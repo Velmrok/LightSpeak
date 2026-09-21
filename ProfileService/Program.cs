@@ -1,6 +1,7 @@
 using Common;
 using Common.Constants;
 using Common.Dto;
+using Common.Services;
 using ImTools;
 using JasperFx.Core;
 using Microsoft.AspNetCore.Server.Kestrel.Core;
@@ -53,7 +54,7 @@ builder.UseWolverine(opts =>
     o.PropertyNameCaseInsensitive = true;
 });
 });
-
+builder.Services.AddScoped<IResponseBuilderService, ResponseBuilderService>();
 builder.Services.AddScoped<IProfileApplicationService, ProfileApplicationService>();
 
 builder.Services.AddGrpc();

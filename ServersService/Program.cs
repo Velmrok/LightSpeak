@@ -5,6 +5,7 @@ using ServersService.src.endpoints;
 using Common.Grpc;
 using ServersService.src.services;
 using Common.Clients;
+using Common.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -19,9 +20,11 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 
 builder.Services.AddAndConfigureProfileServiceClient(builder.Configuration);
     builder.Services.AddSingleton<GrpcCallHandler>();
-    
+
+builder.Services.AddScoped<IResponseBuilderService, ResponseBuilderService>();
 builder.Services.AddScoped<IServersApplicationService, ServersApplicationService>();
 builder.Services.AddScoped<IProfileClient, ProfileGrpcClient>();
+
 var app = builder.Build();
 
 using (var scope = app.Services.CreateScope())

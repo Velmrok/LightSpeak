@@ -1,5 +1,6 @@
 using Common;
 using Common.Grpc;
+using Common.Services;
 using Debug;
 using Grpc.Core;
 using Protos;
@@ -16,7 +17,7 @@ builder.Services.AddGrpcClient<ProfileService.ProfileServiceClient>(o =>
 .ConfigureGrpcCredentials();
 
 builder.Services.AddHealthChecks();
-
+builder.Services.AddScoped<IResponseBuilderService, ResponseBuilderService>();
 var app = builder.Build();
 
 app.MapGet("/auth-token", (HttpRequest request) =>

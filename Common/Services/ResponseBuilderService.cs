@@ -1,26 +1,29 @@
 
+using System.Net;
 using Common.Dto;
 using Common.Grpc;
+using Common.Mappers;
 using Grpc.Core;
 using Microsoft.AspNetCore.Http;
 
 namespace Common.Services;
 
-public class ResponseBuilderService : IResponseBuilderService
+public class ResponseBuilderService : IResponseBuilderService 
 {
-    public IResult BuildResponse<TData>(IEnumerable<ICallOutcome> results, Func<TData> buildData)
+    public IResult BuildResponse<TData>(HttpStatusCode successStatusCode, IEnumerable<ICallOutcome> results, Func<TData> buildData)
     {
         if (TryBuildError(results, out var errorResponse))
             return errorResponse!;
 
-        return BuildSuccessResponse(buildData(), results);
+        return BuildSuccessResponse(successStatusCode, buildData(), results);
     }
-    public IResult BuildResponse<TData>(ICallOutcome result, Func<TData> buildData)
+    public IResult BuildResponse<TData>(HttpStatusCode successStatusCode, CallResult<TData> result, Func<TData> buildData)
     {
-        if (TryBuildError([result], out var errorResponse))
+        var outcome = result.AsOutcome(required: true);
+        if (TryBuildError([outcome], out var errorResponse))
             return errorResponse!;
 
-        return BuildSuccessResponse(buildData(), [result]);
+        return BuildSuccessResponse(successStatusCode, buildData(), [outcome]);
     }
     private bool TryBuildError(IEnumerable<ICallOutcome> results, out IResult? response)
     {
@@ -35,17 +38,17 @@ public class ResponseBuilderService : IResponseBuilderService
                 Details: top.Error.Details,
                 Errors: results.Where(r => r.Error != null).Select(e => new ErrorItem(e.Section, e.Error!.Code, e.Error.Details))
             );
-            response = top.Error.StatusCode.ToRestResponse(data);
+            response = Results.Json(data, statusCode: top.Error.StatusCode.ToHttp());
             return true;
         }
         response = null;
         return false;
     }
-    private IResult BuildSuccessResponse<TData>(TData data, IEnumerable<ICallOutcome> results)
+    private IResult BuildSuccessResponse<TData>(HttpStatusCode statusCode, TData data, IEnumerable<ICallOutcome> results)
     {
         var optionalFailed = results.Where(r => !r.Required && r.Error != null).ToList();
         var optionalErrors = optionalFailed.Select(e => new ErrorItem(e.Section, e.Error!.Code, e.Error.Details)).ToList();
         var response = new ApiResponse<TData>(Data: data, Errors: optionalErrors);
-        return StatusCode.OK.ToRestResponse(response);
+        return Results.Json(response, statusCode: (int)statusCode);
     }
 }

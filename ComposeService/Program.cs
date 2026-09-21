@@ -8,6 +8,7 @@ using ComposeService.src.dto;
 using Common.Dto;
 using Protos;
 using static Protos.ProfileService;
+using System.Net;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -42,7 +43,7 @@ app.MapGet("/home", async (IProfileClient client, IResponseBuilderService respon
 
     var outcomes = results.Select(r => r.AsOutcome(true)).ToList();
    
-    return responseBuilder.BuildResponse(outcomes,
+    return responseBuilder.BuildResponse(HttpStatusCode.OK, outcomes,
         () =>
             {
                 var profileData = results[0].Data!;

@@ -24,7 +24,7 @@ public class RegisterEventHandler
         };
         var result = await _profileService.CreateProfileAsync(profile, CancellationToken.None);
 
-        if (result.IsError)
+        if (!result.IsSuccess())
             return; // LOGGING
         
 

@@ -1,5 +1,5 @@
+using Common.Errors;
 using Common.Grpc;
-using ErrorOr;
 using Grpc.Core;
 
 namespace Common.Mappers;
@@ -27,7 +27,7 @@ public static class AppErrorMapper
         var details = string.IsNullOrWhiteSpace(ex.Status.Detail)
         ? $"gRPC call failed with {ex.StatusCode}"
         : ex.Status.Detail;
-        return new AppError(statusCode, code, details);
+        return new AppError(statusCode.ToDomainErrorCode(), code, details);
     }
     public static RpcException ToRpcException(this AppError error)
     {
@@ -35,18 +35,6 @@ public static class AppErrorMapper
         {
             { AppError.ErrorTitleKey, error.Code }
         };
-        return new RpcException(new Status(error.StatusCode, error.Details ?? string.Empty), trailers);
-    }
-    public static Error ToErrorOr(this AppError error)
-    {
-        return error.StatusCode switch
-        {
-            StatusCode.Unauthenticated => Error.Unauthorized(error.Code, error.Details),
-            StatusCode.PermissionDenied => Error.Forbidden(error.Code, error.Details),
-            StatusCode.InvalidArgument => Error.Validation(error.Code, error.Details),
-            StatusCode.ResourceExhausted => Error.Custom(429, error.Code, error.Details),
-            StatusCode.Unknown => Error.Failure(error.Code, error.Details),
-            _ => Error.Unexpected(error.Code, error.Details)
-        };
+        return new RpcException(new Status(error.StatusCode.ToGrpc(), error.Details ?? string.Empty), trailers);
     }
 }

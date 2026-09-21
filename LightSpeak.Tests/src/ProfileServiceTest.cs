@@ -86,7 +86,7 @@ public class ProfileServiceTest : TestBase
         
         var profileService = new ProfileApplicationService(await CreateDbContext(ct));
         var result = await profileService.CreateProfileAsync(profile, ct);
-        Assert.True(result.IsSuccess);
+        Assert.True(result.IsSuccess());
 
         var dbContext = await CreateDbContext(ct);
         var createdProfile = dbContext.Profiles.FirstOrDefault(p => p.Id == id);
@@ -114,10 +114,10 @@ public class ProfileServiceTest : TestBase
         
         var profileService = new ProfileApplicationService(await CreateDbContext(ct));
         var result1 = await profileService.CreateProfileAsync(profile, ct);
-        Assert.True(result1.IsSuccess);
+        Assert.True(result1.IsSuccess());
 
         var result2 = await profileService.CreateProfileAsync(profile, ct);
-        Assert.False(result2.IsSuccess);
+        Assert.False(result2.IsSuccess());
     }
     
 }

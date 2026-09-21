@@ -1,9 +1,10 @@
-using ErrorOr;
+using Common.Dto;
+
 using ServersService.src.dto;
 
 namespace ServersService.src.services;
 
 public interface IServersApplicationService
 {
-    Task<ErrorOr<CreateServerResponse>> CreateServerAsync(CreateServerRequest request,string userId, CancellationToken cancellationToken);
+    Task<CallResult<CreateServerResponse>> CreateServerAsync(CreateServerRequest request,string userId, CancellationToken cancellationToken);
 }

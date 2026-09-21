@@ -1,11 +1,11 @@
+using Common.Clients;
 using Common.Dto;
-using ErrorOr;
 
 namespace ProfileService.src.services;
 
-public interface IProfileApplicationService
+public interface IProfileApplicationService : ISectionProvider
 {
-    Task<ErrorOr<Profile>> GetProfileAsync(string userId, CancellationToken ct);
-    Task<ErrorOr<Success>> CreateProfileAsync(Profile profile, CancellationToken ct);
-    Task<ErrorOr<GetUserSnapshotResponse>> GetUserSnapshotAsync(string userId, CancellationToken ct);
+    Task<CallResult<Profile>> GetProfileAsync(string userId, CancellationToken ct);
+    Task<CallResult<Empty>> CreateProfileAsync(Profile profile, CancellationToken ct);
+    Task<CallResult<GetUserSnapshotResponse>> GetUserSnapshotAsync(string userId, CancellationToken ct);
 }

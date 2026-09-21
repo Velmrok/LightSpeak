@@ -1,8 +1,8 @@
 using System.IdentityModel.Tokens.Jwt;
-using Common.Grpc;
 using ServersService.src.dto;
 using ServersService.src.services;
-using Common.Mappers;
+using Common.Services;
+using System.Net;
 
 
 namespace ServersService.src.endpoints;
@@ -15,17 +15,15 @@ public static class ServersEndpoints
         return app;
     }
     // TODO : Max servers created by user based on role
-    private static async Task<IResult> CreateServer(CreateServerRequest request, IServersApplicationService service, HttpContext ctx)
+    private static async Task<IResult> CreateServer(CreateServerRequest request, IServersApplicationService service, HttpContext ctx,
+     IResponseBuilderService responseBuilder)
     {
         var userId = ctx.User.FindFirst(JwtRegisteredClaimNames.Sub)?.Value!;
         var result = await service.CreateServerAsync(request, userId, ctx.RequestAborted);
-        if (result.IsError)
-        {
-            var (statusCode, body) = result.ToErrorResponse();
-            return Results.Json(body, statusCode: statusCode);
-        }
-        var response = result.Value;
-        return Results.Created($"{response.Id}", response);
+ 
+        var data = result.Data;
+        return responseBuilder.BuildResponse(HttpStatusCode.Created, result,() => data!);
+
     }
     
 }

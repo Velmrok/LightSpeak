@@ -9,6 +9,7 @@ using System.Security.Claims;
 using Google.Protobuf.WellKnownTypes;
 using ProfileService.src.services;
 using Common.Mappers;
+using Common.Dto;
 namespace ProfileService.src.grpc;
 
 public class ProfileGrpcService : Protos.ProfileService.ProfileServiceBase
@@ -19,17 +20,17 @@ public class ProfileGrpcService : Protos.ProfileService.ProfileServiceBase
         _profileService = profileService;
     }
     [Authorize]
-    public override async Task<GetUserProfileResponse> GetUserProfile(GetUserProfileRequest request, ServerCallContext context)
+    public override async Task<Protos.GetUserProfileResponse> GetUserProfile(GetUserProfileRequest request, ServerCallContext context)
     {
         string userId = context.GetHttpContext()?.User?.FindFirstValue(JwtRegisteredClaimNames.Sub)!;
         var result = await _profileService.GetProfileAsync(userId, CancellationToken.None);
-        if (result.IsError)
+        if (!result.IsSuccess())
         {
-            throw result.FirstError.ToRpcException();
+            throw result.Error!.ToRpcException();
         }
-        var profile = result.Value;
+        var profile = result.Data!;
 
-        var response = new GetUserProfileResponse
+        var response = new Protos.GetUserProfileResponse
         {
             UserId = profile.Id,
             Username = profile.Username,
@@ -39,18 +40,18 @@ public class ProfileGrpcService : Protos.ProfileService.ProfileServiceBase
         return response;
     }
     [Authorize]
-    public override async Task<Empty> GetAuthCheck(Empty request, ServerCallContext context)
+    public override async Task<Google.Protobuf.WellKnownTypes.Empty> GetAuthCheck(Google.Protobuf.WellKnownTypes.Empty request, ServerCallContext context)
     {
-        return new Empty();
+        return new Google.Protobuf.WellKnownTypes.Empty();
     }
-    public override async Task<GetUserSnapshotResponse> GetUserSnapshot(GetUserSnapshotRequest request, ServerCallContext context)
+    public override async Task<Protos.GetUserSnapshotResponse> GetUserSnapshot(GetUserSnapshotRequest request, ServerCallContext context)
     {
         var result = await _profileService.GetUserSnapshotAsync(request.UserId, CancellationToken.None);
-        if (result.IsError)
+        if (!result.IsSuccess())
         {
-            throw result.FirstError.ToRpcException();
+            throw result.Error!.ToRpcException();
         }
-        var snapshot = result.Value;
+        var snapshot = result.Data!;
 
         return snapshot.MapToGrpcDto();
     }

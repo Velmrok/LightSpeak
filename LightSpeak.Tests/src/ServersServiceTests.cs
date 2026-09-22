@@ -35,9 +35,9 @@ public class ServersServiceTest : TestBase
         var json = await client.PostAsJsonAsync("/servers", request, ct);
         Assert.Equal(HttpStatusCode.Created, json.StatusCode);
         
-        var response = await json.Content.ReadFromJsonAsync<ApiResponse<CreateServerResponse>>(cancellationToken: ct);
-        Assert.NotNull(response);
+        var response = await ReadFromJson<CreateServerResponse>(json, ct);
         Assert.NotNull(response.Data);
+        Assert.Null(response.Errors);
         
         var data = response.Data;
         Assert.Equal(request.Name, data.Name);

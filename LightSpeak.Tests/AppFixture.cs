@@ -72,19 +72,21 @@ public partial class AppFixture : IAsyncLifetime
         RabbitMqConnection = await factory.CreateConnectionAsync();
         
         var authClient = new AuthClient();
-        var testUserId = await authClient.CreateTestUserAsync(App.CreateHttpClient(ResourcesNames.Keycloak, "http"),kcAdminSecret, ct);
-        await AssertTestUserHasBeenCreatedAsync(testUserId, ct);
+        var testUsersIds = await authClient.CreateTestUsersAsync(App.CreateHttpClient(ResourcesNames.Keycloak, "http"),kcAdminSecret,ct);
+
+        await AssertTestUserHasBeenCreatedAsync(testUsersIds[0], AuthClient.testUserName, ct);
+        await AssertTestUserHasBeenCreatedAsync(testUsersIds[1], AuthClient.testUserName2, ct);
     }
 
     // BAD not OCP code, no idea for now how to handle it better
-    private async Task AssertTestUserHasBeenCreatedAsync(string id, CancellationToken ct)
+    private async Task AssertTestUserHasBeenCreatedAsync(string id, string username, CancellationToken ct)
     {
         await Eventually.Assert(async () =>
         {
             var dbContext = await CreateDbContextAsync<ProfileService.src.database.AppDbContext>(ResourcesNames.ProfileDatabase, ct);
             var profile = await dbContext.Profiles.FirstOrDefaultAsync(p => p.Id == id, ct);
             Assert.NotNull(profile);
-            Assert.Equal(AuthClient.testUserName, profile.Username);
+            Assert.Equal(username, profile.Username);
         }, TimeSpan.FromSeconds(15), ct);
     }
 

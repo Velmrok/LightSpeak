@@ -8,6 +8,11 @@ public class AuthClient
     public const string testUserName = "testuser";
     public const string testUserPassword = "testuser";
     public const string testUserEmail = "testuser@test.test";
+    
+    public const string testUserName2 = "testuser2";
+    public const string testUserPassword2 = "testuser2";
+    public const string testUserEmail2 = "testuser2@test.test";
+
     private static readonly TimeSpan DefaultTimeout = TimeSpan.FromSeconds(30);
     public static CookieContainer CookieContainer { get; } = new();
 
@@ -45,11 +50,17 @@ public class AuthClient
 
         return response;
     }
-    public async Task<string> CreateTestUserAsync(HttpClient authHttpClient, string kcAdminSecret, CancellationToken ct)
+    public async Task<List<string>> CreateTestUsersAsync(HttpClient authHttpClient, string kcAdminSecret,CancellationToken ct = default)
     {
         var keycloakClient = new KeycloakAdminClient(authHttpClient, "lightspeak", kcAdminSecret);
-        return await keycloakClient.CreateUserAsync(testUserName, testUserEmail, testUserPassword, ct);
+        var userIds = new List<string>
+        {
+            await keycloakClient.CreateUserAsync(testUserName, testUserEmail, testUserPassword, ct),
+            await keycloakClient.CreateUserAsync(testUserName2, testUserEmail2, testUserPassword2, ct)
+        };
+        return userIds;
     }
+
 
     public async Task<HttpResponseMessage> LoginAsync
     (HttpClient browser, TimeSpan? timeout = null, CancellationToken ct = default, string user = testUserName, string pass = testUserPassword)

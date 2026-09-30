@@ -165,4 +165,27 @@ public class ServersServiceTest : TestBase
         var json = await client.PostAsJsonAsync($"/servers/{serverId}/channels", request, ct);
         Assert.Equal(HttpStatusCode.BadRequest, json.StatusCode);
     }
+    [Fact]
+    public async Task CreateChannel_Returns404_NotFound_WhenUserIsNotMemberOfServer()
+    {
+        var channelName = "Test Channel";
+        var serverName = "Test Server";
+        var ct = CancellationToken.None;
+        var client = Fixture.CreateGatewayClient();
+        await _authClient.LoginAsync(client, DefaultTimeout, ct);
+
+        var serverData = await CreateServerAsync(client, serverName, ct);
+        var serverId = serverData.ServerId;
+        _authClient.ResetCookies();
+        await _authClient.LoginAsync(client, DefaultTimeout, ct, AuthClient.testUserName2, AuthClient.testUserPassword2);
+
+        var request = new CreateChannelRequest
+        (
+            Name: channelName
+        );
+        
+        var json = await client.PostAsJsonAsync($"/servers/{serverId}/channels", request, ct);
+        Assert.Equal(HttpStatusCode.NotFound, json.StatusCode);
+    }
+
 }

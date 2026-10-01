@@ -187,5 +187,38 @@ public class ServersServiceTest : TestBase
         var json = await client.PostAsJsonAsync($"/servers/{serverId}/channels", request, ct);
         Assert.Equal(HttpStatusCode.NotFound, json.StatusCode);
     }
+    [Fact]
+    public async Task PostsMessage_Correctly_OnPostMessageRequest_WhileBeingMemberOfAServer()
+    {
+        var channelName = "Test Channel";
+        var serverName = "Test Server";
+        var messageContent = "Hello, world!";
+        var ct = CancellationToken.None;
+        var client = Fixture.CreateGatewayClient();
+        await _authClient.LoginAsync(client, DefaultTimeout, ct);
 
+        var serverData = await CreateServerAsync(client, serverName, ct);
+        var serverId = serverData.ServerId;
+
+        var channelData = await CreateChannelAsync(client, serverId, channelName, ct);
+        var channelId = channelData.ChannelId;
+
+        var request = new PostMessageRequest
+        (
+            Content: messageContent
+        );
+
+        var json = await client.PostAsJsonAsync($"servers/channels/{channelId}/messages", request, ct);
+        Assert.Equal(HttpStatusCode.Created, json.StatusCode);
+
+        var response = await ReadFromJson<PostMessageResponse>(json, ct);
+        var data = response.Data;
+        Assert.NotNull(data);
+        Assert.Equal(messageContent, data.Content);
+    
+        var dbContext = await CreateDbContext(ct);
+        var messageInDb = await dbContext.ChatMessages.FirstOrDefaultAsync(m => m.Id == data.MessageId, ct);
+        Assert.NotNull(messageInDb);
+        Assert.Equal(messageContent, messageInDb.Content);
+    }
 }

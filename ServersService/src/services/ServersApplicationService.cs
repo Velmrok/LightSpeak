@@ -21,9 +21,6 @@ public class ServersApplicationService(AppDbContext db, IProfileClient profileCl
             var error = new AppError(DomainErrorCode.Validation,"InvalidChannelName", "Channel name cannot be empty or whitespace.");
             return new (section, null, error);
         }
-
-        var user = await GetUserSnapshot(userId, cancellationToken);
-        if (!user.IsSuccess()) return user.Fail<CreateChannelResponse>();
         
         var server = await db.Servers.Include(s => s.Members).FirstOrDefaultAsync(s => s.Id == serverId, cancellationToken);
         
@@ -87,8 +84,6 @@ public class ServersApplicationService(AppDbContext db, IProfileClient profileCl
         );
         return new(ResourcesSectionNames.Servers, response, null);
     }
-
-    
     private async Task<CallResult<UserSnapshot>> GetUserSnapshot(string userId, CancellationToken cancellationToken)
     {
         var user = await db.UserSnapshots.FirstOrDefaultAsync(m => m.Id == userId, cancellationToken);
@@ -114,4 +109,39 @@ public class ServersApplicationService(AppDbContext db, IProfileClient profileCl
         return new(ResourcesSectionNames.Servers, user, null);
     }
 
+    public async Task<CallResult<PostMessageResponse>> PostMessageAsync(string channelId, PostMessageRequest request, string userId, CancellationToken cancellationToken)
+    {
+        if (string.IsNullOrWhiteSpace(request.Content))
+        {
+            var error = new AppError(DomainErrorCode.Validation,"InvalidMessageContent", "Message content cannot be empty or whitespace.");
+            return new (section, null, error);
+        }
+
+        var channel = await db.Channels.Include(c => c.Server).ThenInclude(s => s.Members).FirstOrDefaultAsync(c => c.Id == channelId, cancellationToken);
+        
+        // Even if the channel exists, return 404 for unauthorized users to avoid revealing the existence of the channel.
+        if (channel == null || !channel.Server.Members.Any(m => m.UserId == userId))
+        {
+            var error = new AppError(DomainErrorCode.NotFound, "ChannelNotFound", $"Channel with ID '{channelId}' not found.");
+            return new (section, null, error);
+        }
+
+        var message = new ChatMessage
+        {
+            Id = Guid.NewGuid().ToString(),
+            SenderId = userId,
+            Content = request.Content,
+            ChannelId = channel.Id
+        };
+
+        db.ChatMessages.Add(message);
+        await db.SaveChangesAsync(cancellationToken);
+
+        var response = new PostMessageResponse
+        (
+            Content: message.Content,
+            MessageId: message.Id
+        );
+        return new(ResourcesSectionNames.Servers, response, null);
+    }
 }

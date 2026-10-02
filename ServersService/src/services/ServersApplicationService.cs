@@ -142,6 +142,6 @@ public class ServersApplicationService(AppDbContext db, IProfileClient profileCl
             Content: message.Content,
             MessageId: message.Id
         );
-        return new(ResourcesSectionNames.Servers, response, null);
+        return new(section, response, null); 
     }
 }

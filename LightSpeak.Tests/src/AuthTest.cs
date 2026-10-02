@@ -31,9 +31,9 @@ public class AuthTest : TestBase
         var ct = CancellationToken.None;
         await WaitForResourceRunningAsync(ResourcesNames.Gateway, ct);
         var client = Fixture.CreateGatewayClient();
-  
+        var user = await CreateUniqueTestUserAsync(ct);
         
-        var resp = await _authClient.LoginAsync(client, DefaultTimeout, ct);
+        var resp = await _authClient.LoginAsync(client, user.Username, user.Password, ct);
         Assert.Equal(HttpStatusCode.OK, resp.StatusCode);
     }
     [Fact]
@@ -43,7 +43,7 @@ public class AuthTest : TestBase
         await WaitForResourceRunningAsync(ResourcesNames.Gateway, ct);
 
         var client = Fixture.CreateGatewayClient();
-        await _authClient.LoginAsync(client, DefaultTimeout, ct);
+         await LoginOnFreshTestUserAsync(client,ct);
 
         var resp = await client.GetAsync("/users/me", ct).WaitAsync(DefaultTimeout, ct);
         Assert.Equal(HttpStatusCode.OK, resp.StatusCode);
@@ -54,7 +54,7 @@ public class AuthTest : TestBase
         var ct = CancellationToken.None;
         await WaitForResourceRunningAsync(ResourcesNames.Gateway, ct);
         var client = Fixture.CreateGatewayClient();
-        await _authClient.LoginAsync(client, DefaultTimeout, ct);
+         await LoginOnFreshTestUserAsync(client,ct);
            
         var resp = await client.PostAsync("/logout", null, ct).WaitAsync(DefaultTimeout, ct);
         Assert.Equal(HttpStatusCode.OK, resp.StatusCode);
@@ -69,7 +69,7 @@ public class AuthTest : TestBase
         await WaitForResourceRunningAsync(ResourcesNames.Gateway, ct);
         var client = Fixture.CreateGatewayClient();
 
-        await _authClient.LoginAsync(client, DefaultTimeout, ct);
+         await LoginOnFreshTestUserAsync(client,ct);
         
         var resp = await client.GetAsync("/debug/token", ct).WaitAsync(DefaultTimeout, ct);
         Assert.Equal(HttpStatusCode.OK, resp.StatusCode);
@@ -91,7 +91,7 @@ public class AuthTest : TestBase
         await WaitForResourceRunningAsync(ResourcesNames.Gateway, ct);
         var client = Fixture.CreateGatewayClient();
 
-        await _authClient.LoginAsync(client, DefaultTimeout, ct);
+         await LoginOnFreshTestUserAsync(client,ct);
         
         var resp = await client.GetAsync("/debug/auth-token", ct).WaitAsync(DefaultTimeout, ct);
         Assert.Equal(HttpStatusCode.OK, resp.StatusCode);
@@ -136,7 +136,7 @@ public class AuthTest : TestBase
         await WaitForResourceRunningAsync(ResourcesNames.Gateway, ct);
         var client = Fixture.CreateGatewayClient();
         
-        await _authClient.LoginAsync(client, DefaultTimeout, ct);
+         await LoginOnFreshTestUserAsync(client,ct);
 
         var resp = await client.GetAsync("/debug/grpc-auth-check", ct).WaitAsync(DefaultTimeout, ct);
         Assert.Equal(HttpStatusCode.OK, resp.StatusCode);

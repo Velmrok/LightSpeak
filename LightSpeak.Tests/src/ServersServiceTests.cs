@@ -75,7 +75,7 @@ public class ServersServiceTest : TestBase
     {
         var ct = CancellationToken.None;
         var client = Fixture.CreateGatewayClient();
-        await _authClient.LoginAsync(client, DefaultTimeout, ct);
+        var user = await LoginOnFreshTestUserAsync(client,ct);
         var name = "Test Server";
 
         var data = await CreateServerAsync(client, name, ct);
@@ -92,7 +92,7 @@ public class ServersServiceTest : TestBase
             .ToListAsync(ct);
         Assert.Single(members);
         var member = members.First();
-        Assert.Equal( AuthClient.testUserName,member.User.Name);
+        Assert.Equal( user.Username,member.User.Name);
     }
     [Fact]
     public async Task CreateServer_Returns401_Unauthorized_WhenNotLoggedIn()
@@ -115,7 +115,7 @@ public class ServersServiceTest : TestBase
         var ct = CancellationToken.None;
 
         var client = Fixture.CreateGatewayClient();
-        await _authClient.LoginAsync(client, DefaultTimeout, ct);
+         await LoginOnFreshTestUserAsync(client,ct);
         var request = new CreateServerRequest
         (
             Name: ""
@@ -134,7 +134,7 @@ public class ServersServiceTest : TestBase
 
         var client = Fixture.CreateGatewayClient();
 
-        await _authClient.LoginAsync(client, DefaultTimeout, ct);
+         await LoginOnFreshTestUserAsync(client,ct);
         var serverData = await CreateServerAsync(client, serverName, ct);
         var serverId = serverData.ServerId;
         
@@ -154,7 +154,7 @@ public class ServersServiceTest : TestBase
         var name = "Test Channel";
         var ct = CancellationToken.None;
         var client = Fixture.CreateGatewayClient();
-        await _authClient.LoginAsync(client, DefaultTimeout, ct);
+         await LoginOnFreshTestUserAsync(client,ct);
 
         var request = new CreateChannelRequest
         (
@@ -171,7 +171,7 @@ public class ServersServiceTest : TestBase
         var serverName = "Test Server";
         var ct = CancellationToken.None;
         var client = Fixture.CreateGatewayClient();
-        await _authClient.LoginAsync(client, DefaultTimeout, ct);
+         await LoginOnFreshTestUserAsync(client,ct);
 
         var serverData = await CreateServerAsync(client, serverName, ct);
         var serverId = serverData.ServerId;
@@ -190,12 +190,13 @@ public class ServersServiceTest : TestBase
         var serverName = "Test Server";
         var ct = CancellationToken.None;
         var client = Fixture.CreateGatewayClient();
-        await _authClient.LoginAsync(client, DefaultTimeout, ct);
+         await LoginOnFreshTestUserAsync(client,ct);
 
         var serverData = await CreateServerAsync(client, serverName, ct);
         var serverId = serverData.ServerId;
         _authClient.ResetCookies();
-        await _authClient.LoginAsync(client, DefaultTimeout, ct, AuthClient.testUserName2, AuthClient.testUserPassword2);
+        
+        await LoginOnFreshTestUserAsync(client,ct);
 
         var request = new CreateChannelRequest
         (
@@ -213,7 +214,7 @@ public class ServersServiceTest : TestBase
         var messageContent = "Hello, world!";
         var ct = CancellationToken.None;
         var client = Fixture.CreateGatewayClient();
-        await _authClient.LoginAsync(client, DefaultTimeout, ct);
+         await LoginOnFreshTestUserAsync(client,ct);
 
         var serverData = await CreateServerAsync(client, serverName, ct);
         var serverId = serverData.ServerId;
@@ -247,7 +248,7 @@ public class ServersServiceTest : TestBase
         var messageContent = "Hello, world!";
         var ct = CancellationToken.None;
         var client = Fixture.CreateGatewayClient();
-        await _authClient.LoginAsync(client, DefaultTimeout, ct);
+         await LoginOnFreshTestUserAsync(client,ct);
 
         var serverData = await CreateServerAsync(client, serverName, ct);
         var serverId = serverData.ServerId;
@@ -270,6 +271,42 @@ public class ServersServiceTest : TestBase
                 Assert.NotNull(evt);
                 Assert.Equal(messageContent, evt.Content);
                 Assert.Equal(channelId, evt.ChannelId);
+            }, TimeSpan.FromSeconds(15), ct);
+    }
+    [Fact]
+    public async Task UserChangedDataHandler_UpdatesUserDataInDatabase_Correctly_OnUserChangedDataEvent()
+    {
+ 
+        var serverName = "Test Server";
+        var ct = CancellationToken.None;
+        var client = Fixture.CreateGatewayClient();
+        var user = await LoginOnFreshTestUserAsync(client,ct);
+
+        await CreateServerAsync(client, serverName, ct); // Create a server to ensure the userSnapshot exists in the database
+        await Eventually.Assert(
+            async () =>
+            {
+                var dbContext = await CreateDbContext(ct);
+                var userSnapshot = await dbContext.UserSnapshots.AsNoTracking().FirstOrDefaultAsync(u => u.Id == user.Id, ct);
+                Assert.NotNull(userSnapshot);
+            }, TimeSpan.FromSeconds(15), ct);
+
+        var evt = new UserDataChangedEvent(
+            UserId: user.Id,
+            Username: "UpdatedUsername",
+            AvatarUrl: "https://example.com/avatar.jpg"
+        );
+    
+        await RabbitMqTestHelper.PublishEventAsync(Fixture.RabbitMqConnection, UserDataChangedEvent.RoutingKey, evt, ct);
+
+        await Eventually.Assert(
+            async () =>
+            {
+                var dbContext = await CreateDbContext(ct);
+                var userSnapshot = await dbContext.UserSnapshots.AsNoTracking().FirstOrDefaultAsync(u => u.Id == user.Id, ct);
+                Assert.NotNull(userSnapshot);
+                Assert.Equal(evt.Username, userSnapshot.Name);
+                Assert.Equal(evt.AvatarUrl, userSnapshot.AvatarUrl);
             }, TimeSpan.FromSeconds(15), ct);
     }
 }

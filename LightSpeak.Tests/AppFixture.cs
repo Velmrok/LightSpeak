@@ -4,6 +4,7 @@ using HtmlAgilityPack;
 using LightSpeak.AppHost.src.Constants;
 using LightSpeak.Tests.src;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using ModelContextProtocol.Protocol;
 using RabbitMQ.Client;
@@ -16,6 +17,7 @@ public class AspireCollectionDefinition : ICollectionFixture<AppFixture>{}
 public partial class AppFixture : IAsyncLifetime
 {
     public IConnection RabbitMqConnection { get; private set; } = null!;
+    public IConfiguration Configuration { get; private set; } = null!;
     public DistributedApplication App = null!;
     public HttpClient CreateGatewayClient() => App.CreateHttpClient("gateway", "http");
     public async Task<TContext> CreateDbContextAsync<TContext>(string connectionStringName,CancellationToken ct = default) where TContext : DbContext
@@ -28,7 +30,7 @@ public partial class AppFixture : IAsyncLifetime
     }
     public async Task InitializeAsync()
     {
-        
+
         CancellationToken ct = CancellationToken.None;
         var builder = await DistributedApplicationTestingBuilder.CreateAsync<Projects.LightSpeak_AppHost>(
             ["IsTesting=true"], ct);
@@ -71,11 +73,6 @@ public partial class AppFixture : IAsyncLifetime
 
         RabbitMqConnection = await factory.CreateConnectionAsync();
         
-        var authClient = new AuthClient();
-        var testUsersIds = await authClient.CreateTestUsersAsync(App.CreateHttpClient(ResourcesNames.Keycloak, "http"),kcAdminSecret,ct);
-
-        await AssertTestUserHasBeenCreatedAsync(testUsersIds[0], AuthClient.testUserName, ct);
-        await AssertTestUserHasBeenCreatedAsync(testUsersIds[1], AuthClient.testUserName2, ct);
     }
 
     // BAD not OCP code, no idea for now how to handle it better
@@ -90,7 +87,18 @@ public partial class AppFixture : IAsyncLifetime
         }, TimeSpan.FromSeconds(15), ct);
     }
 
+    public async Task<string> CreateTestUserAsync(string name, string email, string password,  CancellationToken ct = default)
+    {
+        var kcAdminSecret = Configuration["Parameters:kc-admin-secret"]!;
+        var keycloakHttpClient = App.CreateHttpClient(ResourcesNames.Keycloak, "http");
+        var keycloakClient = new KeycloakAdminClient(keycloakHttpClient, "lightspeak", kcAdminSecret);
 
+        var id = await keycloakClient.CreateUserAsync(name, email, password, ct);
+        await AssertTestUserHasBeenCreatedAsync(id, name, ct);
+        return id;
+
+
+    }
     public async Task DisposeAsync()
     {
         if(App is not null)

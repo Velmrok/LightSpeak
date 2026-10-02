@@ -7,10 +7,12 @@ using Common.Mappers;
 using Common.Dto;
 using Common.Constants;
 using Common.Errors;
+using Common.Services;
+using Common.Dto.Events;
 
 namespace ServersService.src.services;
 
-public class ServersApplicationService(AppDbContext db, IProfileClient profileClient) : IServersApplicationService
+public class ServersApplicationService(AppDbContext db, IProfileClient profileClient, IEventPublisher eventPublisher) : IServersApplicationService
 {
     private const string section = ResourcesSectionNames.Servers;
 
@@ -142,6 +144,14 @@ public class ServersApplicationService(AppDbContext db, IProfileClient profileCl
             Content: message.Content,
             MessageId: message.Id
         );
+        var senderSnapshotResult = await GetUserSnapshot(userId, cancellationToken);
+        if (!senderSnapshotResult.IsSuccess()) return senderSnapshotResult.Fail<PostMessageResponse>();
+
+        if (senderSnapshotResult.Data == null)
+             throw new InvalidOperationException("Sender snapshot data cannot be null after successful CallResult.");
+
+        var senderSnapshot = new SenderSnapshot(senderSnapshotResult.Data.Id, senderSnapshotResult.Data.Name, senderSnapshotResult.Data.AvatarUrl);
+        await eventPublisher.PublishEventAsync(new MessageCreatedEvent(message.Id, message.ChannelId, senderSnapshot, message.Content, message.Timestamp), cancellationToken);
         return new(section, response, null); 
     }
 }

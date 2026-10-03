@@ -17,6 +17,7 @@ builder.Services.AddServiceDiscovery()
 
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("servers-database")));
+builder.AddAndConfigureWolverine();
 
 builder.Services.AddAndConfigureProfileServiceClient(builder.Configuration);
     builder.Services.AddSingleton<GrpcCallHandler>();

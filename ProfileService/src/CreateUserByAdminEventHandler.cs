@@ -32,7 +32,7 @@ public class CreateUserByAdminEventHandler
         };
         var result = await _profileService.CreateProfileAsync(profile, CancellationToken.None);
 
-        if (!result.IsSuccess())
+        if (!result.IsSuccess)
             return; // LOGGING
         
 

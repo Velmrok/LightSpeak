@@ -24,7 +24,7 @@ public class ProfileGrpcService : Protos.ProfileService.ProfileServiceBase
     {
         string userId = context.GetHttpContext()?.User?.FindFirstValue(JwtRegisteredClaimNames.Sub)!;
         var result = await _profileService.GetProfileAsync(userId, CancellationToken.None);
-        if (!result.IsSuccess())
+        if (!result.IsSuccess)
         {
             throw result.Error!.ToRpcException();
         }
@@ -47,7 +47,7 @@ public class ProfileGrpcService : Protos.ProfileService.ProfileServiceBase
     public override async Task<Protos.GetUserSnapshotResponse> GetUserSnapshot(GetUserSnapshotRequest request, ServerCallContext context)
     {
         var result = await _profileService.GetUserSnapshotAsync(request.UserId, CancellationToken.None);
-        if (!result.IsSuccess())
+        if (!result.IsSuccess)
         {
             throw result.Error!.ToRpcException();
         }

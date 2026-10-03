@@ -13,7 +13,7 @@ using Common.Dto.Events;
 namespace ServersService.src.services;
 
 public class ServersApplicationService(AppDbContext db, IProfileClient profileClient, IEventPublisher eventPublisher) : IServersApplicationService
-{
+{ 
     private const string section = ResourcesSectionNames.Servers;
 
     public async Task<CallResult<CreateChannelResponse>> CreateChannelAsync(string serverId, CreateChannelRequest request, string userId, CancellationToken cancellationToken)
@@ -48,7 +48,7 @@ public class ServersApplicationService(AppDbContext db, IProfileClient profileCl
             Name : channel.Name,
             ChannelId : channel.Id
         );
-        return new(ResourcesSectionNames.Servers, response, null);
+        return CallResult.Success(section, response); 
     }
 
     public async Task<CallResult<CreateServerResponse>> CreateServerAsync(CreateServerRequest request,string userId, CancellationToken cancellationToken)
@@ -56,12 +56,12 @@ public class ServersApplicationService(AppDbContext db, IProfileClient profileCl
         if (string.IsNullOrWhiteSpace(request.Name))
         {
             var error = new AppError(DomainErrorCode.Validation,"InvalidServerName", "Server name cannot be empty or whitespace.");
-            return new (section, null, error);
+            return CallResult.Fail(section, error);
         }
         var user = await GetUserSnapshot(userId, cancellationToken);
-        if (!user.IsSuccess())
+        if (!user.IsSuccess) 
         {
-            return user.Fail<CreateServerResponse>();
+            return user.AsFailure();
         }
         
         var server = new Server
@@ -84,7 +84,7 @@ public class ServersApplicationService(AppDbContext db, IProfileClient profileCl
             Name : server.Name,
             ServerId : server.Id
         );
-        return new(ResourcesSectionNames.Servers, response, null);
+        return CallResult.Success(section, response);
     }
     private async Task<CallResult<UserSnapshot>> GetUserSnapshot(string userId, CancellationToken cancellationToken)
     {
@@ -92,9 +92,9 @@ public class ServersApplicationService(AppDbContext db, IProfileClient profileCl
         if (user == null)
         {
             var callResult = await profileClient.GetUserSnapshotAsync(userId, cancellationToken);
-            if (!callResult.IsSuccess())
+            if (!callResult.IsSuccess)
             {
-                return callResult.Fail<UserSnapshot>();
+                return callResult.AsFailure();
             }
             var userSnapshot = callResult.Data;
             ArgumentNullException.ThrowIfNull(userSnapshot, nameof(userSnapshot));
@@ -107,8 +107,9 @@ public class ServersApplicationService(AppDbContext db, IProfileClient profileCl
             };
            
             db.UserSnapshots.Add(newUser);
+            return CallResult.Success(section, newUser);
         }
-        return new(ResourcesSectionNames.Servers, user, null);
+        return CallResult.Success(section, user);
     }
 
     public async Task<CallResult<PostMessageResponse>> PostMessageAsync(string channelId, PostMessageRequest request, string userId, CancellationToken cancellationToken)
@@ -116,7 +117,7 @@ public class ServersApplicationService(AppDbContext db, IProfileClient profileCl
         if (string.IsNullOrWhiteSpace(request.Content))
         {
             var error = new AppError(DomainErrorCode.Validation,"InvalidMessageContent", "Message content cannot be empty or whitespace.");
-            return new (section, null, error);
+            return CallResult.Fail(section, error);
         }
 
         var channel = await db.Channels.Include(c => c.Server).ThenInclude(s => s.Members).FirstOrDefaultAsync(c => c.Id == channelId, cancellationToken);
@@ -145,13 +146,24 @@ public class ServersApplicationService(AppDbContext db, IProfileClient profileCl
             MessageId: message.Id
         );
         var senderSnapshotResult = await GetUserSnapshot(userId, cancellationToken);
-        if (!senderSnapshotResult.IsSuccess()) return senderSnapshotResult.Fail<PostMessageResponse>();
-
-        if (senderSnapshotResult.Data == null)
-             throw new InvalidOperationException("Sender snapshot data cannot be null after successful CallResult.");
+        if (!senderSnapshotResult.IsSuccess) return senderSnapshotResult.AsFailure();
 
         var senderSnapshot = new SenderSnapshot(senderSnapshotResult.Data.Id, senderSnapshotResult.Data.Name, senderSnapshotResult.Data.AvatarUrl);
         await eventPublisher.PublishEventAsync(new MessageCreatedEvent(message.Id, message.ChannelId, senderSnapshot, message.Content, message.Timestamp), cancellationToken);
-        return new(section, response, null); 
+        return CallResult.Success(section, response);
+    }
+    public async Task<CallResult> UpdateUserDataAsync(string userId, string username, string avatarUrl, CancellationToken cancellationToken)
+    {
+        var userSnapshot = await db.UserSnapshots.FirstOrDefaultAsync(u => u.Id == userId, cancellationToken);
+        if (userSnapshot == null)
+        {
+            return CallResult.Success(section);
+        }else
+        {
+            userSnapshot.Name = username;
+            userSnapshot.AvatarUrl = avatarUrl;
+        }
+        await db.SaveChangesAsync(cancellationToken);
+        return CallResult.Success(section);
     }
 }

@@ -10,8 +10,9 @@ namespace LightSpeak.Tests;
 
 public class RabbitMqTestHelper
 {
-    private static async Task PublishEventAsync(IChannel channel, string routingKey, object message, CancellationToken ct)
+    public static async Task PublishEventAsync(IConnection connection, string routingKey, object message, CancellationToken ct)
     {
+        await using var channel = await connection.CreateChannelAsync(cancellationToken: ct);
         var json = JsonSerializer.Serialize(message);
         var body = Encoding.UTF8.GetBytes(json);
         await channel.BasicPublishAsync(
@@ -32,7 +33,7 @@ public class RabbitMqTestHelper
                 Email: email
             )
         );
-        await PublishEventAsync(channel, RoutingKeys.UserRegistered, message, ct);
+        await PublishEventAsync(connection, RoutingKeys.UserRegistered, message, ct);
 
     }
 }

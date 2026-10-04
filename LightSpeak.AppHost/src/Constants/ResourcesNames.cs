@@ -13,6 +13,7 @@ public static class ResourcesNames
     public const string ProfileDatabase = "profile-database";
     public const string ServersService = "servers-service";
     public const string ServersDatabase = "servers-database";
+    public const string NotificationsService = "notifications-service";
 }
 
 

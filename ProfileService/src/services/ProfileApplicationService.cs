@@ -47,7 +47,7 @@ public class ProfileApplicationService(AppDbContext appDbContext) : IProfileAppl
         (
             UserId: profile.Id,
             Username: profile.Username,
-            AvatarUrl: "placeholder" // Replace with actual profile picture URL
+            AvatarUrl: profile.AvatarUrl
         );
         return CallResult.Success(Section, response);
     }

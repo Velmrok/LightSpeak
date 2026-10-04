@@ -149,7 +149,10 @@ public class ServersApplicationService(AppDbContext db, IProfileClient profileCl
         if (!senderSnapshotResult.IsSuccess) return senderSnapshotResult.AsFailure();
 
         var senderSnapshot = new SenderSnapshot(senderSnapshotResult.Data.Id, senderSnapshotResult.Data.Name, senderSnapshotResult.Data.AvatarUrl);
-        await eventPublisher.PublishEventAsync(new MessageCreatedEvent(message.Id, message.ChannelId, senderSnapshot, message.Content, message.Timestamp), cancellationToken);
+        var recipientUserIds = channel.Server.Members.Select(m => m.UserId).ToList();
+        var messageCreatedEvent = new MessageCreatedEvent(message.Id, message.ChannelId, senderSnapshot, message.Content, recipientUserIds, message.Timestamp);
+        
+        await eventPublisher.PublishEventAsync(messageCreatedEvent, cancellationToken);
         return CallResult.Success(section, response);
     }
     public async Task<CallResult> UpdateUserDataAsync(string userId, string username, string avatarUrl, CancellationToken cancellationToken)

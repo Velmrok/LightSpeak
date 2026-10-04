@@ -52,6 +52,25 @@
         "Match": {
           "Path": "/home"
         }
+      },
+      "hub-route": {
+        "ClusterId": "notifications-service",
+        "AuthorizationPolicy": "anonymous",
+        "Match": {
+          "Path": "/hubs/{**catch-all}"
+        }
+      },
+      "notifications-route": {
+        "ClusterId": "notifications-service",
+        "AuthorizationPolicy": "anonymous",
+        "Match": {
+          "Path": "/notifications/{**catch-all}"
+        },
+        "Transforms": [
+          {
+            "PathRemovePrefix": "/notifications"
+          }
+        ]
       }
     },
     "Clusters": {
@@ -80,6 +99,12 @@
         "Destinations": {
           "d1": {
             "Address": "http://servers-service"
+          }
+        }
+      },"notifications-service": {
+        "Destinations": {
+          "d1": {
+            "Address": "http://notifications-service"
           }
         }
       }

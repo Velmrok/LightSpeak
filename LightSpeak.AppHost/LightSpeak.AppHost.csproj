@@ -22,6 +22,7 @@
     <ProjectReference Include="..\ProfileService\ProfileService.csproj" />
     <ProjectReference Include="..\ComposeService\ComposeService.csproj" />
     <ProjectReference Include="..\ServersService\ServersService.csproj" />
+    <ProjectReference Include="..\NotificationsService\NotificationsService.csproj" />
   </ItemGroup>
 
 </Project>

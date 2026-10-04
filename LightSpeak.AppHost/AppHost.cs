@@ -25,6 +25,8 @@ var serversDatabase = postgres.AddDatabase(ResourcesNames.ServersDatabase, Resou
 
 var composeService = builder.AddProject<Projects.ComposeService>(ResourcesNames.ComposeService);
 
+var notificationsService = builder.AddProject<Projects.NotificationsService>(ResourcesNames.NotificationsService); 
+
 
 
 AppResources resources= new()
@@ -39,7 +41,8 @@ AppResources resources= new()
     ComposeService = composeService,
     ServersService = serversService,
     ServersDatabase = serversDatabase,
-    RabbitMQ = rabbitmq
+    RabbitMQ = rabbitmq,
+    NotificationsService = notificationsService
 };
 
 //////////////////////////////////////////// DYNAMIC PARAMETERS ////////////////////////////////////////////
@@ -64,6 +67,7 @@ composeService
     .WithEnvironment("AuthSettings__Audience", parameters.ClientAudience)
     .WithEnvironment("Grpc__ProfileService__Address", $"http://_grpc.{profileService.Resource.Name}");
 rabbitmq.WithManagementPlugin();
+notificationsService.ConfigureNotificationsService(parameters, settings, resources);
 
 
 

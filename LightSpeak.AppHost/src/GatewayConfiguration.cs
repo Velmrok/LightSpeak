@@ -14,6 +14,7 @@ public static class GatewayConfiguration
             .WithReference(a.ComposeService)
             .WithReference(a.RabbitMQ)
             .WithReference(a.ServersService)
+            .WithReference(a.NotificationsService)
             .WithEnvironment("AppBaseUrl", p.GatewayUrl)
             .WithEnvironment("OpenIDConnectSettings__Authority", p.ClientAuthority)
             .WithEnvironment("OpenIDConnectSettings__ClientSecret", p.KcGatewaySecret)

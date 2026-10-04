@@ -14,6 +14,7 @@ public static class ServersServiceConfiguration
             .WithEnvironment("AuthSettings__Authority", p.ClientAuthority)
             .WithEnvironment("AuthSettings__Audience", p.ClientAudience)
             .WaitFor(a.PostgresServer)
-            .WaitFor(a.ServersDatabase);
+            .WaitFor(a.ServersDatabase)
+            .WaitFor(a.RabbitMQ);
     }
 }

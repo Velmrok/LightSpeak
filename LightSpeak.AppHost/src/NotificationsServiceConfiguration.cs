@@ -8,6 +8,7 @@ public static class NotificationsServiceConfiguration
         notificationsService
             .WithReference(a.RabbitMQ)
             .WithEnvironment("AuthSettings__Authority", p.ClientAuthority)
-            .WithEnvironment("AuthSettings__Audience", p.ClientAudience);
+            .WithEnvironment("AuthSettings__Audience", p.ClientAudience)
+            .WaitFor(a.RabbitMQ);
     }
 }

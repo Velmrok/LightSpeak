@@ -14,6 +14,7 @@ public static class ProfileServiceConfiguration
             .WithEnvironment("AuthSettings__Authority", p.ClientAuthority)
             .WithEnvironment("AuthSettings__Audience", p.ClientAudience)
             .WaitFor(a.PostgresServer)
-            .WaitFor(a.ProfileDatabase);
+            .WaitFor(a.ProfileDatabase)
+            .WaitFor(a.RabbitMQ);
     }
 }

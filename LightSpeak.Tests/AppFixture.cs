@@ -38,9 +38,11 @@ public partial class AppFixture : IAsyncLifetime
         builder.Services.AddLogging(logging =>
         {
             logging.SetMinimumLevel(LogLevel.Warning);
+            logging.AddFilter("LightSpeak.AppHost.Resources", LogLevel.Warning);
             logging.AddFilter("Aspire.Hosting", LogLevel.Warning);
             logging.AddFilter("Microsoft.Extensions.Diagnostics.HealthChecks", LogLevel.None);
             logging.AddFilter("HealthChecks", LogLevel.None);
+            logging.AddFilter("LightSpeak.AppHost.Resources.postgres", LogLevel.None);
 
         });
         builder.Services.ConfigureHttpClientDefaults(clientBuilder =>

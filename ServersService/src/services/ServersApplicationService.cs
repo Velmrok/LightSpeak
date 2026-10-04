@@ -109,8 +109,7 @@ public class ServersApplicationService(AppDbContext db, IProfileClient profileCl
             {
                 Id = userSnapshot.UserId,
                 Name = userSnapshot.Username,
-                AvatarUrl = userSnapshot.AvatarUrl,
-                SnapshotTimestamp = userSnapshot.SnapshotTimestamp
+                AvatarUrl = userSnapshot.AvatarUrl
             };
            
             db.UserSnapshots.Add(newUser);

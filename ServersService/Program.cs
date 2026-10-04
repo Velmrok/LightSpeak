@@ -23,7 +23,7 @@ builder.Services.AddAndConfigureProfileServiceClient(builder.Configuration);
     builder.Services.AddSingleton<GrpcCallHandler>();
 builder.Services.AddSingleton<IEventPublisher, RabbitMqClient>();
 
-builder.Services.AddScoped<IResponseBuilderService, ResponseBuilderService>();
+builder.Services.AddSingleton<IResponseBuilderService, ResponseBuilderService>();
 builder.Services.AddScoped<IServersApplicationService, ServersApplicationService>();
 builder.Services.AddScoped<IProfileClient, ProfileGrpcClient>();
 

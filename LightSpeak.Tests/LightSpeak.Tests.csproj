@@ -13,6 +13,7 @@
     <PackageReference Include="coverlet.collector" Version="6.0.4" />
     <PackageReference Include="HtmlAgilityPack" Version="1.12.4" />
     <PackageReference Include="MartinCostello.Logging.XUnit" Version="0.7.1" />
+    <PackageReference Include="Microsoft.AspNetCore.SignalR.Client" Version="10.0.12" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.14.1" />
     <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="8.21.0" />
     <PackageReference Include="xunit" Version="2.9.3" />
@@ -32,6 +33,7 @@
     <ProjectReference Include="..\Debug\Debug.csproj" />
     <ProjectReference Include="..\ProfileService\ProfileService.csproj" />
     <ProjectReference Include="..\ServersService\ServersService.csproj" />
+    <ProjectReference Include="..\NotificationsService\NotificationsService.csproj" />
   </ItemGroup>
 
 </Project>

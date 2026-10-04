@@ -42,6 +42,12 @@ public class MonitoringTests : TestBase
         var ct = CancellationToken.None;
         await AssertResourceIsHealthyAsync(ResourcesNames.ServersService, "servers/health", ct);
     }
+    [Fact]
+    public async Task NotificationsService_IsHealthy()
+    {
+        var ct = CancellationToken.None;
+        await AssertResourceIsHealthyAsync(ResourcesNames.NotificationsService, "notifications/health", ct);
+    }
 
     
     

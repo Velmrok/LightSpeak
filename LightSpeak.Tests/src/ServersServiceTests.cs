@@ -21,38 +21,7 @@ public class ServersServiceTest : TestBase
         return await Fixture.CreateDbContextAsync<AppDbContext>(ResourcesNames.ServersDatabase, ct);
     }
     
-    private async Task<CreateServerResponse> CreateServerAsync(HttpClient client, string name, CancellationToken ct)
-    {
-        var request = new CreateServerRequest
-        (
-            Name: name
-        );
 
-        var json = await client.PostAsJsonAsync("/servers", request, ct);
-        Assert.Equal(HttpStatusCode.Created, json.StatusCode);
-        var response = await ReadFromJson<CreateServerResponse>(json, ct);
-        var data = response.Data;
-        Assert.NotNull(data);
-        Assert.NotNull(response.Errors);
-        Assert.Empty(response.Errors);
-        return data;
-    }
-    private async Task<CreateChannelResponse> CreateChannelAsync(HttpClient client, string serverId, string name, CancellationToken ct)
-    {
-        var request = new CreateChannelRequest
-        (
-            Name: name
-        );
-
-        var json = await client.PostAsJsonAsync($"/servers/{serverId}/channels", request, ct);
-        Assert.Equal(HttpStatusCode.Created, json.StatusCode);
-        var response = await ReadFromJson<CreateChannelResponse>(json, ct);
-        var data = response.Data;
-        Assert.NotNull(data);
-        Assert.NotNull(response.Errors);
-        Assert.Empty(response.Errors);
-        return data;
-    }
     private async Task<PostMessageResponse> PostMessageAsync(HttpClient client, string channelId, string content, CancellationToken ct)
     {
         var request = new PostMessageRequest

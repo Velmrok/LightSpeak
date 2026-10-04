@@ -99,11 +99,18 @@ public class ServersApplicationService(AppDbContext db, IProfileClient profileCl
             var userSnapshot = callResult.Data;
             ArgumentNullException.ThrowIfNull(userSnapshot, nameof(userSnapshot));
 
+            user = await db.UserSnapshots.FirstOrDefaultAsync(m => m.Id == userId, cancellationToken);
+            if (user != null)
+            {
+                return CallResult.Success(section, user);
+            }
+
             var newUser = new UserSnapshot
             {
                 Id = userSnapshot.UserId,
                 Name = userSnapshot.Username,
-                AvatarUrl = userSnapshot.AvatarUrl
+                AvatarUrl = userSnapshot.AvatarUrl,
+                SnapshotTimestamp = userSnapshot.SnapshotTimestamp
             };
            
             db.UserSnapshots.Add(newUser);
@@ -160,7 +167,13 @@ public class ServersApplicationService(AppDbContext db, IProfileClient profileCl
         var userSnapshot = await db.UserSnapshots.FirstOrDefaultAsync(u => u.Id == userId, cancellationToken);
         if (userSnapshot == null)
         {
-            return CallResult.Success(section);
+            userSnapshot = new UserSnapshot
+            {
+                Id = userId,
+                Name = username,
+                AvatarUrl = avatarUrl
+            };
+            db.UserSnapshots.Add(userSnapshot);
         }else
         {
             userSnapshot.Name = username;

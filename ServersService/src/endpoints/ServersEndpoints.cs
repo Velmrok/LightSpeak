@@ -4,6 +4,7 @@ using ServersService.src.services;
 using Common.Services;
 using System.Net;
 using Common.Dto;
+using ServersService.src.permissions;
 
 
 namespace ServersService.src.endpoints;
@@ -13,7 +14,7 @@ public static class ServersEndpoints
     {
         app.MapPost("/", CreateServer).RequireAuthorization();
         app.MapPost("/{serverId}/channels", CreateChannel).RequireAuthorization();
-        app.MapPost("/channels/{channelId}/messages", PostMessage).RequireAuthorization();
+        app.MapPost("/channels/{channelId}/messages", PostMessage).RequirePermission(Permission.WriteOnChannel);
         return app;
     }
 

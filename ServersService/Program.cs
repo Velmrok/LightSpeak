@@ -6,6 +6,8 @@ using Common.Grpc;
 using ServersService.src.services;
 using Common.Clients;
 using Common.Services;
+using Microsoft.AspNetCore.Authorization;
+using ServersService.src.permissions;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -26,7 +28,9 @@ builder.Services.AddSingleton<IEventPublisher, RabbitMqClient>();
 builder.Services.AddSingleton<IResponseBuilderService, ResponseBuilderService>();
 builder.Services.AddScoped<IServersApplicationService, ServersApplicationService>();
 builder.Services.AddScoped<IProfileClient, ProfileGrpcClient>();
-
+builder.Services.AddScoped<IPermissionService, PermissionService>();
+builder.Services.AddScoped<IAuthorizationHandler, PermissionHandler>(); 
+builder.Services.AddSingleton<IAuthorizationMiddlewareResultHandler, AuthResultHandler>();
 var app = builder.Build();
 
 using (var scope = app.Services.CreateScope())

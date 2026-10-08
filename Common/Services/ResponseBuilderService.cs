@@ -25,6 +25,16 @@ public class ResponseBuilderService : IResponseBuilderService
 
         return BuildSuccessResponse(successStatusCode, buildData(), [outcome]);
     }
+    public IResult BuildError(CallResult result)
+    {
+        var error = result.Error ?? throw new ArgumentException("Result must have an error", nameof(result));
+        ErrorResponse data = new(
+                Code: error.Code,
+                Details: error.Details,
+                Errors: [new ErrorItem(result.Section, error.Code, error.Details)]
+            );
+        return Results.Json(data, statusCode: error.StatusCode.ToHttp());
+    }
     private bool TryBuildError(IEnumerable<ICallOutcome> results, out IResult? response)
     {
         var requiredFailed = results.Where(r => r.Required && r.Error != null).ToList();

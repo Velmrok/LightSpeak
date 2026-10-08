@@ -13,6 +13,7 @@ public class AppDbContext : DbContext
     public DbSet<Member> Members => Set<Member>();
     public DbSet<UserSnapshot> UserSnapshots => Set<UserSnapshot>();
     public DbSet<ChatMessage> ChatMessages => Set<ChatMessage>();
+    public DbSet<Role> Roles => Set<Role>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -33,6 +34,11 @@ public class AppDbContext : DbContext
             .WithOne(m => m.Channel)
             .HasForeignKey(m => m.ChannelId)
             .OnDelete(DeleteBehavior.Cascade);
+        modelBuilder.Entity<Channel>()
+            .HasMany(c => c.PermissionOverwrites)
+            .WithOne()
+            .HasForeignKey(po => po.ChannelId)
+            .OnDelete(DeleteBehavior.Cascade);
 
         modelBuilder.Entity<Member>()
             .HasOne(m => m.Server)
@@ -45,9 +51,14 @@ public class AppDbContext : DbContext
             .WithMany(u => u.Memberships)
             .HasForeignKey(m => m.UserId)
             .OnDelete(DeleteBehavior.Cascade);
+        modelBuilder.Entity<Member>()
+            .HasMany(m => m.Roles);
+        
 
         modelBuilder.Entity<Member>()
             .HasKey(m => new { m.UserId, m.ServerId });
+
+       
     }
 
 }

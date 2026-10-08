@@ -6,4 +6,5 @@ public class Member
     public  UserSnapshot User { get; set; } = null!;
     public required string ServerId { get; set; }
     public Server Server { get; set; } = null!;
+    public List<Role> Roles { get; set; } = [];
 }

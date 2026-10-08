@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using ServersService.src;
@@ -11,9 +12,11 @@ using ServersService.src;
 namespace ServersService.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20261008144256_AddRoleModel")]
+    partial class AddRoleModel
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -21,35 +24,6 @@ namespace ServersService.Migrations
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
-
-            modelBuilder.Entity("ChannelPermissionOverwrite", b =>
-                {
-                    b.Property<string>("Id")
-                        .HasColumnType("text");
-
-                    b.Property<long>("Allow")
-                        .HasColumnType("bigint");
-
-                    b.Property<string>("ChannelId")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<long>("Deny")
-                        .HasColumnType("bigint");
-
-                    b.Property<string>("TargetId")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<int>("TargetType")
-                        .HasColumnType("integer");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("ChannelId");
-
-                    b.ToTable("ChannelPermissionOverwrite");
-                });
 
             modelBuilder.Entity("ServersService.src.models.Channel", b =>
                 {
@@ -131,20 +105,11 @@ namespace ServersService.Migrations
                     b.Property<long>("Permissions")
                         .HasColumnType("bigint");
 
-                    b.Property<int>("Priority")
-                        .HasColumnType("integer");
-
-                    b.Property<string>("ServerId")
-                        .IsRequired()
-                        .HasColumnType("text");
-
                     b.HasKey("Id");
-
-                    b.HasIndex("ServerId");
 
                     b.HasIndex("MemberUserId", "MemberServerId");
 
-                    b.ToTable("Roles");
+                    b.ToTable("Role");
                 });
 
             modelBuilder.Entity("ServersService.src.models.Server", b =>
@@ -177,15 +142,6 @@ namespace ServersService.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("UserSnapshots");
-                });
-
-            modelBuilder.Entity("ChannelPermissionOverwrite", b =>
-                {
-                    b.HasOne("ServersService.src.models.Channel", null)
-                        .WithMany("PermissionOverwrites")
-                        .HasForeignKey("ChannelId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
                 });
 
             modelBuilder.Entity("ServersService.src.models.Channel", b =>
@@ -231,12 +187,6 @@ namespace ServersService.Migrations
 
             modelBuilder.Entity("ServersService.src.models.Role", b =>
                 {
-                    b.HasOne("ServersService.src.models.Server", null)
-                        .WithMany("Roles")
-                        .HasForeignKey("ServerId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
                     b.HasOne("ServersService.src.models.Member", null)
                         .WithMany("Roles")
                         .HasForeignKey("MemberUserId", "MemberServerId");
@@ -245,8 +195,6 @@ namespace ServersService.Migrations
             modelBuilder.Entity("ServersService.src.models.Channel", b =>
                 {
                     b.Navigation("Messages");
-
-                    b.Navigation("PermissionOverwrites");
                 });
 
             modelBuilder.Entity("ServersService.src.models.Member", b =>
@@ -259,8 +207,6 @@ namespace ServersService.Migrations
                     b.Navigation("Channels");
 
                     b.Navigation("Members");
-
-                    b.Navigation("Roles");
                 });
 
             modelBuilder.Entity("ServersService.src.models.UserSnapshot", b =>

@@ -66,16 +66,20 @@ public class ServersApplicationService(AppDbContext db, IProfileClient profileCl
         
         var server = new Server
         {
-            Id = Guid.NewGuid().ToString(),
             Name = request.Name,
         };
+        var everyoneRole = DefaultRoles.CreateEveryone(server.Id);
+        db.Roles.Add(everyoneRole);
         var newMember = new Member
         {
             UserId = userId,
             ServerId = server.Id,
-            Server = server
+            Server = server,
+            Roles = [everyoneRole]
         };
         server.Members.Add(newMember);
+        server.Roles.Add(everyoneRole);
+        
 
         db.Servers.Add(server);
         await db.SaveChangesAsync(cancellationToken);

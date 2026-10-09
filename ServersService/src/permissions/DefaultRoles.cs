@@ -15,7 +15,7 @@ public static class DefaultRoles
     };
     public static Role CreateOwner(string serverId) => new()
     {
-        Name = "Admin",
+        Name = "Owner",
         Permissions = Permission.All,
         ServerId = serverId,
         Priority = 0

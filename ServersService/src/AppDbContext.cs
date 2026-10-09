@@ -58,6 +58,9 @@ public class AppDbContext : DbContext
         modelBuilder.Entity<Member>()
             .HasKey(m => new { m.UserId, m.ServerId });
 
+        modelBuilder.Entity<ChannelPermissionOverwrite>()
+            .HasKey(cpo=> new { cpo.ChannelId, cpo.TargetId});
+
        
     }
 

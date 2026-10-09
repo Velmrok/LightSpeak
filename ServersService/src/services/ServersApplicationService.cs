@@ -70,18 +70,19 @@ public class ServersApplicationService(AppDbContext db, IProfileClient profileCl
             Name = request.Name,
         };
         var everyoneRole = DefaultRoles.CreateEveryone(server.Id);
+        var ownerRole = DefaultRoles.CreateOwner(server.Id);
         db.Roles.Add(everyoneRole);
         var newMember = new Member
         {
             UserId = userId,
             ServerId = server.Id,
             Server = server,
-            Roles = [everyoneRole]
+            Roles = [everyoneRole, ownerRole]
         };
         server.Members.Add(newMember);
         server.Roles.Add(everyoneRole);
+        server.Roles.Add(ownerRole);
         
-
         db.Servers.Add(server);
         await db.SaveChangesAsync(cancellationToken);
         var response = new CreateServerResponse
@@ -163,7 +164,7 @@ public class ServersApplicationService(AppDbContext db, IProfileClient profileCl
         var recipientUserIdsResult =  await permissionService.FilterChannelMembersWithPermissionAsync(channelId, Permission.ReadOnChannel, cancellationToken);
         if (!recipientUserIdsResult.IsSuccess) return recipientUserIdsResult.AsFailure();
         var recipientUserIds = recipientUserIdsResult.Data;
-        
+
         var senderSnapshot = new SenderSnapshot(senderSnapshotResult.Data.Id, senderSnapshotResult.Data.Name, senderSnapshotResult.Data.AvatarUrl);
         var messageCreatedEvent = new MessageCreatedEvent(message.Id, message.ChannelId, senderSnapshot, message.Content, recipientUserIds, message.Timestamp);
         

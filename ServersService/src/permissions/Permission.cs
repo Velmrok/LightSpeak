@@ -6,5 +6,8 @@ public enum Permission : long
     None = 0,
     WriteOnChannel = 1L << 0,
     ReadOnChannel = 1L << 1,
+
+
+    UnreachableRolePermission = 1L << 63,
     All = ~0L
 }

@@ -56,7 +56,11 @@ app.MapGet("", async (AppDbContext db) =>
     return Results.Ok(new { servers });
 });
 
-
+if (app.Configuration.GetValue<bool>("IsTesting"))
+{
+    app.MapGet("/test-unreachable-role-permission", () => Results.Ok()).RequirePermission(Permission.UnreachableRolePermission);
+}
+   
 
 app.MapServersEndpoints();
 app.MapHealthChecks("/health");

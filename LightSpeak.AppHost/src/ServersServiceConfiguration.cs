@@ -13,6 +13,7 @@ public static class ServersServiceConfiguration
             .WithReference(a.ProfileService)
             .WithEnvironment("AuthSettings__Authority", p.ClientAuthority)
             .WithEnvironment("AuthSettings__Audience", p.ClientAudience)
+            .WithEnvironment("IsTesting", s.IsTesting.ToString())
             .WaitFor(a.PostgresServer)
             .WaitFor(a.ServersDatabase)
             .WaitFor(a.RabbitMQ);

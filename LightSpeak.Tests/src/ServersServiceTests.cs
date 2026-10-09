@@ -278,4 +278,26 @@ public class ServersServiceTest : TestBase
                 Assert.Equal(evt.AvatarUrl, userSnapshot.AvatarUrl);
             }, TimeSpan.FromSeconds(15), ct);
     }
+    [Fact]
+    public async Task TestUnreachableRolePermission_Returns403_WhenLoggedIn()
+    {
+
+        var ct = CancellationToken.None;
+        var client = Fixture.CreateGatewayClient();
+         await LoginOnFreshTestUserAsync(client,ct);
+
+        var json = await client.GetAsync("/servers/test-unreachable-role-permission", ct);
+        Assert.Equal(HttpStatusCode.Forbidden, json.StatusCode);
+    }
+    [Fact]
+    public async Task TestUnreachableRolePermission_Returns401_WhenNotLoggedIn()
+    {
+
+        var ct = CancellationToken.None;
+        var client = Fixture.CreateGatewayClient();
+
+        var json = await client.GetAsync("/servers/test-unreachable-role-permission", ct);
+        Assert.Equal(HttpStatusCode.Unauthorized, json.StatusCode);
+    }
+
 }

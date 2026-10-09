@@ -8,9 +8,9 @@ var parameters = builder.AddApplicationParameters();
 var settings = builder.AddApplicationSettings();
 
 //////////////////////////////////////////// DECLARATIONS ////////////////////////////////////////////
-var redis = builder.AddRedis(ResourcesNames.Redis).WithLifetime(ContainerLifetime.Persistent);
-var postgres = builder.AddPostgres(ResourcesNames.Postgres, parameters.PostgresUser, parameters.PostgresPassword).WithLifetime(ContainerLifetime.Persistent);
-var rabbitmq = builder.AddRabbitMQ(ResourcesNames.RabbitMQ,parameters.RabbitUser, parameters.RabbitPassword).WithLifetime(ContainerLifetime.Persistent);
+var redis = builder.AddRedis(ResourcesNames.Redis);
+var postgres = builder.AddPostgres(ResourcesNames.Postgres, parameters.PostgresUser, parameters.PostgresPassword);
+var rabbitmq = builder.AddRabbitMQ(ResourcesNames.RabbitMQ,parameters.RabbitUser, parameters.RabbitPassword);
 
 var gateway = builder.AddProject<Projects.Gateway>(ResourcesNames.Gateway);
 

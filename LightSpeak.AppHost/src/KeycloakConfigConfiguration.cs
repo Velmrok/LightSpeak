@@ -19,7 +19,6 @@ public static class KeycloakConfigConfiguration
             .WithEnvironment("KC_ADMIN_SECRET", p.KcAdminSecret)
             .WithEnvironment("CLIENT_AUDIENCE", p.ClientAudience)
             .WithEnvironment("KC_TESTUSER_ENABLED", s.IsTesting ? "true" : "false")
-            .WithLifetime(ContainerLifetime.Persistent)
             .WithHttpEndpoint(
                 name: "http",
                 targetPort: 8079,

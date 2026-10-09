@@ -9,10 +9,11 @@ using Common.Constants;
 using Common.Errors;
 using Common.Services;
 using Common.Dto.Events;
+using ServersService.src.permissions;
 
 namespace ServersService.src.services;
 
-public class ServersApplicationService(AppDbContext db, IProfileClient profileClient, IEventPublisher eventPublisher) : IServersApplicationService
+public class ServersApplicationService(AppDbContext db, IProfileClient profileClient, IEventPublisher eventPublisher, IPermissionService permissionService) : IServersApplicationService
 { 
     private const string section = ResourcesSectionNames.Servers;
 
@@ -158,8 +159,12 @@ public class ServersApplicationService(AppDbContext db, IProfileClient profileCl
         var senderSnapshotResult = await GetUserSnapshot(userId, cancellationToken);
         if (!senderSnapshotResult.IsSuccess) return senderSnapshotResult.AsFailure();
 
+       
+        var recipientUserIdsResult =  await permissionService.FilterChannelMembersWithPermissionAsync(channelId, Permission.ReadOnChannel, cancellationToken);
+        if (!recipientUserIdsResult.IsSuccess) return recipientUserIdsResult.AsFailure();
+        var recipientUserIds = recipientUserIdsResult.Data;
+        
         var senderSnapshot = new SenderSnapshot(senderSnapshotResult.Data.Id, senderSnapshotResult.Data.Name, senderSnapshotResult.Data.AvatarUrl);
-        var recipientUserIds = channel.Server.Members.Select(m => m.UserId).ToList();
         var messageCreatedEvent = new MessageCreatedEvent(message.Id, message.ChannelId, senderSnapshot, message.Content, recipientUserIds, message.Timestamp);
         
         await eventPublisher.PublishEventAsync(messageCreatedEvent, cancellationToken);

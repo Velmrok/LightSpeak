@@ -8,7 +8,7 @@ namespace LightSpeak.Tests;
 
 public class TestBase : IAsyncLifetime
 {
-    protected AppFixture? Fixture;
+    protected AppFixture Fixture = null!;
     protected static readonly TimeSpan DefaultTimeout = TimeSpan.FromSeconds(30);
     protected DistributedApplication App => Fixture?.App ?? throw new InvalidOperationException("Fixture is not initialized");
     protected readonly CookieContainer Cookies = new();

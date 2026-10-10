@@ -9,11 +9,19 @@ namespace ServersService.src.services;
 
 public class RoleService(AppDbContext db) : IRoleService
 {
-     private const string section = ResourcesSectionNames.Servers;
-
-    public async Task<CallResult> GetRolesAsync(string serverId, string userId, CancellationToken ct)
+    private const string section = ResourcesSectionNames.Servers;
+    public async Task<CallResult<GetRolesResponse>> GetRolesAsync(string serverId, string userId, CancellationToken ct)
     {
-        throw new NotImplementedException();
+        var member = await db.Members.FirstOrDefaultAsync(u => u.UserId == userId && u.ServerId == serverId, cancellationToken: ct);
+        var server = await db.Servers.FirstOrDefaultAsync(s => s.Id == serverId, cancellationToken: ct);
+        if (member == null || server == null)
+        {
+            var error = new AppError(DomainErrorCode.NotFound, "Server.NotFound", $"Server with ID '{serverId}' not found.");
+            return CallResult.Fail(section, error);
+        }
+        var roles = await db.Roles.Where(r => r.ServerId == serverId).ToListAsync(ct) ?? [];
+        var response = new GetRolesResponse([.. roles.Select(r => new RoleDto(r.Id, r.Name, r.Permissions.ToList()))]);
+        return CallResult.Success(section, response);
     }
 
     public async Task<CallResult<PatchRoleResponse>> PatchRoleAsync(string serverId, string userId, PatchRoleRequest request, CancellationToken ct)
@@ -53,4 +61,6 @@ public class RoleService(AppDbContext db) : IRoleService
         var response = new PatchRoleResponse(roleToEdit.Id, roleToEdit.Name, roleToEdit.Permissions.ToList());
         return CallResult.Success(section, response);
     }
+
+    
 }

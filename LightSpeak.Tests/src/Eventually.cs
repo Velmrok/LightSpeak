@@ -8,7 +8,7 @@ public static class Eventually
         CancellationToken ct = default,
         TimeSpan? pollInterval = null) 
     {
-        var interval = pollInterval ?? TimeSpan.FromMilliseconds(200);
+        var interval = pollInterval ?? TimeSpan.FromMilliseconds(50);
         var deadline = DateTime.UtcNow + timeout;
 
         while (DateTime.UtcNow < deadline)

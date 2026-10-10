@@ -7,6 +7,7 @@ using ServersService.src.dto;
 using Microsoft.EntityFrameworkCore;
 using Common.Dto.Events;
 using System.Text.Json;
+using ServersService.src.permissions;
 
 namespace LightSpeak.Tests.src;
 [Collection("Aspire")]
@@ -299,5 +300,37 @@ public class ServersServiceTest : TestBase
         var json = await client.GetAsync("/servers/test-unreachable-role-permission", ct);
         Assert.Equal(HttpStatusCode.Unauthorized, json.StatusCode);
     }
+    [Fact]
+    public async Task PatchRole_Correctly_OnPatchRoleRequest_WhileHavingManageRolesPermission()
+    {
+        var serverName = "Test Server";
+        var ct = CancellationToken.None;
+        var client = Fixture.CreateGatewayClient();
+         await LoginOnFreshTestUserAsync(client,ct);
 
+        var serverData = await CreateServerAsync(client, serverName, ct);
+        var serverId = serverData.ServerId;
+
+        var dbContext = await CreateDbContext(ct);
+        var roleToEdit = await dbContext.Roles.FirstOrDefaultAsync(r => r.ServerId == serverId && r.Name == "Everyone", ct);
+        Assert.NotNull(roleToEdit);
+
+        var request = new PatchRoleRequest
+        (
+            RoleId: roleToEdit.Id,
+            NewName: null,
+            AddedPermissions: [Permission.ManageChannels],
+            RemovedPermissions: [Permission.ReadOnChannel]
+        );
+
+        var json = await client.PatchAsJsonAsync($"/servers/{serverId}/roles", request, ct);
+       // Assert.Equal(HttpStatusCode.OK, json.StatusCode);
+
+        var response = await ReadFromJson<PatchRoleResponse>(json, ct);
+        var data = response.Data;
+        Assert.NotNull(data); 
+        Assert.Equal(roleToEdit.Name, data.Name);
+        Assert.Contains(Permission.ManageChannels, data.Permissions);
+        Assert.DoesNotContain(Permission.ReadOnChannel, data.Permissions);
+    }
 }

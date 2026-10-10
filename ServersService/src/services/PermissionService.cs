@@ -113,7 +113,7 @@ public class PermissionService(AppDbContext db) : IPermissionService
 
     public async Task<CallResult<Permission>> GetPermissionsByServerIdAsync(string userId, string serverId, CancellationToken ct)
     {
-        var member = await db.Members.FirstOrDefaultAsync(m => m.UserId == userId && m.ServerId == serverId, ct);
+        var member = await db.Members.Include(m => m.Roles).FirstOrDefaultAsync(m => m.UserId == userId && m.ServerId == serverId, ct);
         if (member == null)
         {
             var error = new AppError(DomainErrorCode.NotFound, "Server.NotFound", $"Server with ID '{serverId}' not found.");

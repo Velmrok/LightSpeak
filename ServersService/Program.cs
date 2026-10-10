@@ -30,6 +30,7 @@ builder.Services.AddScoped<IServersApplicationService, ServersApplicationService
 builder.Services.AddScoped<IProfileClient, ProfileGrpcClient>();
 builder.Services.AddScoped<IPermissionService, PermissionService>();
 builder.Services.AddScoped<IAuthorizationHandler, PermissionHandler>(); 
+builder.Services.AddScoped<IRoleService, RoleService>();
 builder.Services.AddSingleton<IAuthorizationMiddlewareResultHandler, AuthResultHandler>();
 var app = builder.Build();
 

@@ -72,6 +72,7 @@ public class ServersApplicationService(AppDbContext db, IProfileClient profileCl
         var everyoneRole = DefaultRoles.CreateEveryone(server.Id);
         var ownerRole = DefaultRoles.CreateOwner(server.Id);
         db.Roles.Add(everyoneRole);
+        db.Roles.Add(ownerRole);
         var newMember = new Member
         {
             UserId = userId,

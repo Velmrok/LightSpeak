@@ -3,23 +3,23 @@ using HtmlAgilityPack;
 
 namespace LightSpeak.Tests.src;
 
-public class AuthClient
+public class AuthClient(CookieContainer cookieContainer)
 {
     private static readonly TimeSpan DefaultTimeout = TimeSpan.FromSeconds(30);
-    public static CookieContainer CookieContainer { get; } = new();
+    //public static CookieContainer CookieContainer { get; } = new();
 
 
 
     public void ResetCookies()
     {
-        foreach (Cookie cookie in CookieContainer.GetAllCookies())
+        foreach (Cookie cookie in cookieContainer.GetAllCookies())
         {
             cookie.Expired = true;
         }
     }
     private void DisableSecureCookies()
     {
-        foreach (Cookie cookie in CookieContainer.GetAllCookies())
+        foreach (Cookie cookie in cookieContainer.GetAllCookies())
         {
             cookie.Secure = false;
 

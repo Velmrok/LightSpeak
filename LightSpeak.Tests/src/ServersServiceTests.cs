@@ -10,13 +10,10 @@ using System.Text.Json;
 using ServersService.src.permissions;
 
 namespace LightSpeak.Tests.src;
-[Collection("Aspire")]
+
 public class ServersServiceTest : TestBase
 {
-     public ServersServiceTest(AppFixture fixture) : base(fixture)
-    {
-       
-    }
+
     private async Task<AppDbContext> CreateDbContext(CancellationToken ct)
     {
         return await Fixture.CreateDbContextAsync<AppDbContext>(ResourcesNames.ServersDatabase, ct);
@@ -44,7 +41,7 @@ public class ServersServiceTest : TestBase
     public async Task CreatesServer_Correctly_OnCreateServerRequest_WhileBeingLoggedIn()
     {
         var ct = CancellationToken.None;
-        var client = Fixture.CreateGatewayClient();
+        var client = CreateClient();
         var user = await LoginOnFreshTestUserAsync(client,ct);
         var name = "Test Server";
 
@@ -69,7 +66,7 @@ public class ServersServiceTest : TestBase
     {
         var ct = CancellationToken.None;
 
-        var client = Fixture.CreateGatewayClient();
+        var client = CreateClient();
 
         var request = new CreateServerRequest
         (
@@ -84,7 +81,7 @@ public class ServersServiceTest : TestBase
     {
         var ct = CancellationToken.None;
 
-        var client = Fixture.CreateGatewayClient();
+        var client = CreateClient();
          await LoginOnFreshTestUserAsync(client,ct);
         var request = new CreateServerRequest
         (
@@ -102,7 +99,7 @@ public class ServersServiceTest : TestBase
 
         var ct = CancellationToken.None;
 
-        var client = Fixture.CreateGatewayClient();
+        var client = CreateClient();
 
          await LoginOnFreshTestUserAsync(client,ct);
         var serverData = await CreateServerAsync(client, serverName, ct);
@@ -123,7 +120,7 @@ public class ServersServiceTest : TestBase
     {
         var name = "Test Channel";
         var ct = CancellationToken.None;
-        var client = Fixture.CreateGatewayClient();
+        var client = CreateClient();
          await LoginOnFreshTestUserAsync(client,ct);
 
         var request = new CreateChannelRequest
@@ -140,7 +137,7 @@ public class ServersServiceTest : TestBase
         var channelName = "";
         var serverName = "Test Server";
         var ct = CancellationToken.None;
-        var client = Fixture.CreateGatewayClient();
+        var client = CreateClient();
          await LoginOnFreshTestUserAsync(client,ct);
 
         var serverData = await CreateServerAsync(client, serverName, ct);
@@ -159,7 +156,7 @@ public class ServersServiceTest : TestBase
         var channelName = "Test Channel";
         var serverName = "Test Server";
         var ct = CancellationToken.None;
-        var client = Fixture.CreateGatewayClient();
+        var client = CreateClient();
          await LoginOnFreshTestUserAsync(client,ct);
 
         var serverData = await CreateServerAsync(client, serverName, ct);
@@ -183,7 +180,7 @@ public class ServersServiceTest : TestBase
         var serverName = "Test Server";
         var messageContent = "Hello, world!";
         var ct = CancellationToken.None;
-        var client = Fixture.CreateGatewayClient();
+        var client = CreateClient();
          await LoginOnFreshTestUserAsync(client,ct);
 
         var serverData = await CreateServerAsync(client, serverName, ct);
@@ -217,7 +214,7 @@ public class ServersServiceTest : TestBase
         var serverName = "Test Server";
         var messageContent = "Hello, world!";
         var ct = CancellationToken.None;
-        var client = Fixture.CreateGatewayClient();
+        var client = CreateClient();
          await LoginOnFreshTestUserAsync(client,ct);
 
         var serverData = await CreateServerAsync(client, serverName, ct);
@@ -249,7 +246,7 @@ public class ServersServiceTest : TestBase
  
         var serverName = "Test Server";
         var ct = CancellationToken.None;
-        var client = Fixture.CreateGatewayClient();
+        var client = CreateClient();
         var user = await LoginOnFreshTestUserAsync(client,ct);
 
         await CreateServerAsync(client, serverName, ct); // Create a server to ensure the userSnapshot exists in the database
@@ -284,7 +281,7 @@ public class ServersServiceTest : TestBase
     {
 
         var ct = CancellationToken.None;
-        var client = Fixture.CreateGatewayClient();
+        var client = CreateClient();
          await LoginOnFreshTestUserAsync(client,ct);
 
         var json = await client.GetAsync("/servers/test-unreachable-role-permission", ct);
@@ -295,7 +292,7 @@ public class ServersServiceTest : TestBase
     {
 
         var ct = CancellationToken.None;
-        var client = Fixture.CreateGatewayClient();
+        var client = CreateClient();
 
         var json = await client.GetAsync("/servers/test-unreachable-role-permission", ct);
         Assert.Equal(HttpStatusCode.Unauthorized, json.StatusCode);
@@ -305,7 +302,7 @@ public class ServersServiceTest : TestBase
     {
         var serverName = "Test Server";
         var ct = CancellationToken.None;
-        var client = Fixture.CreateGatewayClient();
+        var client = CreateClient();
          await LoginOnFreshTestUserAsync(client,ct);
 
         var serverData = await CreateServerAsync(client, serverName, ct);
@@ -338,7 +335,7 @@ public class ServersServiceTest : TestBase
     {
         var serverName = "Test Server";
         var ct = CancellationToken.None;
-        var client = Fixture.CreateGatewayClient();
+        var client = CreateClient();
         var user =await LoginOnFreshTestUserAsync(client,ct);
 
         var serverData = await CreateServerAsync(client, serverName, ct);
@@ -370,7 +367,7 @@ public class ServersServiceTest : TestBase
     {
         var serverName = "Test Server";
         var ct = CancellationToken.None;
-        var client = Fixture.CreateGatewayClient();
+        var client = CreateClient();
         var user =await LoginOnFreshTestUserAsync(client,ct);
 
         var serverData = await CreateServerAsync(client, serverName, ct);
@@ -396,7 +393,7 @@ public class ServersServiceTest : TestBase
     {
         var serverName = "Test Server";
         var ct = CancellationToken.None;
-        var client = Fixture.CreateGatewayClient();
+        var client = CreateClient();
         var user =await LoginOnFreshTestUserAsync(client,ct);
 
         var serverData = await CreateServerAsync(client, serverName, ct);
@@ -422,7 +419,7 @@ public class ServersServiceTest : TestBase
     {
         var serverName = "Test Server";
         var ct = CancellationToken.None;
-        var client = Fixture.CreateGatewayClient();
+        var client = CreateClient();
         var user =await LoginOnFreshTestUserAsync(client,ct);
 
         var serverData = await CreateServerAsync(client, serverName, ct);
@@ -455,7 +452,7 @@ public class ServersServiceTest : TestBase
         
         var serverName = "Test Server";
         var ct = CancellationToken.None;
-        var client = Fixture.CreateGatewayClient();
+        var client = CreateClient();
         var user =await LoginOnFreshTestUserAsync(client,ct);
 
         var serverData = await CreateServerAsync(client, serverName, ct);
@@ -478,7 +475,7 @@ public class ServersServiceTest : TestBase
         
         var serverName = "Test Server";
         var ct = CancellationToken.None;
-        var client = Fixture.CreateGatewayClient();
+        var client = CreateClient();
         await LoginOnFreshTestUserAsync(client,ct);
 
         var serverData = await CreateServerAsync(client, serverName, ct);
@@ -496,7 +493,7 @@ public class ServersServiceTest : TestBase
         
         var serverName = "Test Server";
         var ct = CancellationToken.None;
-        var client = Fixture.CreateGatewayClient();
+        var client = CreateClient();
         await LoginOnFreshTestUserAsync(client,ct);
 
         var serverData = await CreateServerAsync(client, serverName, ct);
@@ -513,7 +510,7 @@ public class ServersServiceTest : TestBase
         
         var serverName = "Test Server";
         var ct = CancellationToken.None;
-        var client = Fixture.CreateGatewayClient();
+        var client = CreateClient();
         var user =await LoginOnFreshTestUserAsync(client,ct);
 
         var serverData = await CreateServerAsync(client, serverName, ct);
@@ -541,7 +538,7 @@ public class ServersServiceTest : TestBase
         
         var serverName = "Test Server";
         var ct = CancellationToken.None;
-        var client = Fixture.CreateGatewayClient();
+        var client = CreateClient();
         await LoginOnFreshTestUserAsync(client,ct);
 
         var serverData = await CreateServerAsync(client, serverName, ct);
@@ -577,7 +574,7 @@ public class ServersServiceTest : TestBase
 
         var serverName = "Test Server";
         var ct = CancellationToken.None;
-        var client = Fixture.CreateGatewayClient();
+        var client = CreateClient();
         await LoginOnFreshTestUserAsync(client, ct);
 
         var serverData = await CreateServerAsync(client, serverName, ct);
@@ -604,7 +601,7 @@ public class ServersServiceTest : TestBase
 
         var serverName = "Test Server";
         var ct = CancellationToken.None;
-        var client = Fixture.CreateGatewayClient();
+        var client = CreateClient();
         var user = await LoginOnFreshTestUserAsync(client, ct);
 
         var serverData = await CreateServerAsync(client, serverName, ct);
@@ -633,7 +630,7 @@ public class ServersServiceTest : TestBase
     {
         var serverName = "Test Server";
         var ct = CancellationToken.None;
-        var client = Fixture.CreateGatewayClient();
+        var client = CreateClient();
         var user = await LoginOnFreshTestUserAsync(client, ct);
 
         var serverData = await CreateServerAsync(client, serverName, ct);
@@ -661,7 +658,7 @@ public class ServersServiceTest : TestBase
     {
         var serverName = "Test Server";
         var ct = CancellationToken.None;
-        var client = Fixture.CreateGatewayClient();
+        var client = CreateClient();
       await LoginOnFreshTestUserAsync(client, ct);
 
         var serverData = await CreateServerAsync(client, serverName, ct);

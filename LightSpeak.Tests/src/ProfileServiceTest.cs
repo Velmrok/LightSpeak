@@ -6,15 +6,10 @@ using ProfileService.src.database;
 using ProfileService.src.services;
 
 namespace LightSpeak.Tests.src;
-[Collection("Aspire")]
 public class ProfileServiceTest : TestBase
 {
    
-   
-    public ProfileServiceTest(AppFixture fixture) : base(fixture)
-    {
-       
-    }
+
 
     private async Task<AppDbContext> CreateDbContext(CancellationToken ct)
     {

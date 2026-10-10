@@ -5,18 +5,16 @@ using NotificationsService.src.dto;
 
 namespace LightSpeak.Tests.src;
 
-[Collection("Aspire")]
+
 public class NotificationsServiceTests : TestBase
 {
-    public NotificationsServiceTests(AppFixture fixture) : base(fixture)
-    {
-    }
+
 
     [Fact]
     public async Task MemberReceivesMessageCreated_OnPostMessage()
     {
         var ct = CancellationToken.None;
-        var client = Fixture.CreateGatewayClient();
+        var client = CreateClient();
         await LoginOnFreshTestUserAsync(client,ct);
 
         var server = await CreateServerAsync(client, "Test Server", ct);
@@ -31,7 +29,7 @@ public class NotificationsServiceTests : TestBase
         await using var connection = new HubConnectionBuilder()
             .WithUrl(new Uri(client.BaseAddress!, "/hubs/app"), o =>
             {
-                o.Cookies = AuthClient.CookieContainer;   
+                o.Cookies = Cookies;   
             })
             .Build();
 

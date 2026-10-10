@@ -6,23 +6,26 @@ using ServersService.src.dto;
 
 namespace LightSpeak.Tests;
 
-public class TestBase
+public class TestBase : IAsyncLifetime
 {
-    protected readonly AppFixture Fixture;
+    protected AppFixture? Fixture;
     protected static readonly TimeSpan DefaultTimeout = TimeSpan.FromSeconds(30);
-    protected DistributedApplication App => Fixture.App;
-    protected AuthClient _authClient => new();
+    protected DistributedApplication App => Fixture?.App ?? throw new InvalidOperationException("Fixture is not initialized");
+    protected readonly CookieContainer Cookies = new();
+    protected readonly AuthClient _authClient;
 
-    public TestBase(AppFixture fixture)
+    public TestBase()
     {
-        Fixture = fixture;
-        _authClient.ResetCookies();
+       _authClient = new AuthClient(Cookies);
     }
+    public async Task InitializeAsync() => Fixture = await SharedApp.GetAsync();
+    public Task DisposeAsync() => Task.CompletedTask;
+    protected HttpClient CreateClient() => Fixture.CreateGatewayClient(Cookies);
     protected async Task<TestUser> LoginOnFreshTestUserAsync(HttpClient browser, CancellationToken ct = default)
     {
-        var authClient = new AuthClient();
+       
         var testUser = await CreateUniqueTestUserAsync(ct);
-        await authClient.LoginAsync(browser, testUser.Username, testUser.Password, ct);
+        await _authClient.LoginAsync(browser, testUser.Username, testUser.Password, ct);
         return testUser;
     }
     protected async Task<TestUser> CreateUniqueTestUserAsync(CancellationToken ct = default)

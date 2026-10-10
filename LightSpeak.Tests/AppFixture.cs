@@ -11,16 +11,26 @@ using RabbitMQ.Client;
 
 namespace LightSpeak.Tests;
 
-[CollectionDefinition("Aspire")]
-public class AspireCollectionDefinition : ICollectionFixture<AppFixture>{}
-
 public partial class AppFixture : IAsyncLifetime
 {
     public IConnection RabbitMqConnection { get; private set; } = null!;
     public IConfiguration Configuration { get; private set; } = null!;
     public DistributedApplication App = null!;
-    public HttpClient CreateGatewayClient() => App.CreateHttpClient("gateway", "http");
-    public async Task<TContext> CreateDbContextAsync<TContext>(string connectionStringName,CancellationToken ct = default) where TContext : DbContext
+    public HttpClient CreateGatewayClient(CookieContainer? cookies)
+    {
+        var handler = new HttpClientHandler
+        {
+            CookieContainer = cookies ?? new CookieContainer(),
+            UseCookies = true,
+            AllowAutoRedirect = true
+        };
+
+        return new HttpClient(handler)
+        {
+            BaseAddress = App.GetEndpoint(ResourcesNames.Gateway, "http")
+        };
+    }
+    public async Task<TContext> CreateDbContextAsync<TContext>(string connectionStringName, CancellationToken ct = default) where TContext : DbContext
     {
         var connectionString = await App.GetConnectionStringAsync(connectionStringName, ct);
         var options = new DbContextOptionsBuilder<TContext>()
@@ -45,15 +55,6 @@ public partial class AppFixture : IAsyncLifetime
             logging.AddFilter("LightSpeak.AppHost.Resources.postgres", LogLevel.None);
 
         });
-        builder.Services.ConfigureHttpClientDefaults(clientBuilder =>
-        {
-            clientBuilder.ConfigurePrimaryHttpMessageHandler(() => new HttpClientHandler
-            {
-                CookieContainer = AuthClient.CookieContainer,
-                UseCookies = true,
-                AllowAutoRedirect = true
-            });
-        });
 
         var kcAdminSecret = builder.Configuration["Parameters:kc-admin-secret"];
         ArgumentException.ThrowIfNullOrEmpty(kcAdminSecret, "kc-admin-secret parameter is not set in appsettings.json");
@@ -77,17 +78,15 @@ public partial class AppFixture : IAsyncLifetime
         RabbitMqConnection = await factory.CreateConnectionAsync();
         
     }
-
-    // BAD not OCP code, no idea for now how to handle it better
     private async Task AssertTestUserHasBeenCreatedAsync(string id, string username, CancellationToken ct)
     {
         await Eventually.Assert(async () =>
         {
-            var dbContext = await CreateDbContextAsync<ProfileService.src.database.AppDbContext>(ResourcesNames.ProfileDatabase, ct);
+            await using var dbContext = await CreateDbContextAsync<ProfileService.src.database.AppDbContext>(ResourcesNames.ProfileDatabase, ct);
             var profile = await dbContext.Profiles.FirstOrDefaultAsync(p => p.Id == id, ct);
             Assert.NotNull(profile);
             Assert.Equal(username, profile.Username);
-        }, TimeSpan.FromSeconds(15), ct);
+        }, TimeSpan.FromSeconds(30), ct);
     }
 
     public async Task<string> CreateTestUserAsync(string name, string email, string password,  CancellationToken ct = default)

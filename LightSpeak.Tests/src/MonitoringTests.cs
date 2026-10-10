@@ -3,18 +3,16 @@ using LightSpeak.AppHost.src.Constants;
 
 namespace LightSpeak.Tests.src;
 
-[Collection("Aspire")]
+
 public class MonitoringTests : TestBase
 {
-    public MonitoringTests(AppFixture fixture) : base(fixture)
-    {
-    }
+ 
     private async Task AssertResourceIsHealthyAsync(string resourceName, string healthEndpoint, CancellationToken ct)
     {
         await WaitForResourceRunningAsync(ResourcesNames.Gateway, ct);
         await WaitForResourceRunningAsync(resourceName, ct);
 
-        var client = Fixture.CreateGatewayClient();
+        var client = CreateClient();
         var resp = await client.GetAsync(healthEndpoint, ct).WaitAsync(DefaultTimeout, ct);
         Assert.Equal(HttpStatusCode.OK, resp.StatusCode);
     }

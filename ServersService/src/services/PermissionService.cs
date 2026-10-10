@@ -10,21 +10,10 @@ namespace ServersService.src.services;
 public class PermissionService(AppDbContext db) : IPermissionService
 {
     private const string section = ResourcesSectionNames.Servers;
-    private Permission CalculatePermissions(Member? member)
-    {
-        Permission perms = Permission.None;
-        if (member != null)
-        {
-            foreach (var role in member.Roles)
-            {
-                perms |= role.Permissions;
-            }
-        }
-        return perms;
-    }
+   
     private Permission CalculateOverWritedPermissions(Member? member, List<ChannelPermissionOverwrite>? overwrites)
     {
-        var memberPerms = CalculatePermissions(member);
+        var memberPerms = PermissionCalculator.CalculatePermissions(member);
         if (overwrites == null || overwrites.Count == 0) return memberPerms;
 
         var roleIds = member?.Roles.Select(r => r.Id).ToHashSet() ?? new HashSet<string>();
@@ -88,7 +77,7 @@ public class PermissionService(AppDbContext db) : IPermissionService
         }
 
         var allowed = server.Members
-            .Where(m => (CalculatePermissions(m) & required) == required)
+            .Where(m => (PermissionCalculator.CalculatePermissions(m) & required) == required)
             .Select(m => m.UserId)
             .ToList();
 
@@ -119,6 +108,6 @@ public class PermissionService(AppDbContext db) : IPermissionService
             var error = new AppError(DomainErrorCode.NotFound, "Server.NotFound", $"Server with ID '{serverId}' not found.");
             return CallResult.Fail(section, error);
         }
-        return CallResult.Success(section, CalculatePermissions(member));     
+        return CallResult.Success(section, PermissionCalculator.CalculatePermissions(member));     
     }
 }

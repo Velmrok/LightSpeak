@@ -14,6 +14,7 @@ public class AppDbContext : DbContext
     public DbSet<UserSnapshot> UserSnapshots => Set<UserSnapshot>();
     public DbSet<ChatMessage> ChatMessages => Set<ChatMessage>();
     public DbSet<Role> Roles => Set<Role>();
+    public DbSet<ChannelPermissionOverwrite> ChannelPermissionOverwrites => Set<ChannelPermissionOverwrite>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

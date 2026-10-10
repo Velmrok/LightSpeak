@@ -16,6 +16,7 @@ public static class ServersEndpoints
         app.MapPost("/{serverId}/channels", CreateChannel).RequireAuthorization();
         app.MapPost("/channels/{channelId}/messages", PostMessage).RequirePermission(Permission.WriteOnChannel);
         app.MapPatch("/{serverId}/roles", PatchRole).RequirePermission(Permission.ManageRoles);
+        app.MapPost("/{serverId}/roles", CreateRole).RequirePermission(Permission.ManageRoles);
         app.MapGet("/{serverId}/roles", GetRoles).RequireAuthorization();
         return app;
     }
@@ -71,7 +72,19 @@ public static class ServersEndpoints
         var data = result.Data;
         return responseBuilder.BuildResponse(HttpStatusCode.OK, result,() => data!);
 
+
     }
+    private static async Task<IResult> CreateRole(string serverId, CreateRoleRequest request, IRoleService service,
+     HttpContext ctx,IResponseBuilderService responseBuilder)
+    {
+        var userId = ctx.User.FindFirst(JwtRegisteredClaimNames.Sub)?.Value!;
+        var result = await service.CreateRoleAsync(serverId,userId, request, ctx.RequestAborted);
+ 
+        var data = result.Data;
+        return responseBuilder.BuildResponse(HttpStatusCode.Created, result,() => data!);
+
+    }
+    
     
     
 }

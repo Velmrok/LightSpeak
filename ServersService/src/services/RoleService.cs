@@ -104,12 +104,12 @@ public class RoleService(AppDbContext db) : IRoleService
         var memberRole = member.Roles.GetMostPowerfulRole();
         if (memberRole == null || memberRole.Priority >= roleToEdit.Priority)
         {
-            var error = new AppError(DomainErrorCode.Forbidden, "Role.Edit.Unauthorized", $"User with ID '{userId}' does not have permission to edit this role.");
+            var error = new AppError(DomainErrorCode.Forbidden, "Role.Edit.Forbidden", $"User with ID '{userId}' does not have permission to edit this role.");
             return CallResult.Fail(section, error);
         }
-        if(roleToEdit.Name == "Everyone" && request.NewName != null)
+        if((roleToEdit.Name == "Everyone" || roleToEdit.Name == "Owner"  ) &&request.NewName != null)
         {
-            var error = new AppError(DomainErrorCode.Forbidden, "Role.Edit.Unauthorized", $"Name of the role 'Everyone' cannot be changed.");
+            var error = new AppError(DomainErrorCode.Forbidden, "Role.Edit.Forbidden", $"Name of the role '{roleToEdit.Name}' cannot be changed.");
             return CallResult.Fail(section, error);
         }
         roleToEdit.Name = request.NewName ?? roleToEdit.Name;
@@ -124,5 +124,28 @@ public class RoleService(AppDbContext db) : IRoleService
         return CallResult.Success(section, response);
     }
 
-    
+    public async Task<CallResult> DeleteRoleAsync(string serverId, string userId, string roleId, CancellationToken ct)
+    {
+        var serverAndMemberResult = await GetServerAndMemberAsync(serverId, userId, ct);
+        if (!serverAndMemberResult.IsSuccess) return serverAndMemberResult.AsFailure();
+        var (server, member) = serverAndMemberResult.Data;
+
+        var roleToDelete = await db.Roles.FirstOrDefaultAsync(r => r.Id == roleId && r.ServerId == serverId, cancellationToken: ct);
+        if (roleToDelete == null)
+        {
+            var error = new AppError(DomainErrorCode.NotFound, "Role.NotFound", $"Role with ID '{roleId}' not found.");
+            return CallResult.Fail(section, error);
+        }
+
+        var memberRole = member.Roles.GetMostPowerfulRole();
+        if (memberRole == null || memberRole.Priority >= roleToDelete.Priority || roleToDelete.Name == "Everyone" || roleToDelete.Name == "Owner")
+        {
+            var error = new AppError(DomainErrorCode.Forbidden, "Role.Delete.Forbidden", $"User with ID '{userId}' does not have permission to delete this role.");
+            return CallResult.Fail(section, error);
+        }
+
+        db.Roles.Remove(roleToDelete);
+        await db.SaveChangesAsync(ct);
+        return CallResult.Success(section);
+    }
 }

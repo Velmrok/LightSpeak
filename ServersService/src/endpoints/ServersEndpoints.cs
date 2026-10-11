@@ -18,6 +18,7 @@ public static class ServersEndpoints
         app.MapPatch("/{serverId}/roles", PatchRole).RequirePermission(Permission.ManageRoles);
         app.MapPost("/{serverId}/roles", CreateRole).RequirePermission(Permission.ManageRoles);
         app.MapGet("/{serverId}/roles", GetRoles).RequireAuthorization();
+        app.MapDelete("/{serverId}/roles/{roleId}", DeleteRole).RequirePermission(Permission.ManageRoles);
         return app;
     }
 
@@ -82,6 +83,15 @@ public static class ServersEndpoints
  
         var data = result.Data;
         return responseBuilder.BuildResponse(HttpStatusCode.Created, result,() => data!);
+
+    }
+    private static async Task<IResult> DeleteRole(string serverId, string roleId, IRoleService service,
+     HttpContext ctx,IResponseBuilderService responseBuilder)
+    {
+        var userId = ctx.User.FindFirst(JwtRegisteredClaimNames.Sub)?.Value!;
+        var result = await service.DeleteRoleAsync(serverId,userId, roleId, ctx.RequestAborted);
+
+        return responseBuilder.BuildResponse(result);  
 
     }
     

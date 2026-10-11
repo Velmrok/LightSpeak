@@ -32,5 +32,7 @@ public static class CallResultExtensions
 {
     public static CallOutcome<T> AsOutcome<T>(this CallResult<T> result, bool required) =>
         new(result.Section, required, result.Data, result.Error);
+    public static CallOutcome AsOutcome(this CallResult result, bool required) =>
+        new(result.Section, required, result.Error);
 
 }

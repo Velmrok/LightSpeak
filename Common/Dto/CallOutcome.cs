@@ -8,5 +8,5 @@ public interface ICallOutcome
     bool Required { get; }
     AppError? Error { get; }
 }
-public record CallOutcome<T>
-(string Section, bool Required, T? Data, AppError? Error): ICallOutcome;
+public record CallOutcome<T>(string Section, bool Required, T? Data, AppError? Error): ICallOutcome;
+public record CallOutcome(string Section, bool Required, AppError? Error): ICallOutcome;

@@ -30,7 +30,9 @@ public class ResponseBuilderService : IResponseBuilderService
         ICallOutcome[] outcomes = [result.AsOutcome(required: true)];
         return TryBuildError(outcomes) ?? Results.NoContent();
     }
-
+    public IResult BuildError<TData>(CallResult<TData> result)
+        => TryBuildError([result.AsOutcome(required: true)])
+           ?? throw new ArgumentException("Result must have an error", nameof(result));
     public IResult BuildError(CallResult result)
         => TryBuildError([result.AsOutcome(required: true)])
            ?? throw new ArgumentException("Result must have an error", nameof(result));

@@ -11,4 +11,5 @@ public interface IResponseBuilderService
     IResult BuildResponse<TData>(HttpStatusCode successStatusCode, CallResult<TData> result, Func<TData> buildData);
     IResult BuildResponse(CallResult result);
     IResult BuildError(CallResult result);
+    IResult BuildError<TData>(CallResult<TData> result);
 }

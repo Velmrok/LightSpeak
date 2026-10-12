@@ -49,19 +49,18 @@ namespace ServersService.Migrations
                     b.Property<string>("Id")
                         .HasColumnType("text");
 
-                    b.Property<string>("Name")
+                    b.Property<string>("Discriminator")
                         .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<string>("ServerId")
-                        .IsRequired()
-                        .HasColumnType("text");
+                        .HasMaxLength(13)
+                        .HasColumnType("character varying(13)");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("ServerId");
-
                     b.ToTable("Channels");
+
+                    b.HasDiscriminator<string>("Discriminator").HasValue("Channel");
+
+                    b.UseTphMappingStrategy();
                 });
 
             modelBuilder.Entity("ServersService.src.models.ChatMessage", b =>
@@ -172,24 +171,48 @@ namespace ServersService.Migrations
                     b.ToTable("UserSnapshots");
                 });
 
+            modelBuilder.Entity("ServersService.src.models.DmChannel", b =>
+                {
+                    b.HasBaseType("ServersService.src.models.Channel");
+
+                    b.Property<string>("UserHighId")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("UserLowId")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.HasIndex("UserLowId", "UserHighId")
+                        .IsUnique();
+
+                    b.HasDiscriminator().HasValue("DmChannel");
+                });
+
+            modelBuilder.Entity("ServersService.src.models.ServerChannel", b =>
+                {
+                    b.HasBaseType("ServersService.src.models.Channel");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("ServerId")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.HasIndex("ServerId");
+
+                    b.HasDiscriminator().HasValue("ServerChannel");
+                });
+
             modelBuilder.Entity("ChannelPermissionOverwrite", b =>
                 {
-                    b.HasOne("ServersService.src.models.Channel", null)
+                    b.HasOne("ServersService.src.models.ServerChannel", null)
                         .WithMany("PermissionOverwrites")
                         .HasForeignKey("ChannelId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-                });
-
-            modelBuilder.Entity("ServersService.src.models.Channel", b =>
-                {
-                    b.HasOne("ServersService.src.models.Server", "Server")
-                        .WithMany("Channels")
-                        .HasForeignKey("ServerId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Server");
                 });
 
             modelBuilder.Entity("ServersService.src.models.ChatMessage", b =>
@@ -235,11 +258,20 @@ namespace ServersService.Migrations
                         .HasForeignKey("MemberUserId", "MemberServerId");
                 });
 
+            modelBuilder.Entity("ServersService.src.models.ServerChannel", b =>
+                {
+                    b.HasOne("ServersService.src.models.Server", "Server")
+                        .WithMany("Channels")
+                        .HasForeignKey("ServerId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Server");
+                });
+
             modelBuilder.Entity("ServersService.src.models.Channel", b =>
                 {
                     b.Navigation("Messages");
-
-                    b.Navigation("PermissionOverwrites");
                 });
 
             modelBuilder.Entity("ServersService.src.models.Member", b =>
@@ -259,6 +291,11 @@ namespace ServersService.Migrations
             modelBuilder.Entity("ServersService.src.models.UserSnapshot", b =>
                 {
                     b.Navigation("Memberships");
+                });
+
+            modelBuilder.Entity("ServersService.src.models.ServerChannel", b =>
+                {
+                    b.Navigation("PermissionOverwrites");
                 });
 #pragma warning restore 612, 618
         }

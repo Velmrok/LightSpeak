@@ -38,7 +38,7 @@ public class PermissionService(AppDbContext db) : IPermissionService
     }
     public async Task<CallResult<List<string>>> FilterChannelMembersWithPermissionAsync(string channelId, Permission required, CancellationToken ct)
     {
-        var channel = await db.Channels
+        var channel = await db.ServerChannels
             .AsNoTracking()
             .Include(c => c.PermissionOverwrites)
             .Include(c => c.Server)
@@ -85,7 +85,7 @@ public class PermissionService(AppDbContext db) : IPermissionService
     }
     public async Task<CallResult<Permission>> GetPermissionsByChannelIdAsync(string userId, string channelId, CancellationToken ct)
     {
-        var serverId = await db.Channels.Where(c => c.Id == channelId).Select(c => c.ServerId).FirstOrDefaultAsync(ct);
+        var serverId = await db.ServerChannels.Where(c => c.Id == channelId).Select(c => c.ServerId).FirstOrDefaultAsync(ct);
         var member = await db.Members.Include(m => m.Roles).FirstOrDefaultAsync(m => m.UserId == userId && m.ServerId == serverId, ct);
         if(serverId == null || member == null)
         {
@@ -94,7 +94,7 @@ public class PermissionService(AppDbContext db) : IPermissionService
         }
        
         
-        var channelOverwrites = await db.Channels.Where(c => c.Id == channelId).Select(c => c.PermissionOverwrites).FirstOrDefaultAsync(ct);
+        var channelOverwrites = await db.ServerChannels.Where(c => c.Id == channelId).Select(c => c.PermissionOverwrites).FirstOrDefaultAsync(ct);
         var memberPerms = CalculateOverWritedPermissions(member, channelOverwrites);
 
         return CallResult.Success(section, memberPerms);

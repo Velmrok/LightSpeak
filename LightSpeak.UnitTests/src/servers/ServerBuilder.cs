@@ -10,7 +10,7 @@ public class ServerBuilder
     private readonly Role _everyone;
     private readonly List<Role> _roles = [];
     private readonly List<Member> _members = [];
-    private readonly List<Channel> _channels = [];
+    private readonly List<ServerChannel> _channels = [];
     private readonly List<UserSnapshot> _users = [];
 
     public ServerBuilder()
@@ -49,9 +49,9 @@ public class ServerBuilder
 
     private static IEnumerable<Role> _extraRoles(Role[] r) => r;
 
-    public Channel AddChannel(string name = "general")
+    public ServerChannel AddChannel(string name = "general")
     {
-        var ch = new Channel { Id = $"channel-{Guid.NewGuid():N}", Name = name, ServerId = _id };
+        var ch = new ServerChannel { Id = $"channel-{Guid.NewGuid():N}", Name = name, ServerId = _id };
         _channels.Add(ch);
         return ch;
     }

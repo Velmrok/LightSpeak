@@ -32,6 +32,9 @@ builder.Services.AddScoped<IPermissionService, PermissionService>();
 builder.Services.AddScoped<IAuthorizationHandler, PermissionHandler>(); 
 builder.Services.AddScoped<IRoleService, RoleService>();
 builder.Services.AddSingleton<IAuthorizationMiddlewareResultHandler, AuthResultHandler>();
+builder.Services.AddScoped<IChannelStrategy, DmChannelStrategy>();
+builder.Services.AddScoped<IChannelStrategy, ServerChannelStrategy>();
+builder.Services.AddScoped<IChannelStrategyResolver, ChannelStrategyResolver>();
 var app = builder.Build();
 
 using (var scope = app.Services.CreateScope())

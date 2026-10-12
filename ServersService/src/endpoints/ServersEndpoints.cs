@@ -14,11 +14,12 @@ public static class ServersEndpoints
     {
         app.MapPost("/", CreateServer).RequireAuthorization();
         app.MapPost("/{serverId}/channels", CreateChannel).RequireAuthorization();
-        app.MapPost("/channels/{channelId}/messages", PostMessage).RequirePermission(Permission.WriteOnChannel);
         app.MapPatch("/{serverId}/roles", PatchRole).RequirePermission(Permission.ManageRoles);
         app.MapPost("/{serverId}/roles", CreateRole).RequirePermission(Permission.ManageRoles);
         app.MapGet("/{serverId}/roles", GetRoles).RequireAuthorization();
         app.MapDelete("/{serverId}/roles/{roleId}", DeleteRole).RequirePermission(Permission.ManageRoles);
+
+        app.MapPost("/channels/{channelId}/messages", PostMessage).RequireAuthorization();
         return app;
     }
 

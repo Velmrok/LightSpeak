@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace LightSpeak.Tests.src.ServersServiceTests;
 
-public class CreateChannelTests : TestBase
+public class CreateServerChannelTests : TestBase
 {
     private async Task<AppDbContext> CreateDbContext(CancellationToken ct)
     {
@@ -14,7 +14,7 @@ public class CreateChannelTests : TestBase
     }
     
     [Fact]
-    public async Task CreatesChannel_Correctly_OnCreateChannelRequest_WhileBeingMemberOfAServer()
+    public async Task CreatesServerChannel_Correctly_OnCreateChannelRequest_WhileBeingMemberOfAServer()
     {
         var channelName = "Test Channel";
         var serverName = "Test Server";
@@ -33,12 +33,12 @@ public class CreateChannelTests : TestBase
       
         var dbContext = await CreateDbContext(ct);
 
-        var channelInDb = await dbContext.Channels.FirstOrDefaultAsync(c => c.Id == channelData.ChannelId, ct);
+        var channelInDb = await dbContext.ServerChannels.FirstOrDefaultAsync(c => c.Id == channelData.ChannelId, ct);
         Assert.NotNull(channelInDb);
         Assert.Equal(channelName, channelInDb.Name);
     }
     [Fact]
-    public async Task CreateChannel_Returns404_NotFound_WhenServerDoesNotExist()
+    public async Task CreateServerChannel_Returns404_NotFound_WhenServerDoesNotExist()
     {
         var name = "Test Channel";
         var ct = CancellationToken.None;
@@ -54,7 +54,7 @@ public class CreateChannelTests : TestBase
         Assert.Equal(HttpStatusCode.NotFound, json.StatusCode);
     }
     [Fact]
-    public async Task CreateChannel_Returns400_BadRequest_WhenNameIsInvalid()
+    public async Task CreateServerChannel_Returns400_BadRequest_WhenNameIsInvalid()
     {
         var channelName = "";
         var serverName = "Test Server";
@@ -73,7 +73,7 @@ public class CreateChannelTests : TestBase
         Assert.Equal(HttpStatusCode.BadRequest, json.StatusCode);
     }
     [Fact]
-    public async Task CreateChannel_Returns404_NotFound_WhenUserIsNotMemberOfServer()
+    public async Task CreateServerChannel_Returns404_NotFound_WhenUserIsNotMemberOfServer()
     {
         var channelName = "Test Channel";
         var serverName = "Test Server";

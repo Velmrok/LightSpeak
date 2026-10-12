@@ -13,7 +13,7 @@ using ServersService.src.permissions;
 
 namespace ServersService.src.services;
 
-public class ServersApplicationService(AppDbContext db, IProfileClient profileClient, IEventPublisher eventPublisher, IPermissionService permissionService) : IServersApplicationService
+public class ServersApplicationService(AppDbContext db, IProfileClient profileClient, IEventPublisher eventPublisher,IChannelStrategyResolver channelStrategyResolver) : IServersApplicationService
 { 
     private const string section = ResourcesSectionNames.Servers;
 
@@ -34,14 +34,13 @@ public class ServersApplicationService(AppDbContext db, IProfileClient profileCl
             return new (section, null, error);
         }
 
-        var channel = new Channel
+        var channel = new ServerChannel
         {
-            Id = Guid.NewGuid().ToString(),
             Name = request.Name,
             ServerId = server.Id
         };
 
-        db.Channels.Add(channel);
+        db.ServerChannels.Add(channel);
         await db.SaveChangesAsync(cancellationToken);
 
         var response = new CreateChannelResponse
@@ -129,17 +128,25 @@ public class ServersApplicationService(AppDbContext db, IProfileClient profileCl
     {
         if (string.IsNullOrWhiteSpace(request.Content))
         {
-            var error = new AppError(DomainErrorCode.Validation,"InvalidMessageContent", "Message content cannot be empty or whitespace.");
+            var error = new AppError(DomainErrorCode.Validation, "InvalidMessageContent", "Message content cannot be empty or whitespace.");
             return CallResult.Fail(section, error);
         }
 
-        var channel = await db.Channels.Include(c => c.Server).ThenInclude(s => s.Members).FirstOrDefaultAsync(c => c.Id == channelId, cancellationToken);
-        
-        // Even if the channel exists, return 404 for unauthorized users to avoid revealing the existence of the channel.
-        if (channel == null || !channel.Server.Members.Any(m => m.UserId == userId))
+        var channel = await db.Channels.FirstOrDefaultAsync(c => c.Id == channelId, cancellationToken);
+
+
+        var strategy = channel is null ? null : channelStrategyResolver.For(channel);
+
+        if (channel is null || strategy is null || !await strategy.IsMemberAsync(userId, channel, cancellationToken))
         {
             var error = new AppError(DomainErrorCode.NotFound, "ChannelNotFound", $"Channel with ID '{channelId}' not found.");
-            return new (section, null, error);
+            return new(section, null, error);
+        }
+
+        if (!await strategy.CanWriteAsync(userId, channel, cancellationToken))
+        {
+            var error = new AppError(DomainErrorCode.Forbidden, "PermissionDenied", $"User '{userId}' does not have permission to write in channel '{channelId}'.");
+            return new(section, null, error);
         }
 
         var message = new ChatMessage
@@ -151,7 +158,7 @@ public class ServersApplicationService(AppDbContext db, IProfileClient profileCl
         };
 
         db.ChatMessages.Add(message);
-        await db.SaveChangesAsync(cancellationToken);
+       
 
         var response = new PostMessageResponse
         (
@@ -161,15 +168,14 @@ public class ServersApplicationService(AppDbContext db, IProfileClient profileCl
         var senderSnapshotResult = await GetUserSnapshot(userId, cancellationToken);
         if (!senderSnapshotResult.IsSuccess) return senderSnapshotResult.AsFailure();
 
-       
-        var recipientUserIdsResult =  await permissionService.FilterChannelMembersWithPermissionAsync(channelId, Permission.ReadOnChannel, cancellationToken);
-        if (!recipientUserIdsResult.IsSuccess) return recipientUserIdsResult.AsFailure();
-        var recipientUserIds = recipientUserIdsResult.Data;
+
+        var recipientUserIds= await strategy.GetRecipientsAsync(channel, cancellationToken);
 
         var senderSnapshot = new SenderSnapshot(senderSnapshotResult.Data.Id, senderSnapshotResult.Data.Name, senderSnapshotResult.Data.AvatarUrl);
         var messageCreatedEvent = new MessageCreatedEvent(message.Id, message.ChannelId, senderSnapshot, message.Content, recipientUserIds, message.Timestamp);
-        
+
         await eventPublisher.PublishEventAsync(messageCreatedEvent, cancellationToken);
+         await db.SaveChangesAsync(cancellationToken);
         return CallResult.Success(section, response);
     }
     public async Task<CallResult> UpdateUserDataAsync(string userId, string username, string avatarUrl, CancellationToken cancellationToken)
@@ -184,7 +190,8 @@ public class ServersApplicationService(AppDbContext db, IProfileClient profileCl
                 AvatarUrl = avatarUrl
             };
             db.UserSnapshots.Add(userSnapshot);
-        }else
+        }
+        else
         {
             userSnapshot.Name = username;
             userSnapshot.AvatarUrl = avatarUrl;
@@ -192,4 +199,6 @@ public class ServersApplicationService(AppDbContext db, IProfileClient profileCl
         await db.SaveChangesAsync(cancellationToken);
         return CallResult.Success(section);
     }
+
+   
 }

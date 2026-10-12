@@ -10,6 +10,8 @@ public class AppDbContext : DbContext
     }
     public DbSet<Server> Servers => Set<Server>();
     public DbSet<Channel> Channels => Set<Channel>();
+    public DbSet<DmChannel> DmChannels => Set<DmChannel>();
+    public DbSet<ServerChannel> ServerChannels => Set<ServerChannel>();
     public DbSet<Member> Members => Set<Member>();
     public DbSet<UserSnapshot> UserSnapshots => Set<UserSnapshot>();
     public DbSet<ChatMessage> ChatMessages => Set<ChatMessage>();
@@ -35,7 +37,7 @@ public class AppDbContext : DbContext
             .WithOne(m => m.Channel)
             .HasForeignKey(m => m.ChannelId)
             .OnDelete(DeleteBehavior.Cascade);
-        modelBuilder.Entity<Channel>()
+        modelBuilder.Entity<ServerChannel>()
             .HasMany(c => c.PermissionOverwrites)
             .WithOne()
             .HasForeignKey(po => po.ChannelId)
@@ -61,6 +63,8 @@ public class AppDbContext : DbContext
 
         modelBuilder.Entity<ChannelPermissionOverwrite>()
             .HasKey(cpo=> new { cpo.ChannelId, cpo.TargetId});
+        modelBuilder.Entity<DmChannel>()
+    .HasIndex(c => new { c.UserLowId, c.UserHighId }).IsUnique();
 
        
     }

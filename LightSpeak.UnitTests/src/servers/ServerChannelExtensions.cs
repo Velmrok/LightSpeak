@@ -5,14 +5,14 @@ using ServersService.src.permissions;
 
 namespace LightSpeak.UnitTests.src.servers;
 
-public static class ChannelExtensions
+public static class ServerChannelExtensions
 {
-    public static Channel AddRoleOverwrite(this Channel channel, string roleId, Permission allow, Permission deny)
+    public static ServerChannel AddRoleOverwrite(this ServerChannel channel, string roleId, Permission allow, Permission deny)
     {
         channel.PermissionOverwrites.Add(CreateOverwrite(channel.Id, roleId, OverwriteTargetType.Role, allow, deny));
         return channel;
     } 
-    public static Channel AddMemberOverwrite(this Channel channel, string memberId, Permission allow, Permission deny)
+    public static ServerChannel AddMemberOverwrite(this ServerChannel channel, string memberId, Permission allow, Permission deny)
     {
         channel.PermissionOverwrites.Add(CreateOverwrite(channel.Id, memberId, OverwriteTargetType.Member, allow, deny));
         return channel;

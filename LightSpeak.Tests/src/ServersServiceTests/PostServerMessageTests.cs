@@ -8,7 +8,7 @@ using System.Text.Json;
 
 namespace LightSpeak.Tests.src.ServersServiceTests;
 
-public class PostMessageTests : TestBase
+public class PostServerMessageTests : TestBase
 {
     private async Task<AppDbContext> CreateDbContext(CancellationToken ct)
     {

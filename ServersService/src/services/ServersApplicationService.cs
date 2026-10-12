@@ -22,16 +22,18 @@ public class ServersApplicationService(AppDbContext db, IProfileClient profileCl
         if (string.IsNullOrWhiteSpace(request.Name))
         {
             var error = new AppError(DomainErrorCode.Validation,"InvalidChannelName", "Channel name cannot be empty or whitespace.");
-            return new (section, null, error);
+            return CallResult.Fail(section, error);
         }
         
-        var server = await db.Servers.Include(s => s.Members).FirstOrDefaultAsync(s => s.Id == serverId, cancellationToken);
+        var server = await db.Servers.FirstOrDefaultAsync(s => s.Id == serverId, cancellationToken);
+        var isMember = await db.Set<Member>().AnyAsync(m => m.ServerId == serverId && m.UserId == userId, cancellationToken);
+
         
         // Even if the server exists, return 404 for unauthorized users to avoid revealing the existence of the server.
-        if (server == null || !server.Members.Any(m => m.UserId == userId))
+        if (server == null || !isMember)
         {
             var error = new AppError(DomainErrorCode.NotFound, "ServerNotFound", $"Server with ID '{serverId}' not found.");
-            return new (section, null, error);
+            return CallResult.Fail(section, error);
         }
 
         var channel = new ServerChannel
@@ -50,7 +52,33 @@ public class ServersApplicationService(AppDbContext db, IProfileClient profileCl
         );
         return CallResult.Success(section, response); 
     }
+    public async Task<CallResult<string>> GetOrCreateDmChannelAsync(string userId, string targetUserId, CancellationToken cancellationToken)
+    {
+        if (userId == targetUserId)
+        {
+            var error = new AppError(DomainErrorCode.Validation, "InvalidTargetUser", "Cannot create a DM channel with yourself.");
+            return CallResult.Fail(section, error);
+        }
+        var (low, high) = ModelsHelper.NormalizePair(userId, targetUserId);
+        var existingChannel = await db.DmChannels.Where(ch=>ch.UserLowId==low && ch.UserHighId==high).FirstOrDefaultAsync(cancellationToken);
 
+        if (existingChannel != null)
+        {
+            
+            return CallResult.Success(section, existingChannel.Id);
+        }
+
+        var dmChannel = new DmChannel
+        {
+            UserLowId = low,
+            UserHighId = high
+        };
+
+        db.DmChannels.Add(dmChannel);
+        await db.SaveChangesAsync(cancellationToken);
+
+        return CallResult.Success(section, dmChannel.Id);
+    }
     public async Task<CallResult<CreateServerResponse>> CreateServerAsync(CreateServerRequest request,string userId, CancellationToken cancellationToken)
     {
         if (string.IsNullOrWhiteSpace(request.Name))
@@ -163,7 +191,8 @@ public class ServersApplicationService(AppDbContext db, IProfileClient profileCl
         var response = new PostMessageResponse
         (
             Content: message.Content,
-            MessageId: message.Id
+            MessageId: message.Id,
+            channelId: message.ChannelId
         );
         var senderSnapshotResult = await GetUserSnapshot(userId, cancellationToken);
         if (!senderSnapshotResult.IsSuccess) return senderSnapshotResult.AsFailure();

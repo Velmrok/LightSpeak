@@ -20,6 +20,8 @@ public static class ServersEndpoints
         app.MapDelete("/{serverId}/roles/{roleId}", DeleteRole).RequirePermission(Permission.ManageRoles);
 
         app.MapPost("/channels/{channelId}/messages", PostMessage).RequireAuthorization();
+        app.MapPost("/channels/dm/{userId}/messages", PostDmMessage).RequireAuthorization();
+
         return app;
     }
 
@@ -93,6 +95,23 @@ public static class ServersEndpoints
         var result = await service.DeleteRoleAsync(serverId,userId, roleId, ctx.RequestAborted);
 
         return responseBuilder.BuildResponse(result);  
+
+    }
+     private static async Task<IResult> PostDmMessage(string userId, PostMessageRequest request, IServersApplicationService service,
+     HttpContext ctx,IResponseBuilderService responseBuilder)
+    {
+        var senderId = ctx.User.FindFirst(JwtRegisteredClaimNames.Sub)?.Value!;
+
+        var channelResult = await service.GetOrCreateDmChannelAsync(senderId, userId, ctx.RequestAborted);
+        if (!channelResult.IsSuccess)
+        {
+            return responseBuilder.BuildError(channelResult);
+        }
+
+        var result = await service.PostMessageAsync(channelResult.Data, request, senderId, ctx.RequestAborted);
+ 
+        var data = result.Data;
+        return responseBuilder.BuildResponse(HttpStatusCode.Created, result,() => data!);
 
     }
     

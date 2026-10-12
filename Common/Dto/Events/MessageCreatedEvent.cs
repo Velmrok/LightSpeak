@@ -1,6 +1,6 @@
 namespace Common.Dto.Events;
 
-public record MessageCreatedEvent(string MessageId, string ChannelId, SenderSnapshot Sender, string Content, List<string> RecipientUserIds, DateTime CreatedAt) : IEvent
+public record MessageCreatedEvent(string MessageId, string ChannelId, SenderSnapshot Sender, string Content, IReadOnlyList<string> RecipientUserIds, DateTime CreatedAt) : IEvent
 {
     public static string RoutingKey => "message.created";
 }

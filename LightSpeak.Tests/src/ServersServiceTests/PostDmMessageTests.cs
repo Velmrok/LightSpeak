@@ -15,22 +15,6 @@ public class PostDmMessageTests : TestBase
         return await Fixture.CreateDbContextAsync<AppDbContext>(ResourcesNames.ServersDatabase, ct);
     }
     
-    private async Task<PostMessageResponse> PostMessageAsync(HttpClient client, string channelId, string content, CancellationToken ct)
-    {
-        var request = new PostMessageRequest
-        (
-            Content: content
-        );
-
-        var json = await client.PostAsJsonAsync($"servers/channels/{channelId}/messages", request, ct);
-        Assert.Equal(HttpStatusCode.Created, json.StatusCode);
-        var response = await ReadFromJson<PostMessageResponse>(json, ct);
-        var data = response.Data;
-        Assert.NotNull(data);
-        Assert.NotNull(response.Errors);
-        Assert.Empty(response.Errors);
-        return data;
-    }
     private async Task<PostMessageResponse> PostDmMessageAsync(HttpClient client, string targetUserId, string content, CancellationToken ct)
     {
         var request = new PostMessageRequest
@@ -49,7 +33,7 @@ public class PostDmMessageTests : TestBase
     }
 
     [Fact]
-    public async Task PostsMessage_Correctly_OnPostMessageRequest_WhileBeingMemberOfAServer()
+    public async Task PostsDmMessage_Correctly_OnPostMessageRequest_ToExistingUser()
     {
         var messageContent = "Hello, world!";
         var ct = CancellationToken.None;
@@ -76,7 +60,7 @@ public class PostDmMessageTests : TestBase
         Assert.Equal(messageContent, messageInDb.Content);
     }
     [Fact]
-    public async Task PostMessage_SendsEvent_Correctly_OnSuccessfulPost()
+    public async Task PostDmMessage_SendsEvent_Correctly_OnSuccessfulPost()
     {
         var messageContent = "Hello, world!";
         var ct = CancellationToken.None;
@@ -103,5 +87,23 @@ public class PostDmMessageTests : TestBase
                 Assert.Contains(user1.Id,evt.RecipientUserIds);
                 Assert.Equal(2,evt.RecipientUserIds.Count);
             }, TimeSpan.FromSeconds(15), ct);
+    }
+    [Fact]
+    public async Task PostDmMessage_Returns404NotFound_OnPostMessageRequest_ToNonExistingUser()
+    {
+        var messageContent = "Hello, world!";
+        var ct = CancellationToken.None;
+        var client = CreateClient();
+        await LoginOnFreshTestUserAsync(client,ct);
+        var nonExistingUserId = Guid.NewGuid().ToString();
+
+        var request = new PostMessageRequest
+        (
+            Content: messageContent
+        );
+
+        var json = await client.PostAsJsonAsync($"servers/channels/dm/{nonExistingUserId}/messages", request, ct);
+        Assert.Equal(HttpStatusCode.NotFound, json.StatusCode);
+
     }
 }

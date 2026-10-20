@@ -59,6 +59,9 @@ public class ServersApplicationService(AppDbContext db, IProfileClient profileCl
             var error = new AppError(DomainErrorCode.Validation, "InvalidTargetUser", "Cannot create a DM channel with yourself.");
             return CallResult.Fail(section, error);
         }
+        var targetSnapshot = await GetUserSnapshot(targetUserId, cancellationToken) ;
+        if (!targetSnapshot.IsSuccess) return targetSnapshot.AsFailure();
+        
         var (low, high) = ModelsHelper.NormalizePair(userId, targetUserId);
         var existingChannel = await db.DmChannels.Where(ch=>ch.UserLowId==low && ch.UserHighId==high).FirstOrDefaultAsync(cancellationToken);
 

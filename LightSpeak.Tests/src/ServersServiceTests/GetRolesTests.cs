@@ -29,7 +29,7 @@ public class GetRolesTests : TestBase
         var dbContext = await CreateDbContext(ct);
         var roles = await dbContext.Roles.Where(r => r.ServerId == serverId).ToListAsync(ct);
 
-        var response = await client.GetAsync($"/servers/{serverId}/roles", ct);
+        var response = await client.GetAsync($"api/servers/{serverId}/roles", ct);
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
         var rolesResponse = await response.Content.ReadFromJsonAsync<ApiResponse<GetRolesResponse>>(ct);
         Assert.NotNull(rolesResponse);
@@ -52,7 +52,7 @@ public class GetRolesTests : TestBase
         _authClient.ResetCookies();
         await LoginOnFreshTestUserAsync(client,ct);
 
-        var response = await client.GetAsync($"/servers/{serverId}/roles", ct);
+        var response = await client.GetAsync($"api/servers/{serverId}/roles", ct);
         Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
     }
     [Fact]
@@ -69,7 +69,7 @@ public class GetRolesTests : TestBase
 
         _authClient.ResetCookies();
 
-        var response = await client.GetAsync($"/servers/{serverId}/roles", ct);
+        var response = await client.GetAsync($"api/servers/{serverId}/roles", ct);
         Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
     }
     [Fact]
@@ -92,7 +92,7 @@ public class GetRolesTests : TestBase
         }
         await dbContext.SaveChangesAsync(ct);
 
-        var response = await client.GetAsync($"/servers/{serverId}/roles", ct);
+        var response = await client.GetAsync($"api/servers/{serverId}/roles", ct);
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
         var rolesResponse = await response.Content.ReadFromJsonAsync<ApiResponse<GetRolesResponse>>(ct);
         Assert.NotNull(rolesResponse);

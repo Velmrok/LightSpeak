@@ -28,7 +28,7 @@ public class KeycloakAdminClient
         };
 
         var resp = await _http.PostAsync(
-            $"auth/realms/{_realm}/protocol/openid-connect/token",
+            $"api/auth/realms/{_realm}/protocol/openid-connect/token",
             new FormUrlEncodedContent(form), ct);
         resp.EnsureSuccessStatusCode();
 
@@ -53,7 +53,7 @@ public class KeycloakAdminClient
             }
         };
 
-        var resp = await _http.PostAsJsonAsync($"auth/admin/realms/{_realm}/users", payload, ct);
+        var resp = await _http.PostAsJsonAsync($"api/auth/admin/realms/{_realm}/users", payload, ct);
         
         resp.EnsureSuccessStatusCode();
         

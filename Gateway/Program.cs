@@ -46,27 +46,27 @@ builder.Services.AddAuth(builder.Configuration);
 
 var app = builder.Build();
 
-app.MapGet("/", () => "Hello World!");
+app.MapGet("/api", () => "Hello World!");
 
 
 
-app.MapPost("/logout", async ctx =>
+app.MapPost("/api/logout", async ctx =>
 {
     await ctx.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
-    await ctx.SignOutAsync(OpenIdConnectDefaults.AuthenticationScheme, new AuthenticationProperties { RedirectUri = "/" });
+    await ctx.SignOutAsync(OpenIdConnectDefaults.AuthenticationScheme, new AuthenticationProperties { RedirectUri = "/api" });
     
 }).RequireAuthorization();
 
-app.MapHealthChecks("/health");
+app.MapHealthChecks("api/health");
 
 
-app.MapGet("/login", () => Results.Challenge(new AuthenticationProperties { RedirectUri = "/" },
+app.MapGet("/api/login", () => Results.Challenge(new AuthenticationProperties { RedirectUri = "/api" },
 [OpenIdConnectDefaults.AuthenticationScheme]));
 
 
 app.UseStaticFiles();   
 app.MapReverseProxy();
-app.MapFallbackToFile("index.html");
+//app.MapFallbackToFile("index.html");
 
 app.UseAuthentication();
 app.UseAuthorization();

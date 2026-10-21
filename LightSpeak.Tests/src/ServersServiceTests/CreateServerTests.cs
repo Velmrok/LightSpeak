@@ -49,7 +49,7 @@ public class CreateServerTests : TestBase
             Name: "Test Server"
         );
 
-        var json = await client.PostAsJsonAsync("/servers", request, ct);
+        var json = await client.PostAsJsonAsync($"api/servers", request, ct);
         Assert.Equal(HttpStatusCode.Unauthorized, json.StatusCode);
     }
     [Fact]
@@ -64,7 +64,7 @@ public class CreateServerTests : TestBase
             Name: ""
         );
 
-        var json = await client.PostAsJsonAsync("/servers", request, ct);
+        var json = await client.PostAsJsonAsync($"api/servers", request, ct);
         Assert.Equal(HttpStatusCode.BadRequest, json.StatusCode);
     }
 }

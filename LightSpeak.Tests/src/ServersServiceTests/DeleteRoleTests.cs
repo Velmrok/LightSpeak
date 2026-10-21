@@ -44,7 +44,7 @@ public class DeleteRoleTests : TestBase
         var testRole = await AddTestRole(dbContext,serverId, "Test Role", 1, Permission.ManageChannels, ct);
         await dbContext.SaveChangesAsync(ct);
 
-        var response = await client.DeleteAsync($"/servers/{serverId}/roles/{testRole.Id}", ct);
+        var response = await client.DeleteAsync($"api/servers/{serverId}/roles/{testRole.Id}", ct);
         Assert.Equal(HttpStatusCode.NoContent, response.StatusCode);
 
         var body = await response.Content.ReadAsStringAsync(ct);
@@ -71,7 +71,7 @@ public class DeleteRoleTests : TestBase
         await dbContext.SaveChangesAsync(ct);
 
        
-        var response = await client.DeleteAsync($"/servers/{serverId}/roles/{testRole.Id}", ct);
+        var response = await client.DeleteAsync($"api/servers/{serverId}/roles/{testRole.Id}", ct);
         Assert.Equal(HttpStatusCode.Forbidden, response.StatusCode);
 
     }
@@ -100,7 +100,7 @@ public class DeleteRoleTests : TestBase
          var testRole = await AddTestRole(dbContext, serverId, "Test Role", 1, Permission.ManageChannels, ct);
         await dbContext.SaveChangesAsync(ct);
 
-        var response = await client.DeleteAsync($"/servers/{serverId}/roles/{testRole.Id}", ct);
+        var response = await client.DeleteAsync($"api/servers/{serverId}/roles/{testRole.Id}", ct);
         Assert.Equal(HttpStatusCode.Forbidden, response.StatusCode);
 
     }

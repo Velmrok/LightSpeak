@@ -50,7 +50,7 @@ public class CreateServerChannelTests : TestBase
             Name: name
         );
         
-        var json = await client.PostAsJsonAsync($"/servers/nonexistent-server-id/channels", request, ct);
+        var json = await client.PostAsJsonAsync($"api/servers/nonexistent-server-id/channels", request, ct);
         Assert.Equal(HttpStatusCode.NotFound, json.StatusCode);
     }
     [Fact]
@@ -69,7 +69,7 @@ public class CreateServerChannelTests : TestBase
         (
             Name: channelName
         );
-        var json = await client.PostAsJsonAsync($"/servers/{serverId}/channels", request, ct);
+        var json = await client.PostAsJsonAsync($"api/servers/{serverId}/channels", request, ct);
         Assert.Equal(HttpStatusCode.BadRequest, json.StatusCode);
     }
     [Fact]
@@ -92,7 +92,7 @@ public class CreateServerChannelTests : TestBase
             Name: channelName
         );
         
-        var json = await client.PostAsJsonAsync($"/servers/{serverId}/channels", request, ct);
+        var json = await client.PostAsJsonAsync($"api/servers/{serverId}/channels", request, ct);
         Assert.Equal(HttpStatusCode.NotFound, json.StatusCode);
     }
 }

@@ -8,7 +8,7 @@ public static class KeycloakConfigConfiguration
     {
         kcConfig
             .WithBindMount("../keycloak", "/config", isReadOnly: true)
-            .WithEnvironment("KEYCLOAK_URL", ReferenceExpression.Create($"{a.Keycloak.GetEndpoint("keycloak")}/auth"))
+            .WithEnvironment("KEYCLOAK_URL", ReferenceExpression.Create($"{a.Keycloak.GetEndpoint("keycloak")}/api/auth"))
             .WithEnvironment("KEYCLOAK_USER", p.KcAdminUser)
             .WithEnvironment("KEYCLOAK_PASSWORD", p.KcAdminPassword)
             .WithEnvironment("KEYCLOAK_AVAILABILITYCHECK_ENABLED", "true")

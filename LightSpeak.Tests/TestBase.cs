@@ -44,7 +44,7 @@ public class TestBase : IAsyncLifetime
             Name: name
         );
 
-        var json = await client.PostAsJsonAsync("/servers", request, ct);
+        var json = await client.PostAsJsonAsync("/api/servers", request, ct);
         Assert.Equal(HttpStatusCode.Created, json.StatusCode);
         var response = await ReadFromJson<CreateServerResponse>(json, ct);
         var data = response.Data;
@@ -60,7 +60,7 @@ public class TestBase : IAsyncLifetime
             Name: name
         );
 
-        var json = await client.PostAsJsonAsync($"/servers/{serverId}/channels", request, ct);
+        var json = await client.PostAsJsonAsync($"/api/servers/{serverId}/channels", request, ct);
         Assert.Equal(HttpStatusCode.Created, json.StatusCode);
         var response = await ReadFromJson<CreateChannelResponse>(json, ct);
         var data = response.Data;

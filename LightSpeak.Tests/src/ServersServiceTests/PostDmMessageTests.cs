@@ -22,7 +22,7 @@ public class PostDmMessageTests : TestBase
             Content: content
         );
 
-        var json = await client.PostAsJsonAsync($"servers/channels/dm/{targetUserId}/messages", request, ct);
+        var json = await client.PostAsJsonAsync($"/api/servers/channels/dm/{targetUserId}/messages", request, ct);
         Assert.Equal(HttpStatusCode.Created, json.StatusCode);
         var response = await ReadFromJson<PostMessageResponse>(json, ct);
         var data = response.Data;
@@ -46,7 +46,7 @@ public class PostDmMessageTests : TestBase
             Content: messageContent
         );
 
-        var json = await client.PostAsJsonAsync($"servers/channels/dm/{user2.Id}/messages", request, ct);
+        var json = await client.PostAsJsonAsync($"/api/servers/channels/dm/{user2.Id}/messages", request, ct);
         Assert.Equal(HttpStatusCode.Created, json.StatusCode);
 
         var response = await ReadFromJson<PostMessageResponse>(json, ct);
@@ -102,7 +102,7 @@ public class PostDmMessageTests : TestBase
             Content: messageContent
         );
 
-        var json = await client.PostAsJsonAsync($"servers/channels/dm/{nonExistingUserId}/messages", request, ct);
+        var json = await client.PostAsJsonAsync($"/api/servers/channels/dm/{nonExistingUserId}/messages", request, ct);
         Assert.Equal(HttpStatusCode.NotFound, json.StatusCode);
 
     }

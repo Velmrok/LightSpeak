@@ -28,7 +28,7 @@ public class AuthClient(CookieContainer cookieContainer)
     private async Task<HttpResponseMessage> GetLoginPageAsync(HttpClient browser,TimeSpan? timeout,CancellationToken ct)
     {
         var response = await browser
-            .GetAsync("/login", ct)
+            .GetAsync($"/api/login", ct)
             .WaitAsync(timeout ?? DefaultTimeout, ct);
 
         if (!response.IsSuccessStatusCode)

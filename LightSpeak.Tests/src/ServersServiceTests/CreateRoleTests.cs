@@ -34,7 +34,7 @@ public class CreateRoleTests : TestBase
             Priority: 1,
             Permissions: [Permission.ManageChannels]
         );
-        var response = await client.PostAsJsonAsync($"/servers/{serverId}/roles", request, ct);
+        var response = await client.PostAsJsonAsync($"api/servers/{serverId}/roles", request, ct);
         Assert.Equal(HttpStatusCode.Created, response.StatusCode);
         var roleResponse = await response.Content.ReadFromJsonAsync<ApiResponse<CreateRoleResponse>>(ct);
         Assert.NotNull(roleResponse);
@@ -74,7 +74,7 @@ public class CreateRoleTests : TestBase
             Priority: 1,
             Permissions: [Permission.ManageChannels]
         );
-        var response = await client.PostAsJsonAsync($"/servers/{serverId}/roles", request, ct);
+        var response = await client.PostAsJsonAsync($"api/servers/{serverId}/roles", request, ct);
         Assert.Equal(HttpStatusCode.Forbidden, response.StatusCode);
 
     }
@@ -104,7 +104,7 @@ public class CreateRoleTests : TestBase
             Priority: 0,
             Permissions: [Permission.ReadOnChannel]
         );
-        var response = await client.PostAsJsonAsync($"/servers/{serverId}/roles", request, ct);
+        var response = await client.PostAsJsonAsync($"api/servers/{serverId}/roles", request, ct);
         Assert.Equal(HttpStatusCode.Forbidden, response.StatusCode);
 
     }
@@ -132,7 +132,7 @@ public class CreateRoleTests : TestBase
             Priority: 4,
             Permissions: [Permission.ManageChannels]
         );
-        var response = await client.PostAsJsonAsync($"/servers/{serverId}/roles", request, ct);
+        var response = await client.PostAsJsonAsync($"api/servers/{serverId}/roles", request, ct);
         Assert.Equal(HttpStatusCode.Forbidden, response.StatusCode);
 
     }
@@ -154,7 +154,7 @@ public class CreateRoleTests : TestBase
             Priority: 4,
             Permissions: [Permission.ManageChannels]
         );
-        var response = await client.PostAsJsonAsync($"/servers/{serverId}/roles", request, ct);
+        var response = await client.PostAsJsonAsync($"api/servers/{serverId}/roles", request, ct);
         Assert.Equal(HttpStatusCode.Conflict, response.StatusCode);
 
     }

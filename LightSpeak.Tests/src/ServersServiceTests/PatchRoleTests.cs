@@ -37,7 +37,7 @@ public class PatchRoleTests : TestBase
             RemovedPermissions: [Permission.ReadOnChannel]
         );
 
-        var json = await client.PatchAsJsonAsync($"/servers/{serverId}/roles", request, ct);
+        var json = await client.PatchAsJsonAsync($"api/servers/{serverId}/roles", request, ct);
         Assert.Equal(HttpStatusCode.OK, json.StatusCode);
 
         var response = await ReadFromJson<PatchRoleResponse>(json, ct);
@@ -76,7 +76,7 @@ public class PatchRoleTests : TestBase
             RemovedPermissions: [Permission.ReadOnChannel]
         );
 
-        var json = await client.PatchAsJsonAsync($"/servers/{serverId}/roles", request, ct);
+        var json = await client.PatchAsJsonAsync($"api/servers/{serverId}/roles", request, ct);
         Assert.Equal(HttpStatusCode.Forbidden, json.StatusCode);
     }
     [Fact]
@@ -102,7 +102,7 @@ public class PatchRoleTests : TestBase
             RemovedPermissions: [Permission.ReadOnChannel]
         );
 
-        var json = await client.PatchAsJsonAsync($"/servers/{serverId}/roles", request, ct);
+        var json = await client.PatchAsJsonAsync($"api/servers/{serverId}/roles", request, ct);
         Assert.Equal(HttpStatusCode.Forbidden, json.StatusCode);
     }
     [Fact]
@@ -128,7 +128,7 @@ public class PatchRoleTests : TestBase
             RemovedPermissions: [Permission.ReadOnChannel]
         );
 
-        var json = await client.PatchAsJsonAsync($"/servers/{serverId}/roles", request, ct);
+        var json = await client.PatchAsJsonAsync($"api/servers/{serverId}/roles", request, ct);
         Assert.Equal(HttpStatusCode.Forbidden, json.StatusCode);
     }
     [Fact]
@@ -160,7 +160,7 @@ public class PatchRoleTests : TestBase
             RemovedPermissions: [Permission.ReadOnChannel]
         );
 
-        var json = await client.PatchAsJsonAsync($"/servers/{serverId}/roles", request, ct);
+        var json = await client.PatchAsJsonAsync($"api/servers/{serverId}/roles", request, ct);
         Assert.Equal(HttpStatusCode.Forbidden, json.StatusCode);
     }
 }

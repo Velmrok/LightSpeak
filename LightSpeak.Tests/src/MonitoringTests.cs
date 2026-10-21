@@ -20,31 +20,31 @@ public class MonitoringTests : TestBase
     public async Task ComposeService_IsHealthy()
     {
         var ct = CancellationToken.None;
-        await AssertResourceIsHealthyAsync(ResourcesNames.ComposeService, "compose/health", ct);
+        await AssertResourceIsHealthyAsync(ResourcesNames.ComposeService, "api/compose/health", ct);
     }
     [Fact]
     public async Task Gateway_IsHealthy()
     {
         var ct = CancellationToken.None;
-        await AssertResourceIsHealthyAsync(ResourcesNames.Gateway, "health", ct);
+        await AssertResourceIsHealthyAsync(ResourcesNames.Gateway, "api/health", ct);
     }
      [Fact]
     public async Task ProfileService_IsHealthy()
     {
         var ct = CancellationToken.None;
-        await AssertResourceIsHealthyAsync(ResourcesNames.ProfileService, "profile/health", ct);
+        await AssertResourceIsHealthyAsync(ResourcesNames.ProfileService, "api/profile/health", ct);
     }
     [Fact]
     public async Task ServersService_IsHealthy()
     {
         var ct = CancellationToken.None;
-        await AssertResourceIsHealthyAsync(ResourcesNames.ServersService, "servers/health", ct);
+        await AssertResourceIsHealthyAsync(ResourcesNames.ServersService, "api/servers/health", ct);
     }
     [Fact]
     public async Task NotificationsService_IsHealthy()
     {
         var ct = CancellationToken.None;
-        await AssertResourceIsHealthyAsync(ResourcesNames.NotificationsService, "notifications/health", ct);
+        await AssertResourceIsHealthyAsync(ResourcesNames.NotificationsService, "api/notifications/health", ct);
     }
 
     

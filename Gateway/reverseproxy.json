@@ -5,7 +5,7 @@
         "ClusterId": "keycloak",
         "AuthorizationPolicy": "anonymous",
         "Match": {
-          "Path": "/auth/{**catch-all}"
+          "Path": "/api/auth/{**catch-all}"
         }
       
       },
@@ -13,11 +13,11 @@
         "ClusterId": "profile-service",
         "AuthorizationPolicy": "anonymous",
         "Match": {
-          "Path": "/profile/{**catch-all}"
+          "Path": "/api/profile/{**catch-all}"
         },
         "Transforms": [
           {
-            "PathRemovePrefix": "/profile"
+            "PathRemovePrefix": "/api/profile"
           }
         ]
       
@@ -26,11 +26,11 @@
         "ClusterId": "compose-service",
         "AuthorizationPolicy": "anonymous",
         "Match": {
-          "Path": "/compose/{**catch-all}"
+          "Path": "/api/compose/{**catch-all}"
         },
         "Transforms": [
           {
-            "PathRemovePrefix": "/compose"
+            "PathRemovePrefix": "/api/compose"
           }
         ]
       },
@@ -38,11 +38,11 @@
         "ClusterId": "servers-service",
         "AuthorizationPolicy": "anonymous",
         "Match": {
-          "Path": "/servers/{**catch-all}"
+          "Path": "/api/servers/{**catch-all}"
         },
         "Transforms": [
           {
-            "PathRemovePrefix": "/servers"
+            "PathRemovePrefix": "/api/servers"
           }
         ]
       },
@@ -50,25 +50,26 @@
         "ClusterId": "compose-service",
         "AuthorizationPolicy": "anonymous",
         "Match": {
-          "Path": "/home"
+          "Path": "/api/home"
         }
       },
       "hub-route": {
         "ClusterId": "notifications-service",
         "AuthorizationPolicy": "anonymous",
         "Match": {
-          "Path": "/hubs/{**catch-all}"
-        }
+          "Path": "/api/hubs/{**catch-all}"
+        },
+        "Transforms":[{"PathRemovePrefix":"/api"}]
       },
       "notifications-route": {
         "ClusterId": "notifications-service",
         "AuthorizationPolicy": "anonymous",
         "Match": {
-          "Path": "/notifications/{**catch-all}"
+          "Path": "/api/notifications/{**catch-all}"
         },
         "Transforms": [
           {
-            "PathRemovePrefix": "/notifications"
+            "PathRemovePrefix": "/api/notifications"
           }
         ]
       }

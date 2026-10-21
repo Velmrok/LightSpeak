@@ -15,8 +15,8 @@ public static class DebugServiceConfiguration
         a.Gateway.WithReference(debugService);
         a.Gateway.WithEnvironment("ReverseProxy__Routes__debug-route__ClusterId", "debug");
         a.Gateway.WithEnvironment("ReverseProxy__Routes__debug-route__AuthorizationPolicy", "anonymous");
-        a.Gateway.WithEnvironment("ReverseProxy__Routes__debug-route__Match__Path", "/debug/{**catch-all}");
-        a.Gateway.WithEnvironment("ReverseProxy__Routes__debug-route__Transforms__0__PathRemovePrefix", "/debug");
+        a.Gateway.WithEnvironment("ReverseProxy__Routes__debug-route__Match__Path", "api/debug/{**catch-all}");
+        a.Gateway.WithEnvironment("ReverseProxy__Routes__debug-route__Transforms__0__PathRemovePrefix", "api/debug");
         a.Gateway.WithEnvironment("ReverseProxy__Clusters__debug__Destinations__d1__Address", debugService.GetEndpoint("http"));
     }
 }

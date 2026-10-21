@@ -27,7 +27,7 @@ public class NotificationsServiceTests : TestBase
             TaskCreationOptions.RunContinuationsAsynchronously);
 
         await using var connection = new HubConnectionBuilder()
-            .WithUrl(new Uri(client.BaseAddress!, "/hubs/app"), o =>
+            .WithUrl(new Uri(client.BaseAddress!, "/api/hubs/app"), o =>
             {
                 o.Cookies = Cookies;   
             })
@@ -42,7 +42,7 @@ public class NotificationsServiceTests : TestBase
             Content: "hello"
         );
 
-        var response = await client.PostAsJsonAsync($"/servers/channels/{channelId}/messages", message, ct);
+        var response = await client.PostAsJsonAsync($"api/servers/channels/{channelId}/messages", message, ct);
         response.EnsureSuccessStatusCode();
         
         var msg = await received.Task.WaitAsync(TimeSpan.FromSeconds(15), ct);

@@ -22,7 +22,7 @@ public class PostServerMessageTests : TestBase
             Content: content
         );
 
-        var json = await client.PostAsJsonAsync($"servers/channels/{channelId}/messages", request, ct);
+        var json = await client.PostAsJsonAsync($"/api/servers/channels/{channelId}/messages", request, ct);
         Assert.Equal(HttpStatusCode.Created, json.StatusCode);
         var response = await ReadFromJson<PostMessageResponse>(json, ct);
         var data = response.Data;
@@ -53,7 +53,7 @@ public class PostServerMessageTests : TestBase
             Content: messageContent
         );
 
-        var json = await client.PostAsJsonAsync($"servers/channels/{channelId}/messages", request, ct);
+        var json = await client.PostAsJsonAsync($"/api/servers/channels/{channelId}/messages", request, ct);
         Assert.Equal(HttpStatusCode.Created, json.StatusCode);
 
         var response = await ReadFromJson<PostMessageResponse>(json, ct);

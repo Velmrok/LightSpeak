@@ -19,7 +19,7 @@ public class AuthTest : TestBase
 
         var client = CreateClient();
 
-        var resp = await client.GetAsync("/users/me",ct).WaitAsync(DefaultTimeout, ct);
+        var resp = await client.GetAsync($"api/profile/me",ct).WaitAsync(DefaultTimeout, ct);
         Assert.Equal(HttpStatusCode.Unauthorized, resp.StatusCode);
     }
     [Fact]
@@ -42,7 +42,7 @@ public class AuthTest : TestBase
         var client = CreateClient();
          await LoginOnFreshTestUserAsync(client,ct);
 
-        var resp = await client.GetAsync("/users/me", ct).WaitAsync(DefaultTimeout, ct);
+        var resp = await client.GetAsync($"api/profile/me", ct).WaitAsync(DefaultTimeout, ct);
         Assert.Equal(HttpStatusCode.OK, resp.StatusCode);
     }
     [Fact]
@@ -53,9 +53,9 @@ public class AuthTest : TestBase
         var client = CreateClient();
          await LoginOnFreshTestUserAsync(client,ct);
            
-        var resp = await client.PostAsync("/logout", null, ct).WaitAsync(DefaultTimeout, ct);
+        var resp = await client.PostAsync($"api/logout", null, ct).WaitAsync(DefaultTimeout, ct);
         Assert.Equal(HttpStatusCode.OK, resp.StatusCode);
-        var resp2 = await client.GetAsync("/users/me", ct).WaitAsync(DefaultTimeout, ct);
+        var resp2 = await client.GetAsync($"api/profile/me", ct).WaitAsync(DefaultTimeout, ct);
         Assert.Equal(HttpStatusCode.Unauthorized, resp2.StatusCode);
 
     }
@@ -68,7 +68,7 @@ public class AuthTest : TestBase
 
          await LoginOnFreshTestUserAsync(client,ct);
         
-        var resp = await client.GetAsync("/debug/token", ct).WaitAsync(DefaultTimeout, ct);
+        var resp = await client.GetAsync($"api/debug/token", ct).WaitAsync(DefaultTimeout, ct);
         Assert.Equal(HttpStatusCode.OK, resp.StatusCode);
         var tokenResponse = await resp.Content.ReadFromJsonAsync<TokenResponse>(cancellationToken: ct);
 
@@ -90,7 +90,7 @@ public class AuthTest : TestBase
 
          await LoginOnFreshTestUserAsync(client,ct);
         
-        var resp = await client.GetAsync("/debug/auth-token", ct).WaitAsync(DefaultTimeout, ct);
+        var resp = await client.GetAsync($"api/debug/auth-token", ct).WaitAsync(DefaultTimeout, ct);
         Assert.Equal(HttpStatusCode.OK, resp.StatusCode);
     }
     [Fact]
@@ -101,7 +101,7 @@ public class AuthTest : TestBase
         var client = CreateClient();
         client.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", "invalid-token");
 
-        var resp = await client.GetAsync("/debug/auth-token", ct).WaitAsync(DefaultTimeout, ct);
+        var resp = await client.GetAsync($"api/debug/auth-token", ct).WaitAsync(DefaultTimeout, ct);
         Assert.Equal(HttpStatusCode.Unauthorized, resp.StatusCode);
     }
     [Fact]
@@ -111,7 +111,7 @@ public class AuthTest : TestBase
         await WaitForResourceRunningAsync(ResourcesNames.Gateway, ct);
         var client = CreateClient();
 
-        var resp = await client.GetAsync("/debug/auth-token", ct).WaitAsync(DefaultTimeout, ct);
+        var resp = await client.GetAsync($"api/debug/auth-token", ct).WaitAsync(DefaultTimeout, ct);
         Assert.Equal(HttpStatusCode.Unauthorized, resp.StatusCode);
     }
 
@@ -123,7 +123,7 @@ public class AuthTest : TestBase
         await WaitForResourceRunningAsync(ResourcesNames.Gateway, ct);
         var client = CreateClient();
 
-        var resp = await client.GetAsync("/debug/grpc-auth-check", ct).WaitAsync(DefaultTimeout, ct);
+        var resp = await client.GetAsync($"api/debug/grpc-auth-check", ct).WaitAsync(DefaultTimeout, ct);
         Assert.Equal(HttpStatusCode.Unauthorized, resp.StatusCode);
     }
     [Fact]
@@ -135,7 +135,7 @@ public class AuthTest : TestBase
         
          await LoginOnFreshTestUserAsync(client,ct);
 
-        var resp = await client.GetAsync("/debug/grpc-auth-check", ct).WaitAsync(DefaultTimeout, ct);
+        var resp = await client.GetAsync($"api/debug/grpc-auth-check", ct).WaitAsync(DefaultTimeout, ct);
         Assert.Equal(HttpStatusCode.OK, resp.StatusCode);
     }
 

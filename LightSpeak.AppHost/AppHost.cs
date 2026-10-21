@@ -51,7 +51,7 @@ parameters.GatewayUrl= settings.IsTesting
     ? ReferenceExpression.Create($"{gateway.GetEndpoint("http")}")
     : ReferenceExpression.Create($"{parameters.AppBaseUrl}");
 
-parameters.ClientAuthority = ReferenceExpression.Create($"{parameters.GatewayUrl}/auth/realms/lightspeak");
+parameters.ClientAuthority = ReferenceExpression.Create($"{parameters.GatewayUrl}/api/auth/realms/lightspeak");
 
 //////////////////////////////////////////// CONFIGURATIONS ////////////////////////////////////////////
 keycloak.ConfigureKeycloak(parameters, settings, resources);

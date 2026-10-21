@@ -19,10 +19,10 @@ public class ResponseBuilderService : IResponseBuilderService
         return TryBuildError(list) ?? BuildSuccess(successStatusCode, buildData(), list);
     }
 
-    public IResult BuildResponse<TData>(
+    public IResult BuildResponse<TResult,TResponse>(
         HttpStatusCode successStatusCode,
-        CallResult<TData> result,
-        Func<TData> buildData)
+        CallResult<TResult> result,
+        Func<TResponse> buildData)
         => BuildResponse(successStatusCode, [result.AsOutcome(required: true)], buildData);
 
     public IResult BuildResponse(CallResult result)

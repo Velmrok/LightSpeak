@@ -1,5 +1,6 @@
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
+using Common.Dto;
 using Duende.AccessTokenManagement;
 using Duende.AccessTokenManagement.OpenIdConnect;
 using Gateway.src;
@@ -47,12 +48,7 @@ var app = builder.Build();
 
 app.MapGet("/", () => "Hello World!");
 
-app.MapGet("/users/me", (ClaimsPrincipal user) => new UserDto(
-    Id:    user.FindFirstValue(JwtRegisteredClaimNames.Sub)!,
-    Name:  user.Identity!.Name!,
-    Email: user.FindFirstValue(JwtRegisteredClaimNames.Email),
-    Roles: [.. user.FindAll("roles").Select(c => c.Value)]
-)).RequireAuthorization();
+
 
 app.MapPost("/logout", async ctx =>
 {

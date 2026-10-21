@@ -1,3 +1,5 @@
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
 using Common;
 using Common.Constants;
 using Common.Dto;
@@ -52,6 +54,26 @@ app.UseAuthorization();
 app.MapGrpcService<ProfileGrpcService>();
 
 
+
+
+
+
+app.MapGet("/me", async (HttpContext ctx, IProfileApplicationService profileService, IResponseBuilderService responseBuilder) =>
+{
+    var userId = ctx.User.FindFirstValue(JwtRegisteredClaimNames.Sub)!;
+    var profileResult = await profileService.GetProfileAsync(userId, CancellationToken.None);
+     
+
+    var user = profileResult.Data!;
+    return responseBuilder.BuildResponse(System.Net.HttpStatusCode.OK, profileResult,
+    () => new GetMeResponse(
+            Id: user.Id,
+            Username: user.Username,
+            AvatarUrl: user.AvatarUrl,
+            Email: user.Email 
+        )
+    );
+}).RequireAuthorization();
 
 
 app.Run();

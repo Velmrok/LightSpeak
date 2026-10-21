@@ -1,1 +1,17 @@
-/* You can add global styles to this file, and also import other style files */
+*{
+    background-color: #1e1e1e;
+    box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+}
+.btn-reset {
+  background: none;
+  border: 0;
+  padding: 0;
+  margin: 0;
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+}

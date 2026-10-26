@@ -62,6 +62,8 @@ namespace Gateway.src.Extensions
                 options.MapInboundClaims = false;
                 options.TokenValidationParameters.NameClaimType = "preferred_username";
                 options.TokenValidationParameters.RoleClaimType = "roles";
+                options.CallbackPath = "/api/signin-oidc";
+                options.SignedOutCallbackPath = "/api/signout-callback-oidc";
             });
             return services;
         }

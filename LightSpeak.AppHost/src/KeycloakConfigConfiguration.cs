@@ -19,6 +19,7 @@ public static class KeycloakConfigConfiguration
             .WithEnvironment("KC_ADMIN_SECRET", p.KcAdminSecret)
             .WithEnvironment("CLIENT_AUDIENCE", p.ClientAudience)
             .WithEnvironment("KC_TESTUSER_ENABLED", s.IsTesting ? "true" : "false")
+            .WithEnvironment("CLIENT_URL", p.ClientUrl)
             .WithHttpEndpoint(
                 name: "http",
                 targetPort: 8079,
@@ -32,6 +33,6 @@ public static class KeycloakConfigConfiguration
         {
             kcConfig.WithEnvironment("APP_BASE_URL", p.AppBaseUrl);
         }
-            
+
     }
 }

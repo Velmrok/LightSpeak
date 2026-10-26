@@ -19,10 +19,12 @@ clients:
     directAccessGrantsEnabled: false
     attributes:
       pkce.code.challenge.method: S256 
-      post.logout.redirect.uris: "$(env:APP_BASE_URL)##$(env:APP_BASE_URL)/signout-callback-oidc"
+      post.logout.redirect.uris: "$(env:APP_BASE_URL)##$(env:APP_BASE_URL)/api/signout-callback-oidc##$(env:CLIENT_URL)##$(env:CLIENT_URL)/api/signout-callback-oidc"
     redirectUris:
       - "$(env:APP_BASE_URL)"
-      - "$(env:APP_BASE_URL)/signin-oidc"
+      - "$(env:APP_BASE_URL)/api/signin-oidc"
+      - "$(env:CLIENT_URL)"
+      - "$(env:CLIENT_URL)/api/signin-oidc"
     protocolMappers:
       - name: realm-audience
         protocol: openid-connect

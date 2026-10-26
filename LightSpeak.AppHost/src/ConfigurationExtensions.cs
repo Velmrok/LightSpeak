@@ -17,7 +17,8 @@ public static class ConfigurationExtensions
             RabbitUser = builder.AddParameter("rabbit-user"),
             RabbitPassword = builder.AddParameter("rabbit-password"/*, secret: true*/),
             PostgresUser = builder.AddParameter("postgres-user"),
-            PostgresPassword = builder.AddParameter("postgres-password"/*, secret: true*/)
+            PostgresPassword = builder.AddParameter("postgres-password"/*, secret: true*/),
+            ClientUrl =  builder.AddParameter("client-url")
 
         };
     }

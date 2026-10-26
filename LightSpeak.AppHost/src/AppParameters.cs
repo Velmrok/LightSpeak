@@ -16,6 +16,7 @@ public sealed class AppParameters
     public required IResourceBuilder<ParameterResource> RabbitPassword { get; init; }
     public required IResourceBuilder<ParameterResource> PostgresUser { get; init; }
     public required IResourceBuilder<ParameterResource> PostgresPassword { get; init; }
+     public required IResourceBuilder<ParameterResource> ClientUrl { get; init; }
     public ReferenceExpression GatewayUrl { get; set; }
     public ReferenceExpression ClientAuthority { get; set; }
     

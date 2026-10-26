@@ -53,20 +53,20 @@ app.MapGet("/api", () => "Hello World!");
 app.MapPost("/api/logout", async ctx =>
 {
     await ctx.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
-    await ctx.SignOutAsync(OpenIdConnectDefaults.AuthenticationScheme, new AuthenticationProperties { RedirectUri = "/api" });
+    await ctx.SignOutAsync(OpenIdConnectDefaults.AuthenticationScheme, new AuthenticationProperties { RedirectUri = "/" });
     
 }).RequireAuthorization();
 
 app.MapHealthChecks("api/health");
 
 
-app.MapGet("/api/login", () => Results.Challenge(new AuthenticationProperties { RedirectUri = "/api" },
+app.MapGet("/api/login", () => Results.Challenge(new AuthenticationProperties { RedirectUri = "/" },
 [OpenIdConnectDefaults.AuthenticationScheme]));
 
 
 app.UseStaticFiles();   
 app.MapReverseProxy();
-//app.MapFallbackToFile("index.html");
+app.MapFallbackToFile("index.html");
 
 app.UseAuthentication();
 app.UseAuthorization();

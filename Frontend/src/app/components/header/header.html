@@ -1,6 +1,15 @@
 <header>
     <button routerLink="/home" class="btn-reset logo-button">
-        <img src="images/logo.svg"  alt="LightSpeak Logo" class="logo" class="logo" />
+        <img src="images/logo.svg" alt="LightSpeak Logo" class="logo" class="logo" />
     </button>
     <h1>LightSpeak</h1>
+
+    @if (auth.user(); as user) {
+    <span>{{ user.username }}</span>
+    <form method="post" action="/api/logout">
+        <button type="submit">Wyloguj</button>
+    </form>
+    } @else {
+    <button (click)="auth.login()">Zaloguj</button>
+    }
 </header>

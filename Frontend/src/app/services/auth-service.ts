@@ -1,11 +1,9 @@
 import { HttpClient } from '@angular/common/http';
-import { computed, inject, Injectable, signal } from '@angular/core';
+import { computed, inject, Injectable, Service, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import { catchError, of, retry, tap, throwError, timer } from 'rxjs';
 
-@Injectable({
-  providedIn: 'root',
-})
+@Service()
 export class AuthService {
    private http = inject(HttpClient);
   private router = inject(Router);

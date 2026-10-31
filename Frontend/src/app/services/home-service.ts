@@ -1,6 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, Service } from '@angular/core';
 
-@Injectable({
-  providedIn: 'root',
-})
+@Service()
 export class HomeService {}

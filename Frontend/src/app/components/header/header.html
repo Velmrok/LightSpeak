@@ -12,4 +12,10 @@
     } @else {
     <button (click)="auth.login()">Zaloguj</button>
     }
+
+    @let h = home();
+    @if (h) {
+        @let servers = h.servers;
+        <app-servers-list [serversSection]=servers></app-servers-list>
+    }
 </header>

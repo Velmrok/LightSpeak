@@ -4,12 +4,12 @@ interface ApiResponse<TData>{
     errors: ErrorItem[];
 }
 interface ErrorResponse{
-    code:String;
-    details:String;
+    code:string;
+    details:string;
     errors:ErrorItem[];
 }
 interface ErrorItem{
-    section:String;
-    code:String;
-    details:String;
+    section:string;
+    code:string;
+    details:string;
 }

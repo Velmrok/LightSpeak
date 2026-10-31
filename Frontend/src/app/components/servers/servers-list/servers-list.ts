@@ -1,4 +1,4 @@
-import { Component, ChangeDetectionStrategy } from '@angular/core';
+import { Component, ChangeDetectionStrategy, Input } from '@angular/core';
 
 @Component({
   selector: 'app-servers-list',
@@ -7,4 +7,7 @@ import { Component, ChangeDetectionStrategy } from '@angular/core';
   changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './servers-list.scss',
 })
-export class ServersList {}
+export class ServersList {
+  @Input() serversSection: Section<ServerSummary[]> = { status: 'ok', data: [] };
+  
+}

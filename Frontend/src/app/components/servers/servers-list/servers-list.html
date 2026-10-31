@@ -1,1 +1,16 @@
-<p>servers-list works!</p>
+
+
+
+@if (serversSection.status === 'error') {
+    <div>error</div>
+}
+@else if (serversSection.data.length === 0) {
+    <div>no servers</div>
+}
+@else {
+    @for (server of serversSection.data; track server.id) {
+        <div class="server-summary">
+            <h2>{{ server.name }}</h2>
+        </div>
+    }
+}

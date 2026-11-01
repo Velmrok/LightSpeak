@@ -63,9 +63,9 @@ if(settings.IsDev || settings.IsTesting) builder.AddAndConfigureDebugService(par
 
 composeService
     .WithReference(profileService)
+    .WithReference(serversService)
     .WithEnvironment("AuthSettings__Authority", parameters.ClientAuthority)
-    .WithEnvironment("AuthSettings__Audience", parameters.ClientAudience)
-    .WithEnvironment("Grpc__ProfileService__Address", $"http://_grpc.{profileService.Resource.Name}");
+    .WithEnvironment("AuthSettings__Audience", parameters.ClientAudience);
 rabbitmq.WithManagementPlugin();
 notificationsService.ConfigureNotificationsService(parameters, settings, resources);
 

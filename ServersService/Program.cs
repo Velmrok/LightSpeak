@@ -8,8 +8,17 @@ using Common.Clients;
 using Common.Services;
 using Microsoft.AspNetCore.Authorization;
 using ServersService.src.permissions;
+using ServersService.src.grpc;
+using Microsoft.AspNetCore.Server.Kestrel.Core;
 
 var builder = WebApplication.CreateBuilder(args);
+builder.WebHost.ConfigureKestrel(options =>
+{
+    options.ConfigureEndpointDefaults(endpoint =>
+    {
+        endpoint.Protocols = HttpProtocols.Http1AndHttp2;
+    });
+});
 
 builder.Services.AddAuth(builder.Configuration);
 builder.Services.AddHealthChecks();
@@ -20,6 +29,7 @@ builder.Services.AddServiceDiscovery()
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("servers-database")));
 builder.AddAndConfigureWolverine();
+builder.Services.AddGrpc();
 
 builder.Services.AddAndConfigureProfileServiceClient(builder.Configuration);
     builder.Services.AddSingleton<GrpcCallHandler>();
@@ -69,7 +79,7 @@ if (app.Configuration.GetValue<bool>("IsTesting"))
 app.MapServersEndpoints();
 app.MapHealthChecks("/health");
 
-
+app.MapGrpcService<ServersGrpcService>();
 
 app.Run();
 

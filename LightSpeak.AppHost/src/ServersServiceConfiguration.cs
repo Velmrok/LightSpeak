@@ -6,8 +6,8 @@ public static class ServersServiceConfiguration
     (this IResourceBuilder<ProjectResource> serversService, AppParameters p, AppSettings s,AppResources a)
     {
         serversService
-            // .WithHttpEndpoint(name: "http")
-            // .WithHttpEndpoint(name: "grpc")
+            .WithHttpEndpoint(name: "http")
+            .WithHttpEndpoint(name: "grpc")
             .WithReference(a.RabbitMQ)
             .WithReference(a.ServersDatabase)
             .WithReference(a.ProfileService)

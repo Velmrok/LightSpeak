@@ -1,0 +1,18 @@
+syntax = "proto3";
+option csharp_namespace = "Protos";
+
+service ServersService{
+ rpc GetServers(GetServersRequest) returns (GetServersResponse);
+}
+
+message GetServersRequest{
+    string userId = 1;
+}
+message GetServersResponse{
+    repeated ServerSummary servers = 1;
+}
+message ServerSummary{
+    string id = 1;
+    string name = 2;
+    string avatarUrl = 3;
+}

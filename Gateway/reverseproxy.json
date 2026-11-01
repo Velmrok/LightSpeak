@@ -51,7 +51,12 @@
         "AuthorizationPolicy": "anonymous",
         "Match": {
           "Path": "/api/home"
-        }
+        },
+        "Transforms": [
+          {
+            "PathRemovePrefix": "/api"
+          }
+        ]
       },
       "hub-route": {
         "ClusterId": "notifications-service",

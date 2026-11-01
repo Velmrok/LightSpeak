@@ -12,4 +12,6 @@ public interface IServersApplicationService
 
     Task<CallResult<PostMessageResponse>> PostMessageAsync(string channelId, PostMessageRequest request, string userId, CancellationToken cancellationToken);
     Task<CallResult> UpdateUserDataAsync(string userId, string username, string avatarUrl, CancellationToken cancellationToken);
+
+    Task<CallResult<GetServersResponse>> GetServersAsync(string userId, CancellationToken cancellationToken);
 }

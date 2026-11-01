@@ -232,5 +232,23 @@ public class ServersApplicationService(AppDbContext db, IProfileClient profileCl
         return CallResult.Success(section);
     }
 
-   
+    public async Task<CallResult<GetServersResponse>> GetServersAsync(string userId, CancellationToken cancellationToken)
+    {
+       var user = await db.UserSnapshots.Include(u => u.Memberships).ThenInclude(m => m.Server).FirstOrDefaultAsync(u => u.Id == userId, cancellationToken);
+        if (user == null)
+        {
+            return CallResult.Success(section, new GetServersResponse(Servers: []));
+        }
+
+        var servers = user.Memberships
+            .Select(m => new ServerSummary(m.Server.Id, m.Server.Name, m.Server.AvatarUrl))
+            .ToList();
+
+        var response = new GetServersResponse
+        (
+            Servers: servers
+        );
+
+        return CallResult.Success(section, response);
+    }
 }

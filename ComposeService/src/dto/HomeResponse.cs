@@ -1,3 +1,9 @@
+using Common.Dto;
+
 namespace ComposeService.src.dto;
 
-public record HomeResponse(string UserId,string Username, string Email);
+public record HomeResponse(
+    List<ServerSummary>? Servers,
+    List<UserDto> Friends,
+    GetUserProfileResponse UserProfile
+); 

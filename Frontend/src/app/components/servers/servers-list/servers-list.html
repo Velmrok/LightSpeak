@@ -1,16 +1,15 @@
 
-
-
 @if (serversSection.status === 'error') {
-    <div>error</div>
+<div>error</div>
 }
 @else if (serversSection.data.length === 0) {
-    <div>no servers</div>
+<div>no servers</div>
 }
 @else {
+<div class="server-list">
     @for (server of serversSection.data; track server.id) {
-        <div class="server-summary">
-            <h2>{{ server.name }}</h2>
-        </div>
+
+    <app-server-avatar [avatarUrl]="server.avatarUrl" [serverName]="server.name"></app-server-avatar>
     }
+</div>
 }

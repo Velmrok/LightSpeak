@@ -2,5 +2,5 @@
 export interface ServerSummary {
   id: string;
   name: string;
-  avatarUrl: string | null;
+  avatarUrl: string;
 }

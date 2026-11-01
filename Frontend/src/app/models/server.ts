@@ -1,5 +1,5 @@
 
-interface ServerSummary {
+export interface ServerSummary {
   id: string;
   name: string;
   avatarUrl: string | null;

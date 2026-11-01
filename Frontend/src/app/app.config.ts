@@ -7,7 +7,7 @@ import {
 import { provideRouter } from '@angular/router';
 
 import { routes } from './app.routes';
-import { AuthService } from './services/auth.service';
+import { AuthService } from './services/auth-service';
 import { firstValueFrom } from 'rxjs';
 import { provideHttpClient, withInterceptors, withXhr } from '@angular/common/http';
 import { authInterceptor } from './services/auth.interceptor';

@@ -1,14 +1,15 @@
 
-interface ApiResponse<TData>{
+
+export interface ApiResponse<TData>{
     data: TData | null;
     errors: ErrorItem[];
 }
-interface ErrorResponse{
+export interface ErrorResponse{
     code:string;
     details:string;
     errors:ErrorItem[];
 }
-interface ErrorItem{
+export interface ErrorItem{
     section:string;
     code:string;
     details:string;

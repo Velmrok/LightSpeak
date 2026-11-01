@@ -1,8 +1,10 @@
-type Section<T> =
+import { ErrorItem } from "./api.response";
+
+export type Section<T> =
     | { status: 'ok'; data: T }
     | { status: 'error'; error: ErrorItem };
 
-function toSection<T>(
+export function toSection<T>(
     value: T | null | undefined,
     errors: ErrorItem[],
     section: string,

@@ -1,11 +1,14 @@
+import { Section } from "./section";
+import { ServerSummary } from "./server";
+import { User } from "./user";
 
-interface HomeDto{
+export interface HomeDto{
     servers: ServerSummary[] | null;
     friends: User[] | null;
 }
 
 
-interface HomeView {
+export interface HomeView {
   servers: Section<ServerSummary[]>;
   friends: Section<User[]>;
-}
+} 

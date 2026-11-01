@@ -1,4 +1,6 @@
 import { Component, ChangeDetectionStrategy, Input } from '@angular/core';
+import { Section } from '../../../models/section';
+import { ServerSummary } from '../../../models/server';
 
 @Component({
   selector: 'app-servers-list',

@@ -2,6 +2,7 @@ import { HttpClient } from '@angular/common/http';
 import { computed, inject, Injectable, Service, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import { catchError, of, retry, tap, throwError, timer } from 'rxjs';
+import { User } from '../models/user';
 
 @Service()
 export class AuthService {

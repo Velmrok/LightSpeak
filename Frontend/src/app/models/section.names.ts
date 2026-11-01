@@ -1,5 +1,4 @@
-
-class SectionNames {
-  static readonly SERVERS = 'Servers';
-  static readonly PROFILE = 'Profile';
-}
+export const SectionNames = {
+  SERVERS: 'Servers',
+  PROFILE: 'Profile'
+};

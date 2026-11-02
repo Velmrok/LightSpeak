@@ -1,5 +1,7 @@
 
-@if (this.avatarUrl==="" || this.avatarUrl===null) {
+
+<a [routerLink]="['/servers', this.serverSummary.id]" routerLinkActive="active" class="server-link">
+@if (this.avatarUrl()==="" || this.avatarUrl()===null) {
   <div class="default-avatar">
     {{this.trimmedServerName()}}
     </div>
@@ -8,3 +10,4 @@
     {{this.trimmedServerName()}}
     </div>
 }
+</a>

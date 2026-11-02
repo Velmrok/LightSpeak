@@ -1,4 +1,3 @@
-
 @if (serversSection.status === 'error') {
 <div>error</div>
 }
@@ -8,8 +7,9 @@
 @else {
 <div class="server-list">
     @for (server of serversSection.data; track server.id) {
-
-    <app-server-avatar [avatarUrl]="server.avatarUrl" [serverName]="server.name"></app-server-avatar>
+    
+        <app-server-avatar [serverSummary]="server"></app-server-avatar>
+   
     }
 </div>
 }

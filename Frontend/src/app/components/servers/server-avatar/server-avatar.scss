@@ -1,6 +1,9 @@
-:host{
+.server-link{
     width: 60px;
     height: 60px;
+      text-decoration: none;
+      color: inherit;
+      display: flex;
 }
 .default-avatar{
     background-color: #2f3136;

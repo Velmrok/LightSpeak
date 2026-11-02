@@ -66,10 +66,14 @@ app.MapGet("/api/login", () => Results.Challenge(new AuthenticationProperties { 
 
 app.UseStaticFiles();   
 app.MapReverseProxy();
-app.MapFallbackToFile("index.html");
+
+
 
 app.UseAuthentication();
 app.UseAuthorization();
+
+app.Map("/api/{**catchall}", () => Results.NotFound()); 
+app.MapFallbackToFile("index.html");
 
 
 app.Run();

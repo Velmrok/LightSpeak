@@ -1,6 +1,7 @@
 import { Component, Input } from '@angular/core';
 import { Router, RouterLink, RouterLinkActive } from '@angular/router';
-import { ServerSummary } from '../../../models/server';
+import { ServerSummary } from '../../../../models/server';
+
 
 @Component({
   imports: [RouterLink, RouterLinkActive],

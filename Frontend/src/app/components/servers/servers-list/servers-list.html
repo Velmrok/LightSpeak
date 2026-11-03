@@ -1,15 +1,15 @@
 @if (serversSection.status === 'error') {
 <div>error</div>
 }
-@else if (serversSection.data.length === 0) {
-<div>no servers</div>
-}
-@else {
+@else{
 <div class="server-list">
-    @for (server of serversSection.data; track server.id) {
-    
-        <app-server-avatar [serverSummary]="server"></app-server-avatar>
-   
+    <app-servers-add-btn></app-servers-add-btn>
+
+    @for (server of serversList; track server.id) {
+
+    <app-server-avatar [serverSummary]="server"></app-server-avatar>
+
     }
+
 </div>
 }

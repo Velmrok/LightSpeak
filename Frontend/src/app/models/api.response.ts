@@ -1,9 +1,10 @@
 
 
 export interface ApiResponse<TData>{
-    data: TData | null;
+    data: TData;
     errors: ErrorItem[];
 }
+
 export interface ErrorResponse{
     code:string;
     details:string;

@@ -1,1 +1,18 @@
-<p>servers-create-form works!</p>
+<div class="overlay">
+  <div class="modal">
+    <button class="close-btn" (click)="closeModal()">X</button>
+    <h2 mat-dialog-title>Nowy serwer</h2>
+
+    <form [formGroup]="form" (ngSubmit)="submit()">
+      <mat-dialog-content>
+        <input formControlName="name" placeholder="Nazwa" />
+      </mat-dialog-content>
+
+      <mat-dialog-actions>
+        <button type="button" (click)="closeModal()">Anuluj</button>
+        <button type="submit" [disabled]="form.invalid || loading()">Utwórz</button>
+        @if (error()) { <p>{{ error() }}</p> }
+      </mat-dialog-actions>
+    </form>
+  </div>
+</div>

@@ -115,7 +115,9 @@ public class ServersApplicationService(AppDbContext db, IProfileClient profileCl
         server.Roles.Add(ownerRole);
         
         db.Servers.Add(server);
+        
         await db.SaveChangesAsync(cancellationToken);
+        await eventPublisher.PublishEventAsync(new UserJoinedServerEvent(userId, server.Id), cancellationToken);
         var response = new CreateServerResponse
         (
             Name : server.Name,

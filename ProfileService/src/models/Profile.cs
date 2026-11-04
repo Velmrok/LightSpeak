@@ -5,4 +5,6 @@ public class Profile
     public string Email { get; set; } = string.Empty;
     public string AvatarUrl { get; set; } = string.Empty;
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+
+    public List<UserServerPosition> ServerPositions { get; set; } = [];
 }

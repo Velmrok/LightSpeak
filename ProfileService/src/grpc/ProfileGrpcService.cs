@@ -29,14 +29,16 @@ public class ProfileGrpcService : Protos.ProfileService.ProfileServiceBase
             throw result.Error!.ToRpcException();
         }
         var profile = result.Data!;
+        var orderedServerIds = profile.ServerPositions.Select(x => x.Position).OrderBy(x => x).ToList();
 
-        var response = new Protos.GetUserProfileResponse
+        var response = new Protos.GetUserProfileResponse 
         {
             UserId = profile.Id,
             Username = profile.Username,
             Email = profile.Email,
             AvatarUrl = profile.AvatarUrl
         };
+        response.ServerPositions.AddRange(orderedServerIds);
         return response;
     }
     [Authorize]

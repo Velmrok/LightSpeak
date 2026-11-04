@@ -46,6 +46,41 @@ namespace ProfileService.Migrations
 
                     b.ToTable("Profiles");
                 });
+
+            modelBuilder.Entity("UserServerPosition", b =>
+                {
+                    b.Property<string>("UserId")
+                        .HasColumnType("text");
+
+                    b.Property<string>("ServerId")
+                        .HasColumnType("text");
+
+                    b.Property<int>("Position")
+                        .HasColumnType("integer");
+
+                    b.HasKey("UserId", "ServerId");
+
+                    b.HasIndex("UserId", "Position")
+                        .IsUnique();
+
+                    b.ToTable("UserServerPositions");
+                });
+
+            modelBuilder.Entity("UserServerPosition", b =>
+                {
+                    b.HasOne("Profile", "Profile")
+                        .WithMany("ServerPositions")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Profile");
+                });
+
+            modelBuilder.Entity("Profile", b =>
+                {
+                    b.Navigation("ServerPositions");
+                });
 #pragma warning restore 612, 618
         }
     }

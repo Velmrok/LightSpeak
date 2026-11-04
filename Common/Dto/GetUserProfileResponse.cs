@@ -4,5 +4,6 @@ public record GetUserProfileResponse(
     string UserId,
     string Username,
     string AvatarUrl,
-    string Email
+    string Email,
+    List<int> ServerPositions
 );

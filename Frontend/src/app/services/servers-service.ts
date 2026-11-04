@@ -11,7 +11,7 @@ export class ServersService {
     serversSummary = signal<ServerSummary[]>([]);
 
     add(server: ServerSummary) {
-        this.serversSummary.update(list => [...list, server]);
+        this.serversSummary.update(list => [server,...list]);
     }
     create(request: CreateServerRequest) {
         return this.http.post<ApiResponse<CreateServerResponse>>('/api/servers', request).pipe(

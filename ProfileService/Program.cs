@@ -31,6 +31,7 @@ builder.AddAndConfigureWolverine();
 
 builder.Services.AddScoped<IResponseBuilderService, ResponseBuilderService>();
 builder.Services.AddScoped<IProfileApplicationService, ProfileApplicationService>();
+builder.Services.AddScoped<IServersProfileService, ServersProfileService>();
 
 builder.Services.AddGrpc();
 builder.Services.AddAuth(builder.Configuration);

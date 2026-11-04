@@ -48,17 +48,26 @@ app.MapGet("/home", async (IProfileClient client, IServersClient serversClient, 
     var profileOutcome = (await profileTask).AsOutcome(true);
     var serversOutcome = (await serversTask).AsOutcome(false);
 
-    
 
-   ICallOutcome[] outcomes = [profileOutcome, serversOutcome];
+
+    ICallOutcome[] outcomes = [profileOutcome, serversOutcome];
 
     return responseBuilder.BuildResponse(HttpStatusCode.OK, outcomes,
         () =>
             {
                 Common.Dto.GetUserProfileResponse pd = profileOutcome.Data!;
                 Common.Dto.GetServersResponse? sd = serversOutcome.Data;
+                var servers = sd?.Servers;
+                if (servers is not null && pd.ServerPositions.Count > 0)
+                {
+                    var rank = pd.ServerPositions
+                        .Select((id, i) => (id, i))
+                        .ToDictionary(x => x.id, x => x.i);
+
+                    servers = [.. servers.OrderBy(s => rank.TryGetValue(s.Id, out var i) ? i : int.MinValue)];
+                }
                 return new HomeResponse(
-                    Servers:  sd?.Servers ?? null,
+                    Servers: servers,
                     Friends: [],
                     UserProfile: pd
                 );

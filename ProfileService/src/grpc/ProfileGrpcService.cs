@@ -10,28 +10,25 @@ using Google.Protobuf.WellKnownTypes;
 using ProfileService.src.services;
 using Common.Mappers;
 using Common.Dto;
+using Common.Errors;
 namespace ProfileService.src.grpc;
 
-public class ProfileGrpcService : Protos.ProfileService.ProfileServiceBase
-{   
-    private readonly IProfileApplicationService _profileService;
-    public ProfileGrpcService(IProfileApplicationService profileService)
-    {
-        _profileService = profileService;
-    }
+public class ProfileGrpcService(AppDbContext appDbContext, IProfileApplicationService profileService) : Protos.ProfileService.ProfileServiceBase
+{
+
     [Authorize]
     public override async Task<Protos.GetUserProfileResponse> GetUserProfile(GetUserProfileRequest request, ServerCallContext context)
     {
         string userId = context.GetHttpContext()?.User?.FindFirstValue(JwtRegisteredClaimNames.Sub)!;
-        var result = await _profileService.GetProfileAsync(userId, CancellationToken.None);
-        if (!result.IsSuccess)
+        var profile = await appDbContext.Profiles.Include(p => p.ServerPositions).FirstOrDefaultAsync(p => p.Id == userId, cancellationToken: CancellationToken.None);
+        if (profile == null)
         {
-            throw result.Error!.ToRpcException();
+            var error = new AppError(DomainErrorCode.NotFound, "Profile.NotFound", "Profile not found.");
+            throw error.ToRpcException();
         }
-        var profile = result.Data!;
-        var orderedServerIds = profile.ServerPositions.Select(x => x.Position).OrderBy(x => x).ToList();
+        var orderedServerIds = profile.ServerPositions.OrderBy(x => x.Position).Select(x => x.ServerId).ToList();
 
-        var response = new Protos.GetUserProfileResponse 
+        var response = new Protos.GetUserProfileResponse
         {
             UserId = profile.Id,
             Username = profile.Username,
@@ -48,7 +45,7 @@ public class ProfileGrpcService : Protos.ProfileService.ProfileServiceBase
     }
     public override async Task<Protos.GetUserSnapshotResponse> GetUserSnapshot(GetUserSnapshotRequest request, ServerCallContext context)
     {
-        var result = await _profileService.GetUserSnapshotAsync(request.UserId, CancellationToken.None);
+        var result = await profileService.GetUserSnapshotAsync(request.UserId, CancellationToken.None);
         if (!result.IsSuccess)
         {
             throw result.Error!.ToRpcException();

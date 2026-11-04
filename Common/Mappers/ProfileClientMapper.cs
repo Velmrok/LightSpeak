@@ -28,7 +28,7 @@ public static class ProfileClientMapper
             Username: response.Username,
             AvatarUrl: response.AvatarUrl,
             Email: response.Email,
-            ServerPositions: [.. response.ServerPositions]
+            ServerPositions: [.. response.ServerPositions] 
         );
     }
 }

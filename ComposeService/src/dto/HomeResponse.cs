@@ -4,6 +4,6 @@ namespace ComposeService.src.dto;
 
 public record HomeResponse(
     List<ServerSummary>? Servers,
-    List<UserDto> Friends,
+    List<UserSummary> Friends,
     GetUserProfileResponse UserProfile
 ); 

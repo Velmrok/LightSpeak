@@ -28,4 +28,12 @@ public class ServerChannelStrategy(AppDbContext db, IPermissionService permissio
         if (!recipientResult.IsSuccess) return [];
         return recipientResult.Data;
     }
+
+    public async Task<bool> CanReadAsync(string userId, Channel channel, CancellationToken ct)
+    {
+        var sc = (ServerChannel)channel;
+        var perms = await permissions.GetPermissionsByChannelIdAsync(userId, sc.Id, ct);
+        if (!perms.IsSuccess) return false;
+        return perms.Data.HasFlag(Permission.ReadOnChannel);
+    }
 }

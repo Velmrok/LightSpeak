@@ -69,6 +69,22 @@ public class TestBase : IAsyncLifetime
         Assert.Empty(response.Errors);
         return data;
     }
+    protected async Task<PostMessageResponse> PostMessageAsync(HttpClient client, string channelId, string content, CancellationToken ct)
+    {
+        var request = new PostMessageRequest
+        (
+            Content: content
+        );
+
+        var json = await client.PostAsJsonAsync($"/api/servers/channels/{channelId}/messages", request, ct);
+        Assert.Equal(HttpStatusCode.Created, json.StatusCode);
+        var response = await ReadFromJson<PostMessageResponse>(json, ct);
+        var data = response.Data;
+        Assert.NotNull(data);
+        Assert.NotNull(response.Errors);
+        Assert.Empty(response.Errors);
+        return data;
+    }
     protected async Task WaitForResourceRunningAsync(string resourceName, CancellationToken ct)
     {
         await App.ResourceNotifications

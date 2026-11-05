@@ -1,6 +1,6 @@
-namespace ComposeService.src.dto;
+namespace Common.Dto;
 
-public record UserDto(
+public record UserSummary(
     string Id,
     string Username,
     string AvatarUrl

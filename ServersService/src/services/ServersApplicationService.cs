@@ -253,4 +253,52 @@ public class ServersApplicationService(AppDbContext db, IProfileClient profileCl
 
         return CallResult.Success(section, response);
     }
+
+    public async Task<CallResult<GetServerDetailsResponse>> GetServerDetailsAsync(string serverId, string userId, CancellationToken cancellationToken)
+    {
+        var server = db.Servers
+            .Include(s => s.Channels)
+            .Include(s => s.Members)
+                .ThenInclude(m => m.User)
+            .FirstOrDefault(s => s.Id == serverId);
+
+        if (server == null || !server.Members.Any(m => m.UserId == userId)) 
+        {
+            var error = new AppError(DomainErrorCode.NotFound, "ServerNotFound", $"Server with ID '{serverId}' not found.");
+            return CallResult.Fail(section, error);
+        }
+        var details = new GetServerDetailsResponse(
+            ServerId: server.Id,
+            Name: server.Name,
+            AvatarUrl: server.AvatarUrl,
+            Channels: [.. server.Channels.Select(c => new ChannelSummary(c.Id, c.Name))],
+            Members: [.. server.Members.Select(m => new UserSummary(m.User.Id, m.User.Name, m.User.AvatarUrl))]
+        );
+        return CallResult.Success(section, details);
+    }
+
+    public async Task<CallResult<GetChannelMessagesResponse>> GetChannelMessagesAsync(string channelId, int page, int limit, string userId, CancellationToken cancellationToken)
+    {
+        
+        var channel = await db.Channels.FirstOrDefaultAsync(c => c.Id == channelId, cancellationToken);
+        var strategy = channel is null ? null : channelStrategyResolver.For(channel);
+        if (strategy == null || !await strategy.IsMemberAsync(userId, channel!, cancellationToken))
+        {
+            var error = new AppError(DomainErrorCode.NotFound, "ChannelNotFound", $"Channel with ID '{channelId}' not found.");
+            return CallResult.Fail(section, error);
+        }
+        if (!await strategy.CanReadAsync(userId, channel!, cancellationToken))
+        {
+            var error = new AppError(DomainErrorCode.Forbidden, "PermissionDenied", $"User '{userId}' does not have permission to read messages in channel '{channelId}'.");
+            return CallResult.Fail(section, error);
+        }
+        var messages = await db.ChatMessages
+            .Where(m => m.ChannelId == channelId)
+            .OrderByDescending(m => m.Timestamp)
+            .Skip((page - 1) * limit)
+            .Take(limit)
+            .ToListAsync(cancellationToken);
+        var mappedMessages = messages.Select(m => new ChannelMessage(m.Id,channelId, m.SenderId, m.Content, m.Timestamp)).ToList();
+        return CallResult.Success(section, new GetChannelMessagesResponse(Messages: mappedMessages));
+    }
 }

@@ -22,9 +22,31 @@ public static class ServersEndpoints
         app.MapPost("/channels/{channelId}/messages", PostMessage).RequireAuthorization();
         app.MapPost("/channels/dm/{userId}/messages", PostDmMessage).RequireAuthorization();
 
+        app.MapGet("/{serverId}", GetServerDetails).RequireAuthorization();
+        app.MapGet("/channels/{channelId}/messages", GetChannelMessages).RequireAuthorization();
+
         return app;
     }
 
+    private static async Task<IResult> GetServerDetails(string serverId, IServersApplicationService service,
+     HttpContext ctx,IResponseBuilderService responseBuilder)
+    {
+        var userId = ctx.User.FindFirst(JwtRegisteredClaimNames.Sub)?.Value!;
+        var result = await service.GetServerDetailsAsync(serverId, userId, ctx.RequestAborted);
+ 
+        var data = result.Data;
+        return responseBuilder.BuildResponse(HttpStatusCode.OK, result,() => data!);
+
+    }
+    private static async Task<IResult> GetChannelMessages(string channelId,int page, int limit, IServersApplicationService service,
+     HttpContext ctx,IResponseBuilderService responseBuilder)
+    {
+        var userId = ctx.User.FindFirst(JwtRegisteredClaimNames.Sub)?.Value!;
+        var result = await service.GetChannelMessagesAsync(channelId,page,limit, userId, ctx.RequestAborted);
+ 
+        var data = result.Data;
+        return responseBuilder.BuildResponse(HttpStatusCode.OK, result,() => data!);
+    }
     private static async Task<IResult> CreateServer(CreateServerRequest request, IServersApplicationService service,
      HttpContext ctx,IResponseBuilderService responseBuilder)
     {

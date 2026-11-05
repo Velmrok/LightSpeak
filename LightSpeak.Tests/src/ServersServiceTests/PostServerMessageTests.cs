@@ -15,22 +15,7 @@ public class PostServerMessageTests : TestBase
         return await Fixture.CreateDbContextAsync<AppDbContext>(ResourcesNames.ServersDatabase, ct);
     }
     
-    private async Task<PostMessageResponse> PostMessageAsync(HttpClient client, string channelId, string content, CancellationToken ct)
-    {
-        var request = new PostMessageRequest
-        (
-            Content: content
-        );
-
-        var json = await client.PostAsJsonAsync($"/api/servers/channels/{channelId}/messages", request, ct);
-        Assert.Equal(HttpStatusCode.Created, json.StatusCode);
-        var response = await ReadFromJson<PostMessageResponse>(json, ct);
-        var data = response.Data;
-        Assert.NotNull(data);
-        Assert.NotNull(response.Errors);
-        Assert.Empty(response.Errors);
-        return data;
-    }
+    
 
     [Fact]
     public async Task PostsMessage_Correctly_OnPostMessageRequest_WhileBeingMemberOfAServer()

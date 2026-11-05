@@ -5,19 +5,24 @@ public class DmChannelStrategy : IChannelStrategy
 {
     public Type ChannelType => typeof(DmChannel);
 
-    public Task<bool> IsMemberAsync(string userId, Channel channel, CancellationToken ct)
+    public async Task<bool> IsMemberAsync(string userId, Channel channel, CancellationToken ct)
     {
         var dm = (DmChannel)channel;
-        return Task.FromResult(dm.UserLowId == userId || dm.UserHighId == userId);
+        return userId == dm.UserLowId || userId == dm.UserHighId;
     }
 
-    public Task<bool> CanWriteAsync(string userId, Channel channel, CancellationToken ct)
-        => IsMemberAsync(userId, channel, ct);  
+    public async Task<bool> CanWriteAsync(string userId, Channel channel, CancellationToken ct)
+        => await IsMemberAsync(userId, channel, ct);  
 
-    public Task<IReadOnlyList<string>> GetRecipientsAsync(Channel channel, CancellationToken ct)
+    public async Task<IReadOnlyList<string>> GetRecipientsAsync(Channel channel, CancellationToken ct)
     {
         var dm = (DmChannel)channel;
-        return Task.FromResult<IReadOnlyList<string>>([dm.UserLowId, dm.UserHighId]);
+        return [dm.UserLowId, dm.UserHighId];
+    }
+
+    public async Task<bool> CanReadAsync(string userId, Channel channel, CancellationToken ct)
+    {
+        return await IsMemberAsync(userId, channel, ct);
     }
 }
 

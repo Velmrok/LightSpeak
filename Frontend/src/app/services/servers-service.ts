@@ -9,6 +9,7 @@ import { ApiResponse } from '../models/api.response';
 export class ServersService {
     http = inject(HttpClient);
     serversSummary = signal<ServerSummary[]>([]);
+    serversDetails = signal<Map<string, ServerSummary>>(new Map());
 
     add(server: ServerSummary) {
         this.serversSummary.update(list => [server,...list]);
@@ -18,4 +19,10 @@ export class ServersService {
             tap((res) => this.add({ id: res.data.serverId, name: request.name, avatarUrl: '' }))
         );
     }
+    getServerDetails(serverId: string) {
+        const details = this.serversDetails().get(serverId);
+        if (details) {
+            return details;
+        }
+        his.http.get<ApiResponse<ServerDetails>>(`/api/servers/${serverId}`);
 }

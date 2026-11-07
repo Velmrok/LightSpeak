@@ -1,4 +1,5 @@
-import { Component } from '@angular/core';
+import { Component, inject, Input } from '@angular/core';
+import { ChannelSummary } from '../../../models/server';
 
 @Component({
   imports: [],
@@ -6,4 +7,6 @@ import { Component } from '@angular/core';
   styleUrl: './channel-list.scss',
   templateUrl: './channel-list.html',
 })
-export class ChannelList {}
+export class ChannelList {
+  @Input() channelList: ChannelSummary[] = [];
+}

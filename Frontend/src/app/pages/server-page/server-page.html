@@ -1,6 +1,9 @@
-
 <div class="body">
-<app-channel-list></app-channel-list>
-<div>czat</div>
-<div>aktywni</div>
+
+    @if (details.value(); as d){
+    <app-channel-list [channelList]="d.channels"></app-channel-list>
+    }
+
+    <div>czat</div>
+    <div>aktywni</div>
 </div>

@@ -11,10 +11,5 @@ export interface ServerDetails extends ServerSummary {
 export interface ChannelSummary {
   id: string;
   name: string;
-  type: ChannelType;
 }
 
-export enum ChannelType {
-  Text = 'text',
-  Voice = 'voice'
-}

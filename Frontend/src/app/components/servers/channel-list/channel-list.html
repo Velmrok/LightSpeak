@@ -2,4 +2,11 @@
     <div class="header">
         CHANNELS
     </div>
+    <div class="channel-list">
+        @for (channel of channelList; track channel.id) {
+            <div class="channel-item">
+                {{ channel.name }}
+            </div>
+        }
+    </div>
 </div>

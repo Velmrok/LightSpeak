@@ -1,15 +1,16 @@
 import { inject, Service, signal } from '@angular/core';
-import { ServerSummary } from '../models/server';
+import { ServerDetails, ServerSummary } from '../models/server';
 import { CreateServerRequest, CreateServerResponse } from '../models/api/create.server';
 import { tap } from 'rxjs/internal/operators/tap';
 import { HttpClient } from '@angular/common/http';
 import { ApiResponse } from '../models/api.response';
+import { map, of } from 'rxjs';
 
 @Service()
 export class ServersService {
     http = inject(HttpClient);
     serversSummary = signal<ServerSummary[]>([]);
-    serversDetails = signal<Map<string, ServerSummary>>(new Map());
+    serversDetails = signal<Map<string, ServerDetails>>(new Map());
 
     add(server: ServerSummary) {
         this.serversSummary.update(list => [server,...list]);
@@ -19,10 +20,19 @@ export class ServersService {
             tap((res) => this.add({ id: res.data.serverId, name: request.name, avatarUrl: '' }))
         );
     }
-    getServerDetails(serverId: string) {
-        const details = this.serversDetails().get(serverId);
-        if (details) {
-            return details;
+    getServerDetails(serverId: string){
+        const cached = this.serversDetails().get(serverId);
+        if (cached) {
+            return of(cached);
         }
-        his.http.get<ApiResponse<ServerDetails>>(`/api/servers/${serverId}`);
+
+        return this.http
+            .get<ApiResponse<ServerDetails>>(`/api/servers/${serverId}`)
+            .pipe(
+                map((res) => res.data),
+                tap((details) =>
+                    this.serversDetails.update((m) => new Map(m).set(serverId, details))
+                )
+            );
+    }
 }

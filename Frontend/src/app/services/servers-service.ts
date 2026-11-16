@@ -5,10 +5,12 @@ import { tap } from 'rxjs/internal/operators/tap';
 import { HttpClient } from '@angular/common/http';
 import { ApiResponse } from '../models/api.response';
 import { map, of } from 'rxjs';
+import { ChannelService } from './channel-service';
 
 @Service()
 export class ServersService {
     http = inject(HttpClient);
+    channelService = inject(ChannelService);
     serversSummary = signal<ServerSummary[]>([]);
     serversDetails = signal<Map<string, ServerDetails>>(new Map());
 
